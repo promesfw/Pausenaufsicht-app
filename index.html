@@ -623,6 +623,15 @@
                 </div>
 
                 <button class="btn" id="generateScheduleBtn" type="button">Einsatzplan generieren</button>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h4 style="color: #28a745; margin-bottom: 10px;">💾 Daten-Verwaltung</h4>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                        Daten werden automatisch lokal gespeichert. Für dauerhafte Speicherung und Synchronisation zwischen Nutzern:
+                    </p>
+                    <button class="btn btn-secondary" onclick="saveDataToGitHub()" type="button">📤 Daten für GitHub exportieren</button>
+                    <button class="btn btn-secondary" onclick="window.location.reload()" type="button">🔄 Von GitHub neu laden</button>
+                </div>
 
                 <div id="adminStats">
                     <!-- Wird dynamisch gefüllt -->
@@ -632,7 +641,7 @@
     </div>
 
     <script>
-        // Datenstruktur
+        // Standard-Datenstruktur (Fallback)
         let appData = {
             members: [
                 { name: "Anna Müller", day: "Montag" },
@@ -658,6 +667,94 @@
             year: 2025,
             freeDays: ["32-1", "32-2", "40"]
         };
+        const GITHUB_CONFIG = {
+            owner: 'promesfw',
+            repo: 'Pausenaufsicht-app', 
+            dataFile: 'data.json',
+            // Für erweiterte API-Nutzung (später):
+            token: '', // Leer lassen für jetzt
+            apiUrl: 'https://api.github.com'
+        };
+
+        // Daten von GitHub laden
+        async function loadDataFromGitHub() {
+            try {
+                console.log('Loading data from GitHub...');
+                const response = await fetch(`https://promesfw.github.io/Pausenaufsicht-app/data.json?t=${Date.now()}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    appData = { ...appData, ...data };
+                    console.log('Data loaded from GitHub successfully');
+                    return true;
+                } else {
+                    console.warn('Could not load data from GitHub, using defaults');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading data from GitHub:', error);
+                return false;
+            }
+        }
+
+        // Daten zu GitHub speichern (vereinfacht - zeigt JSON zum Kopieren)
+        async function saveDataToGitHub() {
+            const dataToSave = {
+                members: appData.members,
+                schedule: appData.schedule,
+                teamSize: appData.teamSize,
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek,
+                year: appData.year,
+                freeDays: appData.freeDays,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Zeige JSON zum manuellen Kopieren
+            const jsonString = JSON.stringify(dataToSave, null, 2);
+            
+            // Erstelle Download-Link
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Zeige Anleitung
+            alert(`Daten wurden als data.json heruntergeladen!\n\nUm zu speichern:\n1. Datei öffnen\n2. Inhalt kopieren\n3. In GitHub: data.json bearbeiten\n4. Inhalt ersetzen\n5. Commit erstellen`);
+            
+            console.log('Data prepared for GitHub update:', dataToSave);
+        }
+
+        // Lokales Backup im Browser
+        function saveDataLocally() {
+            try {
+                localStorage.setItem('pausenaufsicht-backup', JSON.stringify(appData));
+                console.log('Data backed up locally');
+            } catch (error) {
+                console.error('Local backup failed:', error);
+            }
+        }
+
+        // Lokales Backup laden
+        function loadDataLocally() {
+            try {
+                const backup = localStorage.getItem('pausenaufsicht-backup');
+                if (backup) {
+                    const localData = JSON.parse(backup);
+                    // Nur laden wenn lokal neuer als GitHub
+                    console.log('Local backup found');
+                    return localData;
+                }
+            } catch (error) {
+                console.error('Error loading local backup:', error);
+            }
+            return null;
+        }
 
         // Funktionen definieren
         function removeMember(memberName) {
@@ -1689,6 +1786,7 @@
         window.copyTeamsURL = copyTeamsURL;
         window.generateTeamsManifest = generateTeamsManifest;
         window.checkTeamsContext = checkTeamsContext;
+        window.saveDataToGitHub = saveDataToGitHub;
         function updateExcelExportTable() {
             const todayInfo = getTodayInfo();
             const tbody = document.getElementById('excel-export-tbody');
@@ -1839,13 +1937,29 @@
         }
 
         // Initialisierung
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Starting app initialization...');
+            
+            // Versuche Daten von GitHub zu laden
+            const githubLoaded = await loadDataFromGitHub();
+            
+            if (!githubLoaded) {
+                // Fallback: Versuche lokales Backup
+                const localData = loadDataLocally();
+                if (localData) {
+                    appData = { ...appData, ...localData };
+                    console.log('Using local backup data');
+                }
+            }
+            
+            // UI initialisieren
             updateDashboard();
-            updateHeaderForDashboard(); // Header für Dashboard aktualisieren
+            updateHeaderForDashboard();
             
             // Event Listeners für statische Buttons
             setupStaticEventListeners();
+            
+            console.log('App initialization completed');
         });
 
         function setupStaticEventListeners() {
