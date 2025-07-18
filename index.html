@@ -457,9 +457,6 @@
         <div class="header">
             <h1>Pausenaufsicht</h1>
             <h2 id="headerSubtitle">Primarschule Wohlen</h2>
-            <div id="teams-status" style="display: none; background: #6264a7; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; margin-top: 5px;">
-                📱 Teams-Integration aktiv
-            </div>
         </div>
 
         <div class="nav-tabs">
@@ -1024,9 +1021,6 @@
             
             // Header immer aktualisieren (wird auf allen Tabs benötigt)
             updateHeaderForDashboard();
-            
-            // Excel-Export-Tabelle aktualisieren
-            updateExcelExportTable();
         }
 
         // Datenpersistierung
@@ -1780,12 +1774,6 @@
             saveData();
         };
 
-        window.exportForExcel = exportForExcel;
-        window.exportAllDataAsJSON = exportAllDataAsJSON;
-        window.showExcelInstructions = showExcelInstructions;
-        window.copyTeamsURL = copyTeamsURL;
-        window.generateTeamsManifest = generateTeamsManifest;
-        window.checkTeamsContext = checkTeamsContext;
         window.saveDataToGitHub = saveDataToGitHub;
         function updateExcelExportTable() {
             const todayInfo = getTodayInfo();
