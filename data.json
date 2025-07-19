@@ -1426,7 +1426,7 @@
       "Elena"
     ]
   },
-  "teamSize": 4,
+  "teamSize": 3,
   "startWeek": 29,
   "endWeek": 27,
   "startYear": 2025,
@@ -1476,5 +1476,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-07-19T17:23:33.603Z"
+  "lastUpdated": "2025-07-19T17:26:58.179Z"
 }
