@@ -834,14 +834,12 @@
 
         // UTF-8 sichere Base64 Funktionen
         function utf8ToBase64(str) {
-            // UTF-8 String zu Base64 konvertieren (unterstützt Umlaute)
             return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
                 return String.fromCharCode('0x' + p1);
             }));
         }
 
         function base64ToUtf8(str) {
-            // Base64 zu UTF-8 String konvertieren (unterstützt Umlaute)
             return decodeURIComponent(atob(str).split('').map(function(c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
@@ -858,7 +856,6 @@
             showSaveStatus('saving', 'Speichere auf GitHub...');
 
             try {
-                // 1. Aktuelle Datei-Information holen (für SHA)
                 const getResponse = await fetch(
                     `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
                     {
@@ -875,7 +872,6 @@
                     sha = fileData.sha;
                 }
 
-                // 2. Neue Daten vorbereiten (UTF-8 sicher)
                 const dataToSave = {
                     members: appData.members,
                     schedule: appData.schedule,
@@ -884,16 +880,14 @@
                     endWeek: appData.endWeek,
                     startYear: appData.startYear,
                     endYear: appData.endYear,
-                    year: appData.year || appData.startYear, // Rückwärtskompatibilität
+                    year: appData.year || appData.startYear,
                     freeDays: appData.freeDays,
                     lastUpdated: new Date().toISOString()
                 };
 
-                // UTF-8 sichere Base64-Kodierung für Umlaute
                 const jsonString = JSON.stringify(dataToSave, null, 2);
                 const content = utf8ToBase64(jsonString);
 
-                // 3. Datei aktualisieren oder erstellen
                 const updateData = {
                     message: `Auto-Save: Update Pausenaufsicht data at ${new Date().toLocaleString('de-DE')}`,
                     content: content
@@ -952,7 +946,6 @@
                 const data = await response.json();
                 
                 if (data && typeof data === 'object') {
-                    // Merge mit bestehenden Daten
                     if (data.members) appData.members = data.members;
                     if (data.schedule) appData.schedule = data.schedule;
                     if (data.teamSize) appData.teamSize = data.teamSize;
@@ -960,12 +953,10 @@
                     if (data.endWeek) appData.endWeek = data.endWeek;
                     if (data.freeDays) appData.freeDays = data.freeDays;
                     
-                    // Neue Jahresfelder (mit Rückwärtskompatibilität)
                     if (data.startYear) appData.startYear = data.startYear;
                     if (data.endYear) appData.endYear = data.endYear;
                     if (data.year) {
                         appData.year = data.year;
-                        // Falls alte Struktur, konvertieren
                         if (!data.startYear) appData.startYear = data.year;
                         if (!data.endYear) appData.endYear = data.year;
                     }
@@ -1012,16 +1003,12 @@
             }
         }
 
-        // Auto-Save wrapper für wichtige Funktionen
         async function saveData() {
-            // Lokales Backup
             try {
                 localStorage.setItem('pausenaufsicht-backup', JSON.stringify(appData));
             } catch (error) {
                 console.error('Local backup failed:', error);
             }
-
-            // Auto-Save zu GitHub (nur wenn Token vorhanden)
             await saveDataToGitHub();
         }
 
@@ -1091,6 +1078,29 @@
             };
         }
 
+        // NEU: Schuljahr-übergreifende Wochen-Generierung
+        function getAllSchoolWeeks() {
+            const weeks = [];
+            
+            if (appData.startYear === appData.endYear) {
+                for (let week = appData.startWeek; week <= appData.endWeek; week++) {
+                    weeks.push({ week, year: appData.startYear });
+                }
+            } else {
+                // Teil 1: Von startWeek bis 53 im startYear
+                for (let week = appData.startWeek; week <= 53; week++) {
+                    weeks.push({ week, year: appData.startYear });
+                }
+                
+                // Teil 2: Von 1 bis endWeek im endYear  
+                for (let week = 1; week <= appData.endWeek; week++) {
+                    weeks.push({ week, year: appData.endYear });
+                }
+            }
+            
+            return weeks;
+        }
+
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
@@ -1114,7 +1124,6 @@
                 updateMembersTab();
             } else if (tabId === 'admin') {
                 updateAdminTab();
-                setTimeout(setupStaticEventListeners, 100);
             }
         }
 
@@ -1124,7 +1133,6 @@
             const nextWeek = currentWeek + 1;
             let nextWeekYear = currentYear;
 
-            // Jahreswechsel berücksichtigen
             if (nextWeek > 53) {
                 nextWeekYear = currentYear + 1;
             }
@@ -1176,19 +1184,21 @@
             });
         }
 
+        // NEU: Schedule Tab mit Schuljahr-Unterstützung
         function updateScheduleTab() {
             const weekSelector = document.getElementById('weekSelector');
-            const currentWeek = getCurrentWeek();
-
             weekSelector.innerHTML = '';
 
-            for (let week = currentWeek; week <= appData.endWeek; week++) {
+            const allWeeks = getAllSchoolWeeks();
+            
+            allWeeks.forEach(({ week, year }) => {
                 const option = document.createElement('option');
                 option.value = week;
-                const range = getWeekDateRange(week, appData.year);
-                option.textContent = `KW ${week} (${range.start} - ${range.end})`;
+                option.dataset.year = year;
+                const range = getWeekDateRange(week, year);
+                option.textContent = `KW ${week}/${year} (${range.start} - ${range.end})`;
                 weekSelector.appendChild(option);
-            }
+            });
 
             updateSwapSelectors();
 
@@ -1203,9 +1213,7 @@
             const person2 = document.getElementById('swapPerson2');
             const week1 = document.getElementById('swapWeek1');
             const week2 = document.getElementById('swapWeek2');
-            const currentWeek = getCurrentWeek();
 
-            // Alphabetische Sortierung der Mitglieder für Swap-Selektoren
             const sortedMembers = [...appData.members].sort((a, b) => 
                 a.name.localeCompare(b.name, 'de', { sensitivity: 'base' })
             );
@@ -1220,14 +1228,17 @@
                 });
             });
 
+            const allWeeks = getAllSchoolWeeks();
+            
             [week1, week2].forEach(select => {
                 select.innerHTML = '<option value="">Woche wählen</option>';
-                for (let week = currentWeek; week <= appData.endWeek; week++) {
+                allWeeks.forEach(({ week, year }) => {
                     const option = document.createElement('option');
                     option.value = week;
-                    option.textContent = `KW ${week}`;
+                    option.dataset.year = year;
+                    option.textContent = `KW ${week}/${year}`;
                     select.appendChild(option);
-                }
+                });
             });
         }
 
@@ -1381,12 +1392,10 @@
 
             await saveData();
             
-            // Alle relevanten Bereiche automatisch aktualisieren
-            showWeekSchedule(); // Aktuelle Wochenansicht
-            updateDashboard();  // Dashboard (diese/nächste Woche)
-            updateMyDutiesTab(); // Meine Einsätze Dropdown
+            showWeekSchedule();
+            updateDashboard();
+            updateMyDutiesTab();
             
-            // Swap-Felder zurücksetzen
             document.getElementById('swapPerson1').value = '';
             document.getElementById('swapWeek1').value = '';
             document.getElementById('swapPerson2').value = '';
@@ -1399,7 +1408,6 @@
             const personSelector = document.getElementById('personSelector');
             personSelector.innerHTML = '<option value="">Bitte wählen</option>';
 
-            // Alphabetische Sortierung der Mitglieder
             const sortedMembers = [...appData.members].sort((a, b) => 
                 a.name.localeCompare(b.name, 'de', { sensitivity: 'base' })
             );
@@ -1412,6 +1420,7 @@
             });
         }
 
+        // NEU: "Meine Einsätze" mit Schuljahr-Unterstützung
         function showPersonDuties() {
             const selectedPerson = document.getElementById('personSelector').value;
             if (!selectedPerson) {
@@ -1430,21 +1439,19 @@
             let totalDuties = 0;
             let futureDuties = 0;
 
-            // Alle Wochen im Schuljahr-Zeitraum durchgehen
-            const allWeeks = getAllWeeksInRange();
+            const allWeeks = getAllSchoolWeeks();
             
-            allWeeks.forEach(weekInfo => {
-                const dayKey = `${weekInfo.week}-${dayIndex + 1}`;
+            allWeeks.forEach(({ week, year }) => {
+                const dayKey = `${week}-${dayIndex + 1}`;
                 const schedule = appData.schedule[dayKey] || [];
 
                 if (schedule.includes(selectedPerson)) {
-                    const range = getWeekDateRange(weekInfo.week, weekInfo.year);
-                    const isFuture = (weekInfo.year > currentYear) || 
-                                   (weekInfo.year === currentYear && weekInfo.week >= currentWeek);
+                    const range = getWeekDateRange(week, year);
+                    const isFuture = (year > currentYear) || (year === currentYear && week >= currentWeek);
                     
                     duties.push({
-                        week: weekInfo.week,
-                        year: weekInfo.year,
+                        week: week,
+                        year: year,
                         date: range.start,
                         isFuture: isFuture
                     });
@@ -1455,7 +1462,6 @@
                 }
             });
 
-            // Filtere nur zukünftige Einsätze für die Anzeige
             const futureDutiesOnly = duties.filter(duty => duty.isFuture);
 
             let html = `
@@ -1468,7 +1474,6 @@
                     <thead>
                         <tr>
                             <th>Kalenderwoche</th>
-                            <th>Jahr</th>
                             <th>Datum</th>
                             <th>Wochentag</th>
                         </tr>
@@ -1477,13 +1482,12 @@
             `;
 
             if (futureDutiesOnly.length === 0) {
-                html += '<tr><td colspan="4" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
+                html += '<tr><td colspan="3" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
             } else {
                 futureDutiesOnly.forEach(duty => {
                     html += `
                         <tr>
-                            <td>KW ${duty.week}</td>
-                            <td>${duty.year}</td>
+                            <td>KW ${duty.week}/${duty.year}</td>
                             <td>${duty.date}</td>
                             <td>${member.day}</td>
                         </tr>
@@ -1542,7 +1546,6 @@
             container.innerHTML = html;
         }
 
-        // Name-Editing Funktionen
         function editMemberName(uniqueId) {
             const nameSpan = document.getElementById(`${uniqueId}-name`);
             const nameInput = document.getElementById(`${uniqueId}-input`);
@@ -1559,7 +1562,6 @@
             
             nameSpan.style.display = 'block';
             nameInput.style.display = 'none';
-            // Reset input value to original
             nameInput.value = nameSpan.textContent;
         }
 
@@ -1575,25 +1577,21 @@
             }
 
             if (newName === oldName) {
-                // Kein Änderung
                 cancelEditName(uniqueId);
                 return;
             }
 
-            // Prüfen ob Name bereits existiert
             if (appData.members.some(m => m.name === newName && m.name !== oldName)) {
                 alert('Ein Mitglied mit diesem Namen existiert bereits!');
                 nameInput.focus();
                 return;
             }
 
-            // Namen in members array ändern
             const member = appData.members.find(m => m.name === oldName);
             if (member) {
                 member.name = newName;
             }
 
-            // Namen in schedule ändern
             Object.keys(appData.schedule).forEach(key => {
                 if (appData.schedule[key]) {
                     appData.schedule[key] = appData.schedule[key].map(name => 
@@ -1604,11 +1602,10 @@
 
             await saveData();
             
-            // UI aktualisieren
             updateMembersTab();
             updateMyDutiesTab();
             updateDashboard();
-            updateSwapSelectors(); // Swap-Selektoren auch aktualisieren
+            updateSwapSelectors();
             
             alert(`Name wurde von "${oldName}" zu "${newName}" geändert!`);
         }
@@ -1668,18 +1665,15 @@
         }
 
         function updateAdminTab() {
-            const year = parseInt(document.getElementById('year').value) || appData.year;
-            
             document.getElementById('teamSize').value = appData.teamSize;
             document.getElementById('startWeek').value = appData.startWeek;
             document.getElementById('endWeek').value = appData.endWeek;
-            document.getElementById('year').value = year;
+            document.getElementById('startYear').value = appData.startYear;
+            document.getElementById('endYear').value = appData.endYear;
 
-            // Jahr-Labels aktualisieren
-            updateYearLabels(year);
+            updateYearLabels();
 
-            // Freie Tage nach Jahren aufteilen
-            const { currentYearDays, nextYearDays } = splitFreeDaysByYear(appData.freeDays, year);
+            const { currentYearDays, nextYearDays } = splitFreeDaysByYear(appData.freeDays, appData.startYear);
             document.getElementById('freeDaysCurrentYear').value = currentYearDays.join(', ');
             document.getElementById('freeDaysNextYear').value = nextYearDays.join(', ');
 
@@ -1687,9 +1681,9 @@
             updateGitHubStatus();
         }
 
-        function updateYearLabels(year) {
-            const currentYear = year;
-            const nextYear = year + 1;
+        function updateYearLabels() {
+            const currentYear = appData.startYear;
+            const nextYear = appData.endYear;
             
             document.getElementById('currentYearLabel').textContent = currentYear;
             document.getElementById('currentYearLabel2').textContent = currentYear;
@@ -1702,24 +1696,18 @@
             const nextYearDays = [];
 
             freeDays.forEach(dayString => {
-                // Prüfen ob Format KW-Tag oder nur KW
                 if (dayString.includes('-')) {
-                    // Format: "KW-Tag" 
                     const [week] = dayString.split('-');
                     const weekNum = parseInt(week);
                     
-                    // Heuristik: Wochen 1-30 gehören meist zum Folgjahr (Schuljahr geht bis Juli)
-                    // Wochen 31-53 gehören zum aktuellen Jahr
                     if (weekNum >= 1 && weekNum <= 30) {
                         nextYearDays.push(dayString);
                     } else {
                         currentYearDays.push(dayString);
                     }
                 } else {
-                    // Format: nur "KW"
                     const weekNum = parseInt(dayString);
                     
-                    // Gleiche Heuristik für ganze Wochen
                     if (weekNum >= 1 && weekNum <= 30) {
                         nextYearDays.push(dayString);
                     } else {
@@ -1757,11 +1745,9 @@
 
                 const dayIndex = days.indexOf(day);
                 
-                // Alle Wochen im Schuljahr-Zeitraum durchgehen
-                const allWeeks = getAllWeeksInRange();
-                
-                allWeeks.forEach(weekInfo => {
-                    const dayKey = `${weekInfo.week}-${dayIndex + 1}`;
+                const allWeeks = getAllSchoolWeeks();
+                allWeeks.forEach(({ week }) => {
+                    const dayKey = `${week}-${dayIndex + 1}`;
                     const schedule = appData.schedule[dayKey] || [];
 
                     schedule.forEach(memberName => {
@@ -1797,88 +1783,36 @@
             await saveData();
         }
 
-        function updateYearLabels(year) {
-            const currentYear = year;
-            const nextYear = year + 1;
-            
-            document.getElementById('currentYearLabel').textContent = currentYear;
-            document.getElementById('currentYearLabel2').textContent = currentYear;
-            document.getElementById('nextYearLabel').textContent = nextYear;
-            document.getElementById('nextYearLabel2').textContent = nextYear;
-        }
-
-        function splitFreeDaysByYear(freeDays, baseYear) {
-            const currentYearDays = [];
-            const nextYearDays = [];
-
-            freeDays.forEach(dayString => {
-                // Prüfen ob Format KW-Tag oder nur KW
-                if (dayString.includes('-')) {
-                    // Format: "KW-Tag" 
-                    const [week] = dayString.split('-');
-                    const weekNum = parseInt(week);
-                    
-                    // Heuristik: Wochen 1-30 gehören meist zum Folgjahr (Schuljahr geht bis Juli)
-                    // Wochen 31-53 gehören zum aktuellen Jahr
-                    if (weekNum >= 1 && weekNum <= 30) {
-                        nextYearDays.push(dayString);
-                    } else {
-                        currentYearDays.push(dayString);
-                    }
-                } else {
-                    // Format: nur "KW"
-                    const weekNum = parseInt(dayString);
-                    
-                    // Gleiche Heuristik für ganze Wochen
-                    if (weekNum >= 1 && weekNum <= 30) {
-                        nextYearDays.push(dayString);
-                    } else {
-                        currentYearDays.push(dayString);
-                    }
-                }
-            });
-
-            return { currentYearDays, nextYearDays };
-        }
-
-        function combineFreeDaysFromBothYears() {
-            const currentYearText = document.getElementById('freeDaysCurrentYear').value;
-            const nextYearText = document.getElementById('freeDaysNextYear').value;
-
-            const currentYearDays = currentYearText.split(',').map(s => s.trim()).filter(s => s);
-            const nextYearDays = nextYearText.split(',').map(s => s.trim()).filter(s => s);
-
-            return [...currentYearDays, ...nextYearDays];
-        }
-
+        // NEU: Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
         async function generateSchedule() {
+            // BESTÄTIGUNGSDIALOG
+            const confirmed = confirm(
+                '⚠️ WARNUNG: Dies wird den kompletten Einsatzplan neu generieren!\n\n' +
+                'Alle aktuellen Einsatz-Zuordnungen gehen verloren.\n' +
+                'Möchten Sie wirklich fortfahren?'
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+
             const startWeek = parseInt(document.getElementById('startWeek').value);
             const endWeek = parseInt(document.getElementById('endWeek').value);
-            const year = parseInt(document.getElementById('year').value);
-            const freeDaysText = document.getElementById('freeDays').value;
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
 
-            if (startWeek >= endWeek) {
-                alert('Startweek muss vor Endweek liegen!');
+            if (startYear > endYear || (startYear === endYear && startWeek >= endWeek)) {
+                alert('Ungültiger Zeitraum! Das Schuljahr-Ende muss nach dem Beginn liegen.');
                 return;
             }
 
             appData.startWeek = startWeek;
             appData.endWeek = endWeek;
-            appData.year = year;
+            appData.startYear = startYear;
+            appData.endYear = endYear;
+            appData.year = startYear;
 
-            const freeDaysInput = freeDaysText.split(',').map(s => s.trim()).filter(s => s);
-            appData.freeDays = [];
-
-            freeDaysInput.forEach(input => {
-                if (input.includes('-')) {
-                    appData.freeDays.push(input);
-                } else {
-                    const week = input;
-                    for (let day = 1; day <= 5; day++) {
-                        appData.freeDays.push(`${week}-${day}`);
-                    }
-                }
-            });
+            appData.freeDays = combineFreeDaysFromBothYears();
 
             appData.schedule = {};
 
@@ -1891,11 +1825,13 @@
                 const memberRotation = [...dayMembers];
                 let currentIndex = 0;
 
-                for (let week = startWeek; week <= endWeek; week++) {
+                const allWeeks = getAllSchoolWeeks();
+                
+                allWeeks.forEach(({ week }) => {
                     const dayKey = `${week}-${dayIndex + 1}`;
 
                     if (appData.freeDays.includes(dayKey)) {
-                        continue;
+                        return;
                     }
 
                     const teamForDay = [];
@@ -1905,53 +1841,17 @@
                     }
 
                     appData.schedule[dayKey] = teamForDay.map(m => m.name);
-                }
+                });
             });
 
             await saveData();
             updateAdminStats();
             updateDashboard();
-            alert('Einsatzplan erfolgreich generiert!');
+            updateScheduleTab();
+            alert('✅ Einsatzplan erfolgreich generiert!\n\nDer Plan wurde für das komplette Schuljahr erstellt.');
         }
 
-        function setupStaticEventListeners() {
-            const generateBtn = document.getElementById('generateScheduleBtn');
-            const addMemberBtn = document.getElementById('addMemberBtn');
-            const teamSizeSelect = document.getElementById('teamSize');
-            const startYearInput = document.getElementById('startYear');
-            const endYearInput = document.getElementById('endYear');
-
-            if (generateBtn) {
-                generateBtn.addEventListener('click', generateSchedule);
-            }
-
-            if (addMemberBtn) {
-                addMemberBtn.addEventListener('click', addMember);
-            }
-
-            if (teamSizeSelect) {
-                teamSizeSelect.addEventListener('change', updateTeamSize);
-            }
-
-            if (startYearInput) {
-                startYearInput.addEventListener('input', function() {
-                    const year = parseInt(this.value) || new Date().getFullYear();
-                    updateYearLabels(year);
-                });
-            }
-
-            if (endYearInput) {
-                endYearInput.addEventListener('input', function() {
-                    // Automatisch das folgende Jahr als Endjahr setzen wenn Startjahr geändert wird
-                    const startYear = parseInt(document.getElementById('startYear').value);
-                    if (startYear && parseInt(this.value) < startYear) {
-                        this.value = startYear + 1;
-                    }
-                });
-            }
-        }
-
-        // Initialisierung
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('Starting app initialization...');
 
@@ -1971,8 +1871,12 @@
 
             updateDashboard();
             updateHeaderForDashboard();
-            setupStaticEventListeners();
             updateGitHubStatus();
+
+            // Event Listeners für Admin Tab
+            document.getElementById('generateScheduleBtn').addEventListener('click', generateSchedule);
+            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+            document.getElementById('teamSize').addEventListener('change', updateTeamSize);
 
             console.log('App initialization completed');
         });
