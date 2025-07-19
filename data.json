@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Ana",
-      "day": "Montag"
-    },
-    {
       "name": "Erestina",
       "day": "Montag"
     },
@@ -99,28 +95,24 @@
   ],
   "schedule": {
     "33-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "34-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "35-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "36-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "37-1": [
       "Erestina",
@@ -129,21 +121,18 @@
       "Marina"
     ],
     "40-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "41-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "42-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "33-2": [
@@ -384,5 +373,5 @@
     "51-4",
     "51-5"
   ],
-  "lastUpdated": "2025-07-19T10:16:14.312Z"
+  "lastUpdated": "2025-07-19T12:07:03.101Z"
 }
