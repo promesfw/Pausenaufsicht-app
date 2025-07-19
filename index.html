@@ -180,6 +180,12 @@
             font-size: 0.9em;
         }
 
+        .calendar-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         /* Auto-Save Status */
         .save-status {
             position: fixed;
@@ -326,6 +332,12 @@
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
         }
 
+        .btn-small {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            margin: 0;
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -450,6 +462,10 @@
             
             .member-assignment label {
                 min-width: unset;
+            }
+
+            .calendar-buttons {
+                flex-direction: column;
             }
         }
 
@@ -1563,7 +1579,7 @@
             });
         }
 
-        // "Meine Einsätze" mit Schuljahr-Unterstützung, Tausch-Erkennung und Kalender-Export
+        // "Meine Einsätze" mit Schuljahr-Unterstützung, Tausch-Erkennung und Kalender-Export (ohne Google Calendar und Aktionen-Spalte)
         function showPersonDuties() {
             const selectedPerson = document.getElementById('personSelector').value;
             if (!selectedPerson) {
@@ -1626,9 +1642,6 @@
                         <button class="btn btn-success" onclick="downloadICSFile('${selectedPerson}', ${JSON.stringify(futureDutiesOnly).replace(/"/g, '&quot;')})">
                             📥 Als Kalenderdatei (.ics) herunterladen
                         </button>
-                        <button class="btn btn-secondary" onclick="exportToGoogleCalendarBulk('${selectedPerson}', ${JSON.stringify(futureDutiesOnly).replace(/"/g, '&quot;')})">
-                            🗓️ Alle zu Google Calendar hinzufügen
-                        </button>
                     </div>
                     <small style="color: #666; font-size: 0.8em; margin-top: 10px; display: block;">
                         💡 Die .ics-Datei funktioniert mit allen Kalender-Apps: Outlook, Apple Calendar, Google Calendar, Thunderbird, etc.
@@ -1642,21 +1655,18 @@
                             <th>Datum</th>
                             <th>Wochentag</th>
                             <th>Status</th>
-                            <th>Aktionen</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
             if (futureDutiesOnly.length === 0) {
-                html += '<tr><td colspan="5" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
+                html += '<tr><td colspan="4" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
             } else {
                 futureDutiesOnly.forEach(duty => {
                     const statusText = duty.isSwapped ? 
                         `<span style="color: #f39c12; font-weight: bold;">⇄ Getauscht</span>` : 
                         `<span style="color: #27ae60;">✓ Standard</span>`;
-                    
-                    const googleCalendarLink = createGoogleCalendarLink(duty);
                     
                     html += `
                         <tr>
@@ -1664,11 +1674,6 @@
                             <td>${duty.date}</td>
                             <td><strong>${duty.dayName}</strong><br><small style="color: #666;">09:55 - 10:15</small></td>
                             <td>${statusText}</td>
-                            <td>
-                                <a href="${googleCalendarLink}" target="_blank" class="btn btn-secondary btn-small">
-                                    📅 + Google
-                                </a>
-                            </td>
                         </tr>
                     `;
                 });
@@ -2089,229 +2094,4 @@
                 // SCHRITT 2: Restliche Plätze mit Vollzeit-Personen auffüllen
                 const vollzeitPersonen = dayMembers.filter(m => m.interval === 1);
                 
-                // Sortiere Vollzeit-Personen nach letztem Einsatz (längste Pause zuerst)
-                vollzeitPersonen.sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
-                
-                vollzeitPersonen.forEach(member => {
-                    if (selectedMembers.length < appData.teamSize) {
-                        selectedMembers.push(member);
-                        lastAssigned[member.name] = workWeek;
-                    }
-                });
-
-                // Einsätze speichern
-                appData.schedule[dayKey] = selectedMembers.map(m => m.name);
-
-                workWeek++; // Nur bei echten Arbeitswochen erhöhen
-            });
-        }
-
-        // Team-spezifische Einsatzplan-Generierung
-        async function generateTeamSchedule() {
-            const selectedDay = document.getElementById('teamDaySelector').value;
-            
-            if (!selectedDay) {
-                alert('Bitte wählen Sie zuerst ein Team (Wochentag) aus!');
-                return;
-            }
-
-            const dayMembers = appData.members.filter(m => m.day === selectedDay);
-            const memberNames = dayMembers.map(m => m.name).join(', ');
-
-            // BESTÄTIGUNGSDIALOG
-            const confirmed = confirm(
-                `🔄 TEAM NEU PLANEN\n\n` +
-                `Team: ${selectedDay}-Team\n` +
-                `Mitglieder: ${memberNames}\n\n` +
-                `⚠️ WARNUNG: Alle ${selectedDay}-Einsätze werden neu generiert!\n` +
-                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n` +
-                `Einsatz-Intervalle werden berücksichtigt.\n\n` +
-                `Möchten Sie fortfahren?`
-            );
-            
-            if (!confirmed) {
-                return;
-            }
-
-            if (dayMembers.length === 0) {
-                alert(`Keine Mitglieder im ${selectedDay}-Team gefunden!`);
-                return;
-            }
-
-            // Aktuelle Werte aus Formular lesen
-            const startWeek = parseInt(document.getElementById('startWeek').value);
-            const endWeek = parseInt(document.getElementById('endWeek').value);
-            const startYear = parseInt(document.getElementById('startYear').value);
-            const endYear = parseInt(document.getElementById('endYear').value);
-
-            // Werte in appData übernehmen
-            appData.startWeek = startWeek;
-            appData.endWeek = endWeek;
-            appData.startYear = startYear;
-            appData.endYear = endYear;
-            appData.year = startYear;
-
-            // Freie Tage aktualisieren
-            appData.freeDays = combineFreeDaysFromBothYears();
-
-            const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(selectedDay);
-            const allWeeks = getAllSchoolWeeks();
-
-            // Team-spezifische Generierung mit Intervall-Berücksichtigung
-            generateDayScheduleWithIntervals(selectedDay, dayIndex, dayMembers, allWeeks);
-
-            await saveData();
-            updateAdminStats();
-            updateDashboard();
-            updateScheduleTab();
-            
-            // Anzahl der regenerierten Einsätze zählen
-            let regeneratedCount = 0;
-            allWeeks.forEach(({ week }) => {
-                const dayKey = `${week}-${dayIndex + 1}`;
-                if (!appData.freeDays.includes(dayKey) && appData.schedule[dayKey]) {
-                    regeneratedCount++;
-                }
-            });
-            
-            alert(`✅ ${selectedDay}-Team erfolgreich neu geplant!\n\n` +
-                  `${regeneratedCount} Einsätze wurden neu generiert.\n` +
-                  `Einsatz-Intervalle wurden berücksichtigt.\n` +
-                  `Alle anderen Teams blieben unverändert.`);
-        }
-
-        // Team-Info anzeigen wenn Dropdown geändert wird
-        function updateTeamInfo() {
-            const selectedDay = document.getElementById('teamDaySelector').value;
-            const teamInfo = document.getElementById('teamInfo');
-            const teamMembersSpan = document.getElementById('teamMembers');
-
-            if (selectedDay) {
-                const dayMembers = appData.members.filter(m => m.day === selectedDay);
-                if (dayMembers.length > 0) {
-                    teamMembersSpan.textContent = dayMembers.map(m => m.name).join(', ');
-                    teamInfo.style.display = 'block';
-                } else {
-                    teamMembersSpan.textContent = 'Keine Mitglieder in diesem Team';
-                    teamInfo.style.display = 'block';
-                }
-            } else {
-                teamInfo.style.display = 'none';
-            }
-        }
-
-        // Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
-        async function generateSchedule() {
-            // BESTÄTIGUNGSDIALOG
-            const confirmed = confirm(
-                '⚠️ WARNUNG: Dies wird den kompletten Einsatzplan neu generieren!\n\n' +
-                'Alle aktuellen Einsatz-Zuordnungen gehen verloren.\n' +
-                'Möchten Sie wirklich fortfahren?'
-            );
-            
-            if (!confirmed) {
-                return;
-            }
-
-            // Werte direkt aus HTML-Inputs lesen
-            const startWeek = parseInt(document.getElementById('startWeek').value);
-            const endWeek = parseInt(document.getElementById('endWeek').value);
-            const startYear = parseInt(document.getElementById('startYear').value);
-            const endYear = parseInt(document.getElementById('endYear').value);
-
-            if (startYear > endYear || (startYear === endYear && startWeek >= endWeek)) {
-                alert('Ungültiger Zeitraum! Das Schuljahr-Ende muss nach dem Beginn liegen.');
-                return;
-            }
-
-            // Werte in appData übernehmen
-            appData.startWeek = startWeek;
-            appData.endWeek = endWeek;
-            appData.startYear = startYear;
-            appData.endYear = endYear;
-            appData.year = startYear; // Rückwärtskompatibilität
-
-            // Freie Tage aus beiden Jahren kombinieren
-            appData.freeDays = combineFreeDaysFromBothYears();
-
-            // Schedule zurücksetzen
-            appData.schedule = {};
-
-            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            const allWeeks = getAllSchoolWeeks();
-
-            // Für jeden Tag separate Generierung mit Intervall-Berücksichtigung
-            days.forEach((day, dayIndex) => {
-                const dayMembers = appData.members.filter(m => m.day === day);
-                if (dayMembers.length === 0) return;
-
-                generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks);
-            });
-
-            await saveData();
-            updateAdminStats();
-            updateDashboard();
-            updateScheduleTab();
-            alert('✅ Einsatzplan erfolgreich generiert!\n\nDer Plan wurde für das komplette Schuljahr erstellt und berücksichtigt alle Einsatz-Intervalle.');
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Starting app initialization...');
-
-            const githubLoaded = await loadDataFromGitHub();
-
-            if (!githubLoaded) {
-                const localData = localStorage.getItem('pausenaufsicht-backup');
-                if (localData) {
-                    try {
-                        appData = { ...appData, ...JSON.parse(localData) };
-                        console.log('Using local backup data');
-                    } catch (error) {
-                        console.log('Using default data');
-                    }
-                }
-            }
-
-            // Rückwärtskompatibilität: interval-Feld für bestehende Mitglieder hinzufügen
-            appData.members = appData.members.map(member => ({
-                ...member,
-                interval: member.interval || 1
-            }));
-
-            updateDashboard();
-            updateHeaderForDashboard();
-            updateGitHubStatus();
-
-            // Event Listeners für Admin Tab
-            document.getElementById('generateScheduleBtn').addEventListener('click', generateSchedule);
-            document.getElementById('addMemberBtn').addEventListener('click', addMember);
-            document.getElementById('teamSize').addEventListener('change', updateTeamSize);
-            
-            // Event Listener für Team-Dropdown
-            document.getElementById('teamDaySelector').addEventListener('change', updateTeamInfo);
-            
-            // Event Listeners für Jahr-Inputs
-            document.getElementById('startYear').addEventListener('input', function() {
-                appData.startYear = parseInt(this.value) || appData.startYear;
-                updateYearLabels();
-            });
-            
-            document.getElementById('endYear').addEventListener('input', function() {
-                appData.endYear = parseInt(this.value) || appData.endYear;
-                updateYearLabels();
-            });
-            
-            document.getElementById('startWeek').addEventListener('input', function() {
-                appData.startWeek = parseInt(this.value) || appData.startWeek;
-            });
-            
-            document.getElementById('endWeek').addEventListener('input', function() {
-                appData.endWeek = parseInt(this.value) || appData.endWeek;
-            });
-
-            console.log('App initialization completed');
-        });
-    </script>
-</body>
-</html>
+                // Sortiere Vollzeit-Personen nach letztem Einsatz (längste Pause zuerst
