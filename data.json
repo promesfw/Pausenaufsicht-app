@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Luca Zimmermann",
-      "day": "Donnerstag"
-    },
-    {
       "name": "Sophie Hofmann",
       "day": "Freitag"
     },
@@ -55,45 +51,19 @@
     "39-3": [],
     "41-3": [],
     "42-3": [],
-    "29-4": [
-      "Luca Zimmermann"
-    ],
-    "30-4": [
-      "Luca Zimmermann"
-    ],
-    "31-4": [
-      "Luca Zimmermann"
-    ],
-    "32-4": [
-      "Luca Zimmermann"
-    ],
-    "33-4": [
-      "Luca Zimmermann"
-    ],
-    "34-4": [
-      "Luca Zimmermann"
-    ],
-    "35-4": [
-      "Luca Zimmermann"
-    ],
-    "36-4": [
-      "Luca Zimmermann"
-    ],
-    "37-4": [
-      "Luca Zimmermann"
-    ],
-    "38-4": [
-      "Luca Zimmermann"
-    ],
-    "39-4": [
-      "Luca Zimmermann"
-    ],
-    "41-4": [
-      "Luca Zimmermann"
-    ],
-    "42-4": [
-      "Luca Zimmermann"
-    ],
+    "29-4": [],
+    "30-4": [],
+    "31-4": [],
+    "32-4": [],
+    "33-4": [],
+    "34-4": [],
+    "35-4": [],
+    "36-4": [],
+    "37-4": [],
+    "38-4": [],
+    "39-4": [],
+    "41-4": [],
+    "42-4": [],
     "29-5": [
       "Sophie Hofmann",
       "David Schneider",
@@ -173,5 +143,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:31:27.099Z"
+  "lastUpdated": "2025-07-19T06:31:30.988Z"
 }
