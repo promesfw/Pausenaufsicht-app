@@ -1,26 +1,79 @@
 {
   "members": [
-    {"name": "Anna MÃ¼ller", "day": "Montag"},
-    {"name": "Peter Schmidt", "day": "Montag"},
-    {"name": "Maria Weber", "day": "Montag"},
-    {"name": "Hans Meier", "day": "Dienstag"},
-    {"name": "Lisa Bauer", "day": "Dienstag"},
-    {"name": "Tom Fischer", "day": "Dienstag"},
-    {"name": "Sarah Klein", "day": "Mittwoch"},
-    {"name": "Max Richter", "day": "Mittwoch"},
-    {"name": "Emma Wolf", "day": "Mittwoch"},
-    {"name": "Jonas Kraft", "day": "Donnerstag"},
-    {"name": "Nina Braun", "day": "Donnerstag"},
-    {"name": "Luca Zimmermann", "day": "Donnerstag"},
-    {"name": "Sophie Hofmann", "day": "Freitag"},
-    {"name": "David Schneider", "day": "Freitag"},
-    {"name": "Laura Hartmann", "day": "Freitag"}
+    {
+      "name": "Anna Müller",
+      "day": "Montag"
+    },
+    {
+      "name": "Peter Schmidt",
+      "day": "Montag"
+    },
+    {
+      "name": "Maria Weber",
+      "day": "Montag"
+    },
+    {
+      "name": "Hans Meier",
+      "day": "Dienstag"
+    },
+    {
+      "name": "Lisa Bauer",
+      "day": "Dienstag"
+    },
+    {
+      "name": "Tom Fischer",
+      "day": "Dienstag"
+    },
+    {
+      "name": "Sarah Klein",
+      "day": "Mittwoch"
+    },
+    {
+      "name": "Max Richter",
+      "day": "Mittwoch"
+    },
+    {
+      "name": "Emma Wolf",
+      "day": "Mittwoch"
+    },
+    {
+      "name": "Jonas Kraft",
+      "day": "Donnerstag"
+    },
+    {
+      "name": "Nina Braun",
+      "day": "Donnerstag"
+    },
+    {
+      "name": "Luca Zimmermann",
+      "day": "Donnerstag"
+    },
+    {
+      "name": "Sophie Hofmann",
+      "day": "Freitag"
+    },
+    {
+      "name": "David Schneider",
+      "day": "Freitag"
+    },
+    {
+      "name": "Laura Hartmann",
+      "day": "Freitag"
+    },
+    {
+      "name": "Peter",
+      "day": "Montag"
+    }
   ],
   "schedule": {},
   "teamSize": 3,
   "startWeek": 29,
   "endWeek": 42,
   "year": 2025,
-  "freeDays": ["32-1", "32-2", "40"],
-  "lastUpdated": "2025-01-18T12:00:00.000Z"
+  "freeDays": [
+    "32-1",
+    "32-2",
+    "40"
+  ],
+  "lastUpdated": "2025-07-19T06:12:03.275Z"
 }
