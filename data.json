@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Sophie Hofmann",
-      "day": "Freitag"
-    },
-    {
       "name": "David Schneider",
       "day": "Freitag"
     },
@@ -65,67 +61,54 @@
     "41-4": [],
     "42-4": [],
     "29-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "30-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "31-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "32-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "33-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "34-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "35-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "36-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "37-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "38-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "39-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "41-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ],
     "42-5": [
-      "Sophie Hofmann",
       "David Schneider",
       "Laura Hartmann"
     ]
@@ -143,5 +126,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:31:30.988Z"
+  "lastUpdated": "2025-07-19T06:31:35.807Z"
 }
