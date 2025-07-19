@@ -1931,66 +1931,68 @@
             await saveData();
         }
 
-        // EINFACHE und KLARE Funktion für intervall-basierte Einsatzplanung
+        // EINFACHSTE und DEBUGBARE Funktion für intervall-basierte Einsatzplanung
         function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
-            // Tracking für letzte Einsätze jeder Person (nur Arbeitswochen zählen!)
-            const lastAssignedWorkWeek = {};
+            console.log(`=== GENERIERE ${day}-Team ===`);
+            console.log('Mitglieder:', dayMembers.map(m => `${m.name} (alle ${m.interval} Wo.)`));
+
+            // Einfaches Tracking: Wann war jede Person zuletzt dran?
+            const lastAssigned = {};
             dayMembers.forEach(member => {
-                lastAssignedWorkWeek[member.name] = -member.interval; // Können beim ersten Mal eingeteilt werden
+                lastAssigned[member.name] = -999; // Startwert: sehr lange her
             });
 
-            let workWeekCounter = 0; // Zählt nur echte Arbeitswochen
+            let workWeek = 0; // Zähler für Arbeitswochen
 
-            allWeeks.forEach(({ week }) => {
+            allWeeks.forEach(({ week }, index) => {
                 const dayKey = `${week}-${dayIndex + 1}`;
 
+                // Freie Tage überspringen
                 if (appData.freeDays.includes(dayKey)) {
-                    return; // Freier Tag überspringen - workWeekCounter NICHT erhöhen!
+                    return;
                 }
+
+                console.log(`\n--- Arbeitswoche ${workWeek} (KW ${week}) ---`);
 
                 let selectedMembers = [];
 
-                // SCHRITT 1: TEILZEIT-PERSONEN HABEN VORRANG (interval > 1)
-                const teilzeitMembers = dayMembers.filter(member => member.interval > 1);
-                teilzeitMembers.forEach(member => {
-                    const workWeeksSinceLastAssignment = workWeekCounter - lastAssignedWorkWeek[member.name];
+                // SCHRITT 1: Alle Teilzeit-Personen prüfen (interval > 1)
+                const teilzeitPersonen = dayMembers.filter(m => m.interval > 1);
+                teilzeitPersonen.forEach(member => {
+                    const wochenSeitLetztemEinsatz = workWeek - lastAssigned[member.name];
+                    const istDran = wochenSeitLetztemEinsatz >= member.interval;
                     
-                    // Ist diese Teilzeit-Person "dran"?
-                    if (workWeeksSinceLastAssignment >= member.interval && selectedMembers.length < appData.teamSize) {
+                    console.log(`  ${member.name} (alle ${member.interval}): letzte Woche ${lastAssigned[member.name]}, ${wochenSeitLetztemEinsatz} Wochen her, dran: ${istDran}`);
+                    
+                    if (istDran && selectedMembers.length < appData.teamSize) {
                         selectedMembers.push(member);
-                        lastAssignedWorkWeek[member.name] = workWeekCounter;
+                        lastAssigned[member.name] = workWeek;
+                        console.log(`    -> EINGETEILT!`);
                     }
                 });
 
-                // SCHRITT 2: RESTLICHE PLÄTZE MIT VOLLZEIT-PERSONEN AUFFÜLLEN (interval = 1)
-                const vollzeitMembers = dayMembers.filter(member => member.interval === 1);
-                vollzeitMembers.forEach(member => {
+                // SCHRITT 2: Restliche Plätze mit Vollzeit-Personen auffüllen
+                const vollzeitPersonen = dayMembers.filter(m => m.interval === 1);
+                
+                // Sortiere Vollzeit-Personen nach letztem Einsatz (längste Pause zuerst)
+                vollzeitPersonen.sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
+                
+                vollzeitPersonen.forEach(member => {
                     if (selectedMembers.length < appData.teamSize) {
                         selectedMembers.push(member);
-                        lastAssignedWorkWeek[member.name] = workWeekCounter;
+                        lastAssigned[member.name] = workWeek;
+                        console.log(`    ${member.name} (Vollzeit) -> EINGETEILT`);
                     }
                 });
 
-                // SCHRITT 3: Falls immer noch nicht genug Personen -> Rotation der Vollzeit-Personen
-                if (selectedMembers.length < appData.teamSize && vollzeitMembers.length > 0) {
-                    // Sortiere Vollzeit-Personen nach letztem Einsatz
-                    const sortedVollzeit = vollzeitMembers
-                        .filter(member => !selectedMembers.includes(member))
-                        .sort((a, b) => lastAssignedWorkWeek[a.name] - lastAssignedWorkWeek[b.name]);
+                // Einsätze speichern
+                appData.schedule[dayKey] = selectedMembers.map(m => m.name);
+                console.log(`  Team: ${selectedMembers.map(m => m.name).join(', ')}`);
 
-                    // Fülle restliche Plätze auf
-                    const stillNeeded = appData.teamSize - selectedMembers.length;
-                    for (let i = 0; i < stillNeeded && i < sortedVollzeit.length; i++) {
-                        selectedMembers.push(sortedVollzeit[i]);
-                        lastAssignedWorkWeek[sortedVollzeit[i].name] = workWeekCounter;
-                    }
-                }
-
-                // Einsätze zuweisen
-                appData.schedule[dayKey] = selectedMembers.map(member => member.name);
-
-                workWeekCounter++; // Nur bei echten Arbeitstagen erhöhen
+                workWeek++; // Nur bei echten Arbeitswochen erhöhen
             });
+
+            console.log(`\n=== ${day}-Team FERTIG ===\n`);
         }
 
         // Team-spezifische Einsatzplan-Generierung
