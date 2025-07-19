@@ -1931,11 +1931,8 @@
             await saveData();
         }
 
-        // EINFACHSTE und DEBUGBARE Funktion für intervall-basierte Einsatzplanung
+        // FINALE Funktion für intervall-basierte Einsatzplanung (ohne Debug-Ausgaben)
         function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
-            console.log(`=== GENERIERE ${day}-Team ===`);
-            console.log('Mitglieder:', dayMembers.map(m => `${m.name} (alle ${m.interval} Wo.)`));
-
             // Einfaches Tracking: Wann war jede Person zuletzt dran?
             const lastAssigned = {};
             dayMembers.forEach(member => {
@@ -1944,15 +1941,13 @@
 
             let workWeek = 0; // Zähler für Arbeitswochen
 
-            allWeeks.forEach(({ week }, index) => {
+            allWeeks.forEach(({ week }) => {
                 const dayKey = `${week}-${dayIndex + 1}`;
 
                 // Freie Tage überspringen
                 if (appData.freeDays.includes(dayKey)) {
                     return;
                 }
-
-                console.log(`\n--- Arbeitswoche ${workWeek} (KW ${week}) ---`);
 
                 let selectedMembers = [];
 
@@ -1962,12 +1957,9 @@
                     const wochenSeitLetztemEinsatz = workWeek - lastAssigned[member.name];
                     const istDran = wochenSeitLetztemEinsatz >= member.interval;
                     
-                    console.log(`  ${member.name} (alle ${member.interval}): letzte Woche ${lastAssigned[member.name]}, ${wochenSeitLetztemEinsatz} Wochen her, dran: ${istDran}`);
-                    
                     if (istDran && selectedMembers.length < appData.teamSize) {
                         selectedMembers.push(member);
                         lastAssigned[member.name] = workWeek;
-                        console.log(`    -> EINGETEILT!`);
                     }
                 });
 
@@ -1981,18 +1973,14 @@
                     if (selectedMembers.length < appData.teamSize) {
                         selectedMembers.push(member);
                         lastAssigned[member.name] = workWeek;
-                        console.log(`    ${member.name} (Vollzeit) -> EINGETEILT`);
                     }
                 });
 
                 // Einsätze speichern
                 appData.schedule[dayKey] = selectedMembers.map(m => m.name);
-                console.log(`  Team: ${selectedMembers.map(m => m.name).join(', ')}`);
 
                 workWeek++; // Nur bei echten Arbeitswochen erhöhen
             });
-
-            console.log(`\n=== ${day}-Team FERTIG ===\n`);
         }
 
         // Team-spezifische Einsatzplan-Generierung
