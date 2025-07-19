@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Nina Braun",
-      "day": "Donnerstag"
-    },
-    {
       "name": "Luca Zimmermann",
       "day": "Donnerstag"
     },
@@ -60,55 +56,42 @@
     "41-3": [],
     "42-3": [],
     "29-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "30-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "31-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "32-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "33-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "34-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "35-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "36-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "37-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "38-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "39-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "41-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "42-4": [
-      "Nina Braun",
       "Luca Zimmermann"
     ],
     "29-5": [
@@ -190,5 +173,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:31:23.217Z"
+  "lastUpdated": "2025-07-19T06:31:27.099Z"
 }
