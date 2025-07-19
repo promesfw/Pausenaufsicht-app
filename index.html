@@ -1848,10 +1848,15 @@
                 const dayIndex = days.indexOf(day);
                 
                 const allWeeks = getAllSchoolWeeks();
+                let totalWorkWeeks = 0;
+                
                 allWeeks.forEach(({ week }) => {
                     const dayKey = `${week}-${dayIndex + 1}`;
+                    if (!appData.freeDays.includes(dayKey)) {
+                        totalWorkWeeks++;
+                    }
+                    
                     const schedule = appData.schedule[dayKey] || [];
-
                     schedule.forEach(memberName => {
                         if (dutyCounts[memberName] !== undefined) {
                             dutyCounts[memberName]++;
@@ -1861,24 +1866,62 @@
 
                 html += `
                     <div class="week-section">
-                        <h5>${day}</h5>
+                        <h5>${day} (${totalWorkWeeks} Arbeitswochen)</h5>
                         <div class="schedule-grid">
                 `;
 
                 dayMembers.forEach(member => {
+                    const actualDuties = dutyCounts[member.name];
+                    const expectedDuties = Math.floor(totalWorkWeeks / member.interval);
                     const intervalText = member.interval === 1 ? '' : ` (alle ${member.interval} Wo.)`;
                     const intervalColor = member.interval === 1 ? '#667eea' : '#f39c12';
                     
+                    // Färbung basierend auf Abweichung vom Soll
+                    let backgroundColor = '#f8f9fa';
+                    if (actualDuties > expectedDuties + 1) {
+                        backgroundColor = '#ffe6e6'; // Zu viele Einsätze (rot)
+                    } else if (actualDuties < expectedDuties - 1) {
+                        backgroundColor = '#e6f3ff'; // Zu wenige Einsätze (blau)
+                    } else {
+                        backgroundColor = '#e6ffe6'; // Optimal (grün)
+                    }
+                    
                     html += `
-                        <div class="day-card">
+                        <div class="day-card" style="background-color: ${backgroundColor};">
                             <strong>${member.name}</strong><br>
-                            <span style="color: ${intervalColor}; font-size: 0.8em;">${dutyCounts[member.name]} Einsätze${intervalText}</span>
+                            <span style="color: ${intervalColor}; font-size: 0.8em;">${actualDuties} Einsätze${intervalText}</span><br>
+                            <small style="color: #666; font-size: 0.7em;">Soll: ~${expectedDuties}</small>
                         </div>
                     `;
                 });
 
                 html += '</div></div>';
             });
+
+            // Gesamtstatistik hinzufügen
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <h5 style="color: #1976d2; margin-bottom: 10px;">📈 Verteilungs-Legende</h5>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9em;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 20px; height: 15px; background: #e6ffe6; border: 1px solid #ddd; border-radius: 3px;"></div>
+                            <span>Optimal verteilt</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 20px; height: 15px; background: #e6f3ff; border: 1px solid #ddd; border-radius: 3px;"></div>
+                            <span>Zu wenige Einsätze</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 20px; height: 15px; background: #ffe6e6; border: 1px solid #ddd; border-radius: 3px;"></div>
+                            <span>Zu viele Einsätze</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="color: #f39c12;">●</span>
+                            <span>Teilzeit-Mitarbeiter</span>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             container.innerHTML = html;
         }
@@ -1888,7 +1931,7 @@
             await saveData();
         }
 
-        // Neue Funktion für intervall-basierte Einsatzplanung
+        // Verbesserte Funktion für intervall-basierte Einsatzplanung
         function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
             // Tracking für letzte Einsätze jeder Person
             const lastAssigned = {};
@@ -1905,33 +1948,63 @@
                     return; // Freier Tag überspringen
                 }
 
-                // Verfügbare Mitglieder für diese Woche ermitteln
+                // SCHRITT 1: Verfügbare Mitglieder nach Intervall-Regel ermitteln
                 const availableMembers = dayMembers.filter(member => {
                     const weeksSinceLastAssignment = weekCounter - lastAssigned[member.name];
                     return weeksSinceLastAssignment >= member.interval;
                 });
 
-                // Falls nicht genügend verfügbar sind, nehmen wir die, die am längsten warten
+                // SCHRITT 2: Bevorzuge Vollzeit-Mitarbeiter (interval = 1), dann Teilzeit
+                availableMembers.sort((a, b) => {
+                    // Erst nach Intervall sortieren (Vollzeit zuerst)
+                    if (a.interval !== b.interval) {
+                        return a.interval - b.interval;
+                    }
+                    // Dann nach letztem Einsatz (am längsten wartend zuerst)
+                    return lastAssigned[a.name] - lastAssigned[b.name];
+                });
+
                 let selectedMembers = [];
+
                 if (availableMembers.length >= appData.teamSize) {
-                    // Sortiere nach letztem Einsatz (am längsten wartend zuerst)
-                    availableMembers.sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
+                    // Genügend verfügbar: Nimm die ersten teamSize Mitarbeiter
                     selectedMembers = availableMembers.slice(0, appData.teamSize);
                 } else {
-                    // Notfall: Alle verfügbaren + die am längsten wartenden bis teamSize erreicht
+                    // Nicht genügend verfügbar: Intelligente Auswahl
                     selectedMembers = [...availableMembers];
                     
                     if (selectedMembers.length < appData.teamSize) {
-                        const remaining = dayMembers
-                            .filter(m => !selectedMembers.includes(m))
-                            .sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
+                        // Fehlende Mitarbeiter ermitteln
+                        const stillNeeded = appData.teamSize - selectedMembers.length;
                         
-                        const needed = Math.min(appData.teamSize - selectedMembers.length, remaining.length);
-                        selectedMembers.push(...remaining.slice(0, needed));
+                        // Alle noch nicht ausgewählten Mitarbeiter
+                        const remainingMembers = dayMembers.filter(m => !selectedMembers.includes(m));
+                        
+                        // Sortiere nach "Dringlichkeit" (wer ist am längsten überfällig?)
+                        remainingMembers.sort((a, b) => {
+                            const weeksOverdueA = Math.max(0, (weekCounter - lastAssigned[a.name]) - a.interval);
+                            const weeksOverdueB = Math.max(0, (weekCounter - lastAssigned[b.name]) - b.interval);
+                            
+                            // Zuerst die, die überfällig sind (negativ = noch nicht dran)
+                            if (weeksOverdueA !== weeksOverdueB) {
+                                return weeksOverdueB - weeksOverdueA; // Höchste Überfälligkeit zuerst
+                            }
+                            
+                            // Bei gleicher Überfälligkeit: Vollzeit bevorzugen
+                            if (a.interval !== b.interval) {
+                                return a.interval - b.interval;
+                            }
+                            
+                            // Sonst: am längsten wartend
+                            return lastAssigned[a.name] - lastAssigned[b.name];
+                        });
+                        
+                        // Nur so viele hinzufügen wie nötig
+                        selectedMembers.push(...remainingMembers.slice(0, stillNeeded));
                     }
                 }
 
-                // Einsätze zuweisen und tracking aktualisieren
+                // SCHRITT 3: Einsätze zuweisen und tracking aktualisieren
                 appData.schedule[dayKey] = selectedMembers.map(member => {
                     lastAssigned[member.name] = weekCounter;
                     return member.name;
