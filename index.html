@@ -1931,66 +1931,74 @@
             await saveData();
         }
 
-        // KOMPLETT ÜBERARBEITETE Funktion für intervall-basierte Einsatzplanung
+        // KORRIGIERTE und vereinfachte Funktion für intervall-basierte Einsatzplanung
         function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
-            // Tracking für letzte Einsätze jeder Person
-            const lastAssigned = {};
+            // Tracking für letzte Einsätze jeder Person (Arbeitswoche, nicht Kalenderwoche!)
+            const lastAssignedWorkWeek = {};
             dayMembers.forEach(member => {
-                lastAssigned[member.name] = -member.interval; // Startwert: können sofort eingesetzt werden
+                lastAssignedWorkWeek[member.name] = -member.interval; // Können beim ersten Mal eingeteilt werden
             });
 
-            let weekCounter = 0;
+            let workWeekCounter = 0; // Zählt nur echte Arbeitswochen
 
             allWeeks.forEach(({ week }) => {
                 const dayKey = `${week}-${dayIndex + 1}`;
 
                 if (appData.freeDays.includes(dayKey)) {
-                    return; // Freier Tag überspringen - weekCounter NICHT erhöhen!
+                    return; // Freier Tag überspringen - workWeekCounter NICHT erhöhen!
                 }
 
                 // SCHRITT 1: Verfügbare Mitglieder nach Intervall-Regel ermitteln
-                const availableMembers = dayMembers.filter(member => {
-                    const weeksSinceLastAssignment = weekCounter - lastAssigned[member.name];
-                    return weeksSinceLastAssignment >= member.interval;
+                const availableMembers = [];
+                
+                dayMembers.forEach(member => {
+                    const workWeeksSinceLastAssignment = workWeekCounter - lastAssignedWorkWeek[member.name];
+                    if (workWeeksSinceLastAssignment >= member.interval) {
+                        availableMembers.push(member);
+                    }
                 });
 
-                // SCHRITT 2: Nach Priorität sortieren
+                // SCHRITT 2: Nach Priorität sortieren (Vollzeit zuerst, dann nach Wartezeit)
                 availableMembers.sort((a, b) => {
-                    // Erst nach Intervall sortieren (niedrigeres Intervall = höhere Priorität)
+                    // Vollzeit-Mitarbeiter (interval = 1) haben Priorität
                     if (a.interval !== b.interval) {
                         return a.interval - b.interval;
                     }
-                    // Dann nach letztem Einsatz (am längsten wartend zuerst)
-                    return lastAssigned[a.name] - lastAssigned[b.name];
+                    // Bei gleichem Intervall: wer länger wartet
+                    return lastAssignedWorkWeek[a.name] - lastAssignedWorkWeek[b.name];
                 });
 
+                // SCHRITT 3: Team zusammenstellen
                 let selectedMembers = [];
-
+                
                 if (availableMembers.length >= appData.teamSize) {
-                    // Genügend verfügbar: Nimm die ersten teamSize Mitarbeiter
+                    // Genügend verfügbar: Nimm die ersten teamSize
                     selectedMembers = availableMembers.slice(0, appData.teamSize);
-                } else {
-                    // NICHT GENÜGEND VERFÜGBAR: Reduzierte Teamgröße akzeptieren
+                } else if (availableMembers.length > 0) {
+                    // Weniger verfügbar: Nimm alle verfügbaren
                     selectedMembers = [...availableMembers];
                     
-                    // WARNUNG: Nur im absoluten Notfall weitere Personen hinzufügen
-                    if (selectedMembers.length === 0) {
-                        // Notfall: Nimm wenigstens eine Person (die am längsten wartet)
-                        const emergencyPerson = dayMembers
-                            .sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name])[0];
-                        if (emergencyPerson) {
-                            selectedMembers.push(emergencyPerson);
-                        }
-                    }
+                    // Versuche aufzufüllen mit denen, die am längsten warten (auch wenn Intervall noch nicht erreicht)
+                    const remainingMembers = dayMembers
+                        .filter(m => !selectedMembers.includes(m))
+                        .sort((a, b) => lastAssignedWorkWeek[a.name] - lastAssignedWorkWeek[b.name]);
+                    
+                    const stillNeeded = appData.teamSize - selectedMembers.length;
+                    selectedMembers.push(...remainingMembers.slice(0, stillNeeded));
+                } else {
+                    // Notfall: Niemand verfügbar - nimm die, die am längsten warten
+                    const sortedByWaiting = dayMembers
+                        .sort((a, b) => lastAssignedWorkWeek[a.name] - lastAssignedWorkWeek[b.name]);
+                    selectedMembers = sortedByWaiting.slice(0, appData.teamSize);
                 }
 
-                // SCHRITT 3: Einsätze zuweisen und tracking aktualisieren
+                // SCHRITT 4: Einsätze zuweisen und tracking aktualisieren
                 appData.schedule[dayKey] = selectedMembers.map(member => {
-                    lastAssigned[member.name] = weekCounter;
+                    lastAssignedWorkWeek[member.name] = workWeekCounter;
                     return member.name;
                 });
 
-                weekCounter++; // Nur bei echten Arbeitstagen erhöhen
+                workWeekCounter++; // Nur bei echten Arbeitstagen erhöhen
             });
         }
 
