@@ -362,12 +362,6 @@
       "Ana",
       "Erestina"
     ],
-    "28-1": [
-      "Judith",
-      "Kilian",
-      "Marina",
-      "Ana"
-    ],
     "33-2": [
       "Andrea K.",
       "Mila",
@@ -638,59 +632,53 @@
       "Nathanja",
       "Rachel"
     ],
-    "28-2": [
-      "Andrea K.",
-      "Mila",
-      "Nathanja",
-      "Rachel"
-    ],
     "33-3": [
-      "Therese",
-      "Martina",
-      "Simonne",
-      "Felix"
-    ],
-    "34-3": [
-      "Sandra/Eliane",
-      "Therese",
-      "Martina",
-      "Simonne"
-    ],
-    "35-3": [
-      "Felix",
-      "Sandra/Eliane",
-      "Therese",
-      "Martina"
-    ],
-    "36-3": [
-      "Simonne",
-      "Felix",
-      "Sandra/Eliane",
-      "Therese"
-    ],
-    "37-3": [
       "Martina",
       "Simonne",
       "Felix",
       "Sandra/Eliane"
     ],
-    "40-3": [
+    "34-3": [
       "Therese",
       "Martina",
       "Simonne",
       "Felix"
     ],
-    "41-3": [
+    "35-3": [
       "Sandra/Eliane",
       "Therese",
       "Martina",
       "Simonne"
     ],
-    "42-3": [
+    "36-3": [
       "Felix",
       "Sandra/Eliane",
       "Therese",
       "Martina"
+    ],
+    "37-3": [
+      "Simonne",
+      "Felix",
+      "Sandra/Eliane",
+      "Therese"
+    ],
+    "40-3": [
+      "Martina",
+      "Simonne",
+      "Felix",
+      "Sandra/Eliane"
+    ],
+    "41-3": [
+      "Therese",
+      "Martina",
+      "Simonne",
+      "Felix"
+    ],
+    "42-3": [
+      "Sandra/Eliane",
+      "Therese",
+      "Martina",
+      "Simonne"
     ],
     "43-3": [
       "Felix",
@@ -914,59 +902,53 @@
       "Sandra/Eliane",
       "Therese"
     ],
-    "28-3": [
-      "Martina",
-      "Simonne",
-      "Felix",
-      "Sandra/Eliane"
-    ],
     "33-4": [
-      "Seila",
-      "Andrea M.",
-      "Peter",
-      "Rahel"
-    ],
-    "34-4": [
-      "Salome",
-      "Seila",
-      "Andrea M.",
-      "Peter"
-    ],
-    "35-4": [
-      "Rahel",
-      "Salome",
-      "Seila",
-      "Andrea M."
-    ],
-    "36-4": [
-      "Peter",
-      "Rahel",
-      "Salome",
-      "Seila"
-    ],
-    "37-4": [
       "Andrea M.",
       "Peter",
       "Rahel",
       "Salome"
     ],
-    "40-4": [
+    "34-4": [
       "Seila",
       "Andrea M.",
       "Peter",
       "Rahel"
     ],
-    "41-4": [
+    "35-4": [
       "Salome",
       "Seila",
       "Andrea M.",
       "Peter"
     ],
-    "42-4": [
+    "36-4": [
       "Rahel",
       "Salome",
       "Seila",
       "Andrea M."
+    ],
+    "37-4": [
+      "Peter",
+      "Rahel",
+      "Salome",
+      "Seila"
+    ],
+    "40-4": [
+      "Andrea M.",
+      "Peter",
+      "Rahel",
+      "Salome"
+    ],
+    "41-4": [
+      "Seila",
+      "Andrea M.",
+      "Peter",
+      "Rahel"
+    ],
+    "42-4": [
+      "Salome",
+      "Seila",
+      "Andrea M.",
+      "Peter"
     ],
     "43-4": [
       "Rahel",
@@ -1189,12 +1171,6 @@
       "Rahel",
       "Salome",
       "Seila"
-    ],
-    "28-4": [
-      "Andrea M.",
-      "Peter",
-      "Rahel",
-      "Salome"
     ],
     "33-5": [
       "Aline",
@@ -1459,17 +1435,11 @@
       "Esther",
       "Evelyne",
       "Aline"
-    ],
-    "28-5": [
-      "Christine",
-      "Elena",
-      "Esther",
-      "Evelyne"
     ]
   },
   "teamSize": 4,
   "startWeek": 29,
-  "endWeek": 42,
+  "endWeek": 27,
   "startYear": 2025,
   "endYear": 2026,
   "year": 2025,
@@ -1512,5 +1482,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-07-19T12:35:23.902Z"
+  "lastUpdated": "2025-07-19T12:35:40.007Z"
 }
