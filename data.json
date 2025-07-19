@@ -65,7 +65,323 @@
       "day": "Montag"
     }
   ],
-  "schedule": {},
+  "schedule": {
+    "29-1": [
+      "Anna Müller",
+      "Peter Schmidt",
+      "Maria Weber"
+    ],
+    "30-1": [
+      "Peter",
+      "Anna Müller",
+      "Peter Schmidt"
+    ],
+    "31-1": [
+      "Maria Weber",
+      "Peter",
+      "Anna Müller"
+    ],
+    "33-1": [
+      "Peter Schmidt",
+      "Maria Weber",
+      "Peter"
+    ],
+    "34-1": [
+      "Anna Müller",
+      "Peter Schmidt",
+      "Maria Weber"
+    ],
+    "35-1": [
+      "Peter",
+      "Anna Müller",
+      "Peter Schmidt"
+    ],
+    "36-1": [
+      "Maria Weber",
+      "Peter",
+      "Anna Müller"
+    ],
+    "37-1": [
+      "Peter Schmidt",
+      "Maria Weber",
+      "Peter"
+    ],
+    "38-1": [
+      "Anna Müller",
+      "Peter Schmidt",
+      "Maria Weber"
+    ],
+    "39-1": [
+      "Peter",
+      "Anna Müller",
+      "Peter Schmidt"
+    ],
+    "41-1": [
+      "Maria Weber",
+      "Peter",
+      "Anna Müller"
+    ],
+    "42-1": [
+      "Peter Schmidt",
+      "Maria Weber",
+      "Peter"
+    ],
+    "29-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "30-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "31-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "33-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "34-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "35-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "36-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "37-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "38-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "39-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "41-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "42-2": [
+      "Hans Meier",
+      "Lisa Bauer",
+      "Tom Fischer"
+    ],
+    "29-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "30-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "31-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "32-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "33-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "34-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "35-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "36-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "37-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "38-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "39-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "41-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "42-3": [
+      "Sarah Klein",
+      "Max Richter",
+      "Emma Wolf"
+    ],
+    "29-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "30-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "31-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "32-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "33-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "34-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "35-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "36-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "37-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "38-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "39-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "41-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "42-4": [
+      "Jonas Kraft",
+      "Nina Braun",
+      "Luca Zimmermann"
+    ],
+    "29-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "30-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "31-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "32-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "33-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "34-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "35-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "36-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "37-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "38-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "39-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "41-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ],
+    "42-5": [
+      "Sophie Hofmann",
+      "David Schneider",
+      "Laura Hartmann"
+    ]
+  },
   "teamSize": 3,
   "startWeek": 29,
   "endWeek": 42,
@@ -73,7 +389,11 @@
   "freeDays": [
     "32-1",
     "32-2",
-    "40"
+    "40-1",
+    "40-2",
+    "40-3",
+    "40-4",
+    "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:12:03.275Z"
+  "lastUpdated": "2025-07-19T06:12:10.076Z"
 }
