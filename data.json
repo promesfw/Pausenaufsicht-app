@@ -75,6 +75,10 @@
     {
       "name": "Salome",
       "day": "Donnerstag"
+    },
+    {
+      "name": "Seila",
+      "day": "Donnerstag"
     }
   ],
   "schedule": {
@@ -200,5 +204,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:53:14.013Z"
+  "lastUpdated": "2025-07-19T06:53:21.825Z"
 }
