@@ -718,6 +718,9 @@
 
                 <button class="btn" id="generateScheduleBtn" type="button">Einsatzplan generieren</button>
                 
+                <!-- DEBUG BUTTON -->
+                <button class="btn btn-secondary" onclick="debugSchoolYear()" type="button">🔍 Debug Schuljahr</button>
+                
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
                     <h4 style="color: #28a745; margin-bottom: 10px;">💾 Auto-Save Status</h4>
                     <div id="github-status" style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 5px;">
@@ -1078,24 +1081,37 @@
             };
         }
 
-        // NEU: Schuljahr-übergreifende Wochen-Generierung
+        // NEU: Schuljahr-übergreifende Wochen-Generierung (mit Debug)
         function getAllSchoolWeeks() {
             const weeks = [];
             
+            console.log('DEBUG getAllSchoolWeeks:', {
+                startYear: appData.startYear,
+                endYear: appData.endYear, 
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek
+            });
+            
             if (appData.startYear === appData.endYear) {
+                // Einfacher Fall: alles im gleichen Jahr
                 for (let week = appData.startWeek; week <= appData.endWeek; week++) {
                     weeks.push({ week, year: appData.startYear });
                 }
+                console.log('DEBUG: Same year case, generated weeks:', weeks.length);
             } else {
+                // Schuljahr geht über Jahresgrenze
                 // Teil 1: Von startWeek bis 53 im startYear
                 for (let week = appData.startWeek; week <= 53; week++) {
                     weeks.push({ week, year: appData.startYear });
                 }
+                console.log('DEBUG: First year weeks (', appData.startWeek, '-53):', 53 - appData.startWeek + 1);
                 
                 // Teil 2: Von 1 bis endWeek im endYear  
                 for (let week = 1; week <= appData.endWeek; week++) {
                     weeks.push({ week, year: appData.endYear });
                 }
+                console.log('DEBUG: Second year weeks (1-', appData.endWeek, '):', appData.endWeek);
+                console.log('DEBUG: Total weeks generated:', weeks.length);
             }
             
             return weeks;
@@ -1184,7 +1200,7 @@
             });
         }
 
-        // NEU: Schedule Tab mit Schuljahr-Unterstützung
+        // KORRIGIERT: Schedule Tab zeigt alle Wochen des Schuljahres
         function updateScheduleTab() {
             const weekSelector = document.getElementById('weekSelector');
             weekSelector.innerHTML = '';
@@ -1208,6 +1224,7 @@
             }
         }
 
+        // KORRIGIERT: Swap-Selektoren zeigen alle Wochen des Schuljahres
         function updateSwapSelectors() {
             const person1 = document.getElementById('swapPerson1');
             const person2 = document.getElementById('swapPerson2');
@@ -1783,6 +1800,32 @@
             await saveData();
         }
 
+        // DEBUG-Funktion
+        function debugSchoolYear() {
+            console.log('=== DEBUG SCHULJAHR ===');
+            console.log('appData:', {
+                startYear: appData.startYear,
+                endYear: appData.endYear,
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek
+            });
+            
+            const allWeeks = getAllSchoolWeeks();
+            console.log('Generierte Wochen:', allWeeks);
+            console.log('Anzahl Wochen:', allWeeks.length);
+            
+            // Zeige erste und letzte 5 Wochen
+            console.log('Erste 5 Wochen:', allWeeks.slice(0, 5));
+            console.log('Letzte 5 Wochen:', allWeeks.slice(-5));
+            
+            // Prüfe Schedule
+            const scheduleKeys = Object.keys(appData.schedule);
+            console.log('Schedule Keys (erste 10):', scheduleKeys.slice(0, 10));
+            console.log('Schedule Keys (letzte 10):', scheduleKeys.slice(-10));
+            
+            alert(`DEBUG INFO:\n\nSchuljahr: KW ${appData.startWeek}/${appData.startYear} bis KW ${appData.endWeek}/${appData.endYear}\n\nGenerierte Wochen: ${allWeeks.length}\nEinsätze im Schedule: ${scheduleKeys.length}\n\nDetails in der Konsole (F12)`);
+        }
+
         // NEU: Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
         async function generateSchedule() {
             // BESTÄTIGUNGSDIALOG
@@ -1877,8 +1920,37 @@
             document.getElementById('generateScheduleBtn').addEventListener('click', generateSchedule);
             document.getElementById('addMemberBtn').addEventListener('click', addMember);
             document.getElementById('teamSize').addEventListener('change', updateTeamSize);
+            
+            // NEUE Event Listeners für Jahr-Inputs
+            document.getElementById('startYear').addEventListener('input', function() {
+                appData.startYear = parseInt(this.value) || appData.startYear;
+                updateYearLabels();
+                console.log('Updated startYear to:', appData.startYear);
+            });
+            
+            document.getElementById('endYear').addEventListener('input', function() {
+                appData.endYear = parseInt(this.value) || appData.endYear;
+                updateYearLabels();
+                console.log('Updated endYear to:', appData.endYear);
+            });
+            
+            document.getElementById('startWeek').addEventListener('input', function() {
+                appData.startWeek = parseInt(this.value) || appData.startWeek;
+                console.log('Updated startWeek to:', appData.startWeek);
+            });
+            
+            document.getElementById('endWeek').addEventListener('input', function() {
+                appData.endWeek = parseInt(this.value) || appData.endWeek;
+                console.log('Updated endWeek to:', appData.endWeek);
+            });
 
             console.log('App initialization completed');
+            console.log('Initial appData:', {
+                startYear: appData.startYear,
+                endYear: appData.endYear,
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek
+            });
         });
     </script>
 </body>
