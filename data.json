@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Peter Schmidt",
-      "day": "Montag"
-    },
-    {
       "name": "Maria Weber",
       "day": "Montag"
     },
@@ -67,53 +63,44 @@
   ],
   "schedule": {
     "29-1": [
-      "Peter Schmidt",
       "Maria Weber"
     ],
     "30-1": [
-      "Peter",
-      "Peter Schmidt"
+      "Peter"
     ],
     "31-1": [
       "Maria Weber",
       "Peter"
     ],
     "33-1": [
-      "Peter Schmidt",
       "Maria Weber",
       "Peter"
     ],
     "34-1": [
-      "Peter Schmidt",
       "Maria Weber"
     ],
     "35-1": [
-      "Peter",
-      "Peter Schmidt"
+      "Peter"
     ],
     "36-1": [
       "Maria Weber",
       "Peter"
     ],
     "37-1": [
-      "Peter Schmidt",
       "Maria Weber",
       "Peter"
     ],
     "38-1": [
-      "Peter Schmidt",
       "Maria Weber"
     ],
     "39-1": [
-      "Peter",
-      "Peter Schmidt"
+      "Peter"
     ],
     "41-1": [
       "Maria Weber",
       "Peter"
     ],
     "42-1": [
-      "Peter Schmidt",
       "Maria Weber",
       "Peter"
     ],
@@ -386,5 +373,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:27:43.892Z"
+  "lastUpdated": "2025-07-19T06:30:36.022Z"
 }
