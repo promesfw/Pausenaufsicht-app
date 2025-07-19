@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Lisa Bauer",
-      "day": "Dienstag"
-    },
-    {
       "name": "Tom Fischer",
       "day": "Dienstag"
     },
@@ -59,51 +55,39 @@
     "41-1": [],
     "42-1": [],
     "29-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "30-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "31-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "33-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "34-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "35-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "36-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "37-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "38-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "39-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "41-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "42-2": [
-      "Lisa Bauer",
       "Tom Fischer"
     ],
     "29-3": [
@@ -315,5 +299,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:30:56.080Z"
+  "lastUpdated": "2025-07-19T06:30:59.858Z"
 }
