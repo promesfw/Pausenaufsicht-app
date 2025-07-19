@@ -91,10 +91,6 @@
     {
       "name": "Evelyne",
       "day": "Freitag"
-    },
-    {
-      "name": "Ana",
-      "day": "Montag"
     }
   ],
   "schedule": {
@@ -105,28 +101,24 @@
       "Marina"
     ],
     "34-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Marina"
     ],
     "35-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "36-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "37-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "40-1": [
       "Felix",
@@ -135,28 +127,24 @@
       "Marina"
     ],
     "41-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "42-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "43-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "44-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "45-1": [
       "Erestina",
@@ -165,28 +153,24 @@
       "Marina"
     ],
     "46-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "47-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "49-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "50-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "51-1": [
       "Erestina",
@@ -195,28 +179,24 @@
       "Marina"
     ],
     "1-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "2-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "3-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "4-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "5-1": [
       "Erestina",
@@ -225,28 +205,24 @@
       "Marina"
     ],
     "6-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "7-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "8-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "9-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "10-1": [
       "Erestina",
@@ -255,28 +231,24 @@
       "Marina"
     ],
     "11-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "12-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "13-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "14-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "15-1": [
       "Erestina",
@@ -285,28 +257,24 @@
       "Marina"
     ],
     "16-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "17-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "18-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "19-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "20-1": [
       "Erestina",
@@ -315,28 +283,24 @@
       "Marina"
     ],
     "21-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "22-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
     "23-1": [
       "Kilian",
       "Marina",
-      "Ana",
       "Erestina"
     ],
     "24-1": [
       "Judith",
       "Kilian",
-      "Marina",
-      "Ana"
+      "Marina"
     ],
     "25-1": [
       "Erestina",
@@ -345,14 +309,12 @@
       "Marina"
     ],
     "26-1": [
-      "Ana",
       "Erestina",
       "Judith",
       "Kilian"
     ],
     "27-1": [
       "Marina",
-      "Ana",
       "Erestina",
       "Judith"
     ],
@@ -1457,5 +1419,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-07-19T13:12:07.019Z"
+  "lastUpdated": "2025-07-19T16:21:45.241Z"
 }
