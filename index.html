@@ -774,6 +774,21 @@
             }
         }
 
+        // UTF-8 sichere Base64 Funktionen
+        function utf8ToBase64(str) {
+            // UTF-8 String zu Base64 konvertieren (unterstützt Umlaute)
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
+        }
+
+        function base64ToUtf8(str) {
+            // Base64 zu UTF-8 String konvertieren (unterstützt Umlaute)
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
         // GitHub API Functions
         async function saveDataToGitHub() {
             const token = getGitHubToken();
@@ -802,13 +817,15 @@
                     sha = fileData.sha;
                 }
 
-                // 2. Neue Daten vorbereiten
+                // 2. Neue Daten vorbereiten (UTF-8 sicher)
                 const dataToSave = {
                     ...appData,
                     lastUpdated: new Date().toISOString()
                 };
 
-                const content = btoa(JSON.stringify(dataToSave, null, 2));
+                // UTF-8 sichere Base64-Kodierung für Umlaute
+                const jsonString = JSON.stringify(dataToSave, null, 2);
+                const content = utf8ToBase64(jsonString);
 
                 // 3. Datei aktualisieren oder erstellen
                 const updateData = {
