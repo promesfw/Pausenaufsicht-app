@@ -2,95 +2,118 @@
   "members": [
     {
       "name": "Erestina",
-      "day": "Montag"
+      "day": "Montag",
+      "interval": 1
     },
     {
       "name": "Judith",
-      "day": "Montag"
+      "day": "Montag",
+      "interval": 1
     },
     {
       "name": "Kilian",
-      "day": "Montag"
+      "day": "Montag",
+      "interval": 1
     },
     {
       "name": "Martina",
-      "day": "Mittwoch"
+      "day": "Mittwoch",
+      "interval": 1
     },
     {
       "name": "Andrea K.",
-      "day": "Dienstag"
+      "day": "Dienstag",
+      "interval": 1
     },
     {
       "name": "Simonne",
-      "day": "Mittwoch"
+      "day": "Mittwoch",
+      "interval": 1
     },
     {
       "name": "Mila",
-      "day": "Dienstag"
+      "day": "Dienstag",
+      "interval": 2
     },
     {
       "name": "Nathanja",
-      "day": "Dienstag"
+      "day": "Dienstag",
+      "interval": 1
     },
     {
       "name": "Rachel",
-      "day": "Dienstag"
+      "day": "Dienstag",
+      "interval": 1
     },
     {
       "name": "Felix",
-      "day": "Mittwoch"
+      "day": "Mittwoch",
+      "interval": 1
     },
     {
       "name": "Marina",
-      "day": "Montag"
+      "day": "Montag",
+      "interval": 1
     },
     {
       "name": "Sandra/Eliane",
-      "day": "Mittwoch"
+      "day": "Mittwoch",
+      "interval": 1
     },
     {
       "name": "Therese",
-      "day": "Mittwoch"
+      "day": "Mittwoch",
+      "interval": 1
     },
     {
       "name": "Aline",
-      "day": "Freitag"
+      "day": "Freitag",
+      "interval": 1
     },
     {
       "name": "Andrea M.",
-      "day": "Donnerstag"
+      "day": "Donnerstag",
+      "interval": 1
     },
     {
       "name": "Peter",
-      "day": "Donnerstag"
+      "day": "Donnerstag",
+      "interval": 1
     },
     {
       "name": "Rahel",
-      "day": "Donnerstag"
+      "day": "Donnerstag",
+      "interval": 1
     },
     {
       "name": "Salome",
-      "day": "Donnerstag"
+      "day": "Donnerstag",
+      "interval": 1
     },
     {
       "name": "Seila",
-      "day": "Donnerstag"
+      "day": "Donnerstag",
+      "interval": 1
     },
     {
       "name": "Christine",
-      "day": "Freitag"
+      "day": "Freitag",
+      "interval": 1
     },
     {
       "name": "Elena",
-      "day": "Freitag"
+      "day": "Freitag",
+      "interval": 1
     },
     {
       "name": "Esther",
-      "day": "Freitag"
+      "day": "Freitag",
+      "interval": 1
     },
     {
       "name": "Evelyne",
-      "day": "Freitag"
+      "day": "Freitag",
+      "interval": 1
     }
   ],
   "schedule": {
@@ -1453,5 +1476,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-07-19T16:22:01.416Z"
+  "lastUpdated": "2025-07-19T17:09:49.158Z"
 }
