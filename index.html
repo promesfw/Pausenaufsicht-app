@@ -716,7 +716,37 @@
                     </small>
                 </div>
 
-                <button class="btn" id="generateScheduleBtn" type="button">Einsatzplan generieren</button>
+                <button class="btn" id="generateScheduleBtn" type="button">Kompletten Einsatzplan generieren</button>
+                
+                <!-- NEUE TEAM-SPEZIFISCHE GENERIERUNG -->
+                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <h4 style="color: #856404; margin-bottom: 15px;">🔄 Einzelnes Team neu planen</h4>
+                    <p style="color: #856404; margin-bottom: 15px; font-size: 0.9em;">
+                        <strong>Hinweis:</strong> Nur die Einsätze des gewählten Teams werden neu generiert. 
+                        Alle anderen Teams bleiben unverändert.
+                    </p>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">
+                                Team (Wochentag) auswählen:
+                            </label>
+                            <select id="teamDaySelector" style="width: 100%; padding: 10px; border: 2px solid #ffc107; border-radius: 8px;">
+                                <option value="">Bitte wählen</option>
+                                <option value="Montag">Montag-Team</option>
+                                <option value="Dienstag">Dienstag-Team</option>
+                                <option value="Mittwoch">Mittwoch-Team</option>
+                                <option value="Donnerstag">Donnerstag-Team</option>
+                                <option value="Freitag">Freitag-Team</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="generateTeamSchedule()" type="button" style="background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);">
+                            Team neu planen
+                        </button>
+                    </div>
+                    <div id="teamInfo" style="margin-top: 15px; padding: 10px; background: rgba(255, 255, 255, 0.7); border-radius: 5px; display: none;">
+                        <strong>Team-Mitglieder:</strong> <span id="teamMembers"></span>
+                    </div>
+                </div>
                 
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
                     <h4 style="color: #28a745; margin-bottom: 10px;">💾 Auto-Save Status</h4>
@@ -1648,6 +1678,7 @@
             updateMembersTab();
             updateMyDutiesTab();
             updateDashboard();
+            updateTeamInfo(); // Team-Info aktualisieren
             alert('Mitglied erfolgreich hinzugefügt!');
         }
 
@@ -1658,6 +1689,7 @@
                 await saveData();
                 updateMembersTab();
                 updateDashboard();
+                updateTeamInfo(); // Team-Info aktualisieren
             }
         }
 
@@ -1675,6 +1707,7 @@
                 updateMembersTab();
                 updateMyDutiesTab();
                 updateDashboard();
+                updateTeamInfo(); // Team-Info aktualisieren
                 alert(`${memberName} wurde erfolgreich entfernt!`);
             }
         }
@@ -1815,6 +1848,108 @@
             await saveData();
         }
 
+        // Team-spezifische Einsatzplan-Generierung
+        async function generateTeamSchedule() {
+            const selectedDay = document.getElementById('teamDaySelector').value;
+            
+            if (!selectedDay) {
+                alert('Bitte wählen Sie zuerst ein Team (Wochentag) aus!');
+                return;
+            }
+
+            const dayMembers = appData.members.filter(m => m.day === selectedDay);
+            const memberNames = dayMembers.map(m => m.name).join(', ');
+
+            // BESTÄTIGUNGSDIALOG
+            const confirmed = confirm(
+                `🔄 TEAM NEU PLANEN\n\n` +
+                `Team: ${selectedDay}-Team\n` +
+                `Mitglieder: ${memberNames}\n\n` +
+                `⚠️ WARNUNG: Alle ${selectedDay}-Einsätze werden neu generiert!\n` +
+                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n\n` +
+                `Möchten Sie fortfahren?`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+
+            if (dayMembers.length === 0) {
+                alert(`Keine Mitglieder im ${selectedDay}-Team gefunden!`);
+                return;
+            }
+
+            // Aktuelle Werte aus Formular lesen
+            const startWeek = parseInt(document.getElementById('startWeek').value);
+            const endWeek = parseInt(document.getElementById('endWeek').value);
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+
+            // Werte in appData übernehmen
+            appData.startWeek = startWeek;
+            appData.endWeek = endWeek;
+            appData.startYear = startYear;
+            appData.endYear = endYear;
+            appData.year = startYear;
+
+            // Freie Tage aktualisieren
+            appData.freeDays = combineFreeDaysFromBothYears();
+
+            const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(selectedDay);
+            const memberRotation = [...dayMembers];
+            let currentIndex = 0;
+
+            const allWeeks = getAllSchoolWeeks();
+            let regeneratedCount = 0;
+
+            // NUR für den gewählten Tag die Einsätze neu generieren
+            allWeeks.forEach(({ week }) => {
+                const dayKey = `${week}-${dayIndex + 1}`;
+
+                if (appData.freeDays.includes(dayKey)) {
+                    return; // Freier Tag überspringen
+                }
+
+                const teamForDay = [];
+                for (let i = 0; i < appData.teamSize && i < memberRotation.length; i++) {
+                    teamForDay.push(memberRotation[currentIndex]);
+                    currentIndex = (currentIndex + 1) % memberRotation.length;
+                }
+
+                appData.schedule[dayKey] = teamForDay.map(m => m.name);
+                regeneratedCount++;
+            });
+
+            await saveData();
+            updateAdminStats();
+            updateDashboard();
+            updateScheduleTab();
+            
+            alert(`✅ ${selectedDay}-Team erfolgreich neu geplant!\n\n` +
+                  `${regeneratedCount} Einsätze wurden neu generiert.\n` +
+                  `Alle anderen Teams blieben unverändert.`);
+        }
+
+        // Team-Info anzeigen wenn Dropdown geändert wird
+        function updateTeamInfo() {
+            const selectedDay = document.getElementById('teamDaySelector').value;
+            const teamInfo = document.getElementById('teamInfo');
+            const teamMembersSpan = document.getElementById('teamMembers');
+
+            if (selectedDay) {
+                const dayMembers = appData.members.filter(m => m.day === selectedDay);
+                if (dayMembers.length > 0) {
+                    teamMembersSpan.textContent = dayMembers.map(m => m.name).join(', ');
+                    teamInfo.style.display = 'block';
+                } else {
+                    teamMembersSpan.textContent = 'Keine Mitglieder in diesem Team';
+                    teamInfo.style.display = 'block';
+                }
+            } else {
+                teamInfo.style.display = 'none';
+            }
+        }
+
         // Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
         async function generateSchedule() {
             // BESTÄTIGUNGSDIALOG
@@ -1913,6 +2048,9 @@
             document.getElementById('generateScheduleBtn').addEventListener('click', generateSchedule);
             document.getElementById('addMemberBtn').addEventListener('click', addMember);
             document.getElementById('teamSize').addEventListener('change', updateTeamSize);
+            
+            // Event Listener für Team-Dropdown
+            document.getElementById('teamDaySelector').addEventListener('change', updateTeamInfo);
             
             // Event Listeners für Jahr-Inputs
             document.getElementById('startYear').addEventListener('input', function() {
