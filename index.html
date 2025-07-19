@@ -635,20 +635,50 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Zeitraum festlegen:</label>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Von (Kalenderwoche):</label>
-                            <input type="number" id="startWeek" min="1" max="53" value="29">
+                    <label>Zeitraum festlegen (Schuljahr):</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                            <label style="font-size: 0.9em; color: #28a745; margin-bottom: 8px; display: block;">
+                                📅 Schuljahr-Beginn:
+                            </label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Jahr:</label>
+                                    <input type="number" id="startYear" min="2024" max="2030" value="2025" style="width: 100%;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Kalenderwoche:</label>
+                                    <input type="number" id="startWeek" min="1" max="53" value="33" style="width: 100%;">
+                                </div>
+                            </div>
+                            <small style="color: #666; font-size: 0.8em; margin-top: 5px; display: block;">
+                                z.B. KW 33/2025 = Mitte August 2025
+                            </small>
                         </div>
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Bis (Kalenderwoche):</label>
-                            <input type="number" id="endWeek" min="1" max="53" value="42">
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545;">
+                            <label style="font-size: 0.9em; color: #dc3545; margin-bottom: 8px; display: block;">
+                                📅 Schuljahr-Ende:
+                            </label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Jahr:</label>
+                                    <input type="number" id="endYear" min="2024" max="2030" value="2026" style="width: 100%;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Kalenderwoche:</label>
+                                    <input type="number" id="endWeek" min="1" max="53" value="27" style="width: 100%;">
+                                </div>
+                            </div>
+                            <small style="color: #666; font-size: 0.8em; margin-top: 5px; display: block;">
+                                z.B. KW 27/2026 = Anfang Juli 2026
+                            </small>
                         </div>
-                        <div style="flex: 1; min-width: 150px;">
-                            <label>Jahr:</label>
-                            <input type="number" id="year" min="2024" max="2030" value="2025">
-                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px; border-left: 4px solid #2196f3;">
+                        <strong style="color: #1976d2;">📚 Schuljahr-Beispiel:</strong>
+                        <span style="color: #666; font-size: 0.9em;">
+                            Von KW 33/2025 (Mitte August) bis KW 27/2026 (Anfang Juli) = komplettes Schuljahr
+                        </span>
                     </div>
                 </div>
 
@@ -741,10 +771,12 @@
             ],
             schedule: {},
             teamSize: 3,
-            startWeek: 29,
-            endWeek: 42,
-            year: 2025,
-            freeDays: ["32-1", "32-2", "40"]
+            startWeek: 33,
+            endWeek: 27,
+            startYear: 2025,
+            endYear: 2026,
+            year: 2025, // Rückwärtskompatibilität
+            freeDays: ["40", "41", "52-1", "7", "8", "15-3"]
         };
 
         // Auto-Save Status Management
@@ -918,8 +950,17 @@
                     if (data.teamSize) appData.teamSize = data.teamSize;
                     if (data.startWeek) appData.startWeek = data.startWeek;
                     if (data.endWeek) appData.endWeek = data.endWeek;
-                    if (data.year) appData.year = data.year;
                     if (data.freeDays) appData.freeDays = data.freeDays;
+                    
+                    // Neue Jahresfelder (mit Rückwärtskompatibilität)
+                    if (data.startYear) appData.startYear = data.startYear;
+                    if (data.endYear) appData.endYear = data.endYear;
+                    if (data.year) {
+                        appData.year = data.year;
+                        // Falls alte Struktur, konvertieren
+                        if (!data.startYear) appData.startYear = data.year;
+                        if (!data.endYear) appData.endYear = data.year;
+                    }
 
                     console.log('Data loaded from GitHub successfully');
                     return true;
@@ -1071,19 +1112,26 @@
 
         function updateDashboard() {
             const currentWeek = getCurrentWeek();
+            const currentYear = new Date().getFullYear();
             const nextWeek = currentWeek + 1;
+            let nextWeekYear = currentYear;
 
-            const currentRange = getWeekDateRange(currentWeek, appData.year);
+            // Jahreswechsel berücksichtigen
+            if (nextWeek > 53) {
+                nextWeekYear = currentYear + 1;
+            }
+
+            const currentRange = getWeekDateRange(currentWeek, currentYear);
             document.getElementById('currentWeekInfo').textContent = 
                 `Kalenderwoche ${currentWeek} (${currentRange.start} - ${currentRange.end})`;
 
             updateWeekDisplay('currentWeekSchedule', currentWeek);
 
-            const nextRange = getWeekDateRange(nextWeek, appData.year);
+            const nextRange = getWeekDateRange(nextWeek > 53 ? 1 : nextWeek, nextWeekYear);
             document.getElementById('nextWeekInfo').textContent = 
-                `Kalenderwoche ${nextWeek} (${nextRange.start} - ${nextRange.end})`;
+                `Kalenderwoche ${nextWeek > 53 ? 1 : nextWeek} (${nextRange.start} - ${nextRange.end})`;
 
-            updateWeekDisplay('nextWeekSchedule', nextWeek);
+            updateWeekDisplay('nextWeekSchedule', nextWeek > 53 ? 1 : nextWeek);
             updateHeaderForDashboard();
         }
 
@@ -1726,6 +1774,60 @@
             await saveData();
         }
 
+        function updateYearLabels(year) {
+            const currentYear = year;
+            const nextYear = year + 1;
+            
+            document.getElementById('currentYearLabel').textContent = currentYear;
+            document.getElementById('currentYearLabel2').textContent = currentYear;
+            document.getElementById('nextYearLabel').textContent = nextYear;
+            document.getElementById('nextYearLabel2').textContent = nextYear;
+        }
+
+        function splitFreeDaysByYear(freeDays, baseYear) {
+            const currentYearDays = [];
+            const nextYearDays = [];
+
+            freeDays.forEach(dayString => {
+                // Prüfen ob Format KW-Tag oder nur KW
+                if (dayString.includes('-')) {
+                    // Format: "KW-Tag" 
+                    const [week] = dayString.split('-');
+                    const weekNum = parseInt(week);
+                    
+                    // Heuristik: Wochen 1-30 gehören meist zum Folgjahr (Schuljahr geht bis Juli)
+                    // Wochen 31-53 gehören zum aktuellen Jahr
+                    if (weekNum >= 1 && weekNum <= 30) {
+                        nextYearDays.push(dayString);
+                    } else {
+                        currentYearDays.push(dayString);
+                    }
+                } else {
+                    // Format: nur "KW"
+                    const weekNum = parseInt(dayString);
+                    
+                    // Gleiche Heuristik für ganze Wochen
+                    if (weekNum >= 1 && weekNum <= 30) {
+                        nextYearDays.push(dayString);
+                    } else {
+                        currentYearDays.push(dayString);
+                    }
+                }
+            });
+
+            return { currentYearDays, nextYearDays };
+        }
+
+        function combineFreeDaysFromBothYears() {
+            const currentYearText = document.getElementById('freeDaysCurrentYear').value;
+            const nextYearText = document.getElementById('freeDaysNextYear').value;
+
+            const currentYearDays = currentYearText.split(',').map(s => s.trim()).filter(s => s);
+            const nextYearDays = nextYearText.split(',').map(s => s.trim()).filter(s => s);
+
+            return [...currentYearDays, ...nextYearDays];
+        }
+
         async function generateSchedule() {
             const startWeek = parseInt(document.getElementById('startWeek').value);
             const endWeek = parseInt(document.getElementById('endWeek').value);
@@ -1793,7 +1895,8 @@
             const generateBtn = document.getElementById('generateScheduleBtn');
             const addMemberBtn = document.getElementById('addMemberBtn');
             const teamSizeSelect = document.getElementById('teamSize');
-            const yearInput = document.getElementById('year');
+            const startYearInput = document.getElementById('startYear');
+            const endYearInput = document.getElementById('endYear');
 
             if (generateBtn) {
                 generateBtn.addEventListener('click', generateSchedule);
@@ -1807,10 +1910,20 @@
                 teamSizeSelect.addEventListener('change', updateTeamSize);
             }
 
-            if (yearInput) {
-                yearInput.addEventListener('input', function() {
+            if (startYearInput) {
+                startYearInput.addEventListener('input', function() {
                     const year = parseInt(this.value) || new Date().getFullYear();
                     updateYearLabels(year);
+                });
+            }
+
+            if (endYearInput) {
+                endYearInput.addEventListener('input', function() {
+                    // Automatisch das folgende Jahr als Endjahr setzen wenn Startjahr geändert wird
+                    const startYear = parseInt(document.getElementById('startYear').value);
+                    if (startYear && parseInt(this.value) < startYear) {
+                        this.value = startYear + 1;
+                    }
                 });
             }
         }
