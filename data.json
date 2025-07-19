@@ -29,24 +29,29 @@
     "29-1": [
       "Ana",
       "Erestina",
-      "Judith"
-    ],
-    "30-1": [
-      "Kilian",
-      "Martina",
-      "Ana"
-    ],
-    "31-1": [
-      "Erestina",
       "Judith",
       "Kilian"
     ],
-    "33-1": [
+    "30-1": [
+      "Martina",
+      "Ana",
+      "Erestina",
+      "Judith"
+    ],
+    "31-1": [
+      "Kilian",
       "Martina",
       "Ana",
       "Erestina"
     ],
+    "33-1": [
+      "Judith",
+      "Kilian",
+      "Martina",
+      "Ana"
+    ],
     "34-1": [
+      "Erestina",
       "Judith",
       "Kilian",
       "Martina"
@@ -54,24 +59,29 @@
     "35-1": [
       "Ana",
       "Erestina",
-      "Judith"
-    ],
-    "36-1": [
-      "Kilian",
-      "Martina",
-      "Ana"
-    ],
-    "37-1": [
-      "Erestina",
       "Judith",
       "Kilian"
     ],
-    "38-1": [
+    "36-1": [
+      "Martina",
+      "Ana",
+      "Erestina",
+      "Judith"
+    ],
+    "37-1": [
+      "Kilian",
       "Martina",
       "Ana",
       "Erestina"
     ],
+    "38-1": [
+      "Judith",
+      "Kilian",
+      "Martina",
+      "Ana"
+    ],
     "39-1": [
+      "Erestina",
       "Judith",
       "Kilian",
       "Martina"
@@ -79,12 +89,14 @@
     "41-1": [
       "Ana",
       "Erestina",
-      "Judith"
+      "Judith",
+      "Kilian"
     ],
     "42-1": [
-      "Kilian",
       "Martina",
-      "Ana"
+      "Ana",
+      "Erestina",
+      "Judith"
     ],
     "29-2": [
       "Andrea K."
@@ -136,5 +148,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:47:18.395Z"
+  "lastUpdated": "2025-07-19T06:47:19.959Z"
 }
