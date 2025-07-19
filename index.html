@@ -721,6 +721,7 @@
                 <!-- DEBUG & SYNC BUTTONS -->
                 <button class="btn btn-secondary" onclick="syncFormValues()" type="button">🔄 Werte synchronisieren</button>
                 <button class="btn btn-secondary" onclick="debugSchoolYear()" type="button">🔍 Debug Schuljahr</button>
+                <button class="btn btn-secondary" onclick="debugFreeDays()" type="button">🏖️ Debug Freie Tage</button>
                 
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
                     <h4 style="color: #28a745; margin-bottom: 10px;">💾 Auto-Save Status</h4>
@@ -1744,7 +1745,29 @@
             const currentYearDays = currentYearText.split(',').map(s => s.trim()).filter(s => s);
             const nextYearDays = nextYearText.split(',').map(s => s.trim()).filter(s => s);
 
-            return [...currentYearDays, ...nextYearDays];
+            const allFreeDaysInput = [...currentYearDays, ...nextYearDays];
+            const processedFreeDays = [];
+
+            // KORRIGIERT: Ganze Wochen in Einzeltage umwandeln
+            allFreeDaysInput.forEach(input => {
+                if (input.includes('-')) {
+                    // Einzelner Tag (z.B. "40-1")
+                    processedFreeDays.push(input);
+                } else {
+                    // Ganze Woche (z.B. "40") -> in alle 5 Schultage umwandeln
+                    const week = input;
+                    for (let day = 1; day <= 5; day++) {
+                        processedFreeDays.push(`${week}-${day}`);
+                    }
+                }
+            });
+
+            console.log('combineFreeDaysFromBothYears:', {
+                input: allFreeDaysInput,
+                processed: processedFreeDays
+            });
+
+            return processedFreeDays;
         }
 
         function updateAdminStats() {
@@ -1799,6 +1822,35 @@
         async function updateTeamSize() {
             appData.teamSize = parseInt(document.getElementById('teamSize').value);
             await saveData();
+        }
+
+        // DEBUG-Funktion für freie Tage
+        function debugFreeDays() {
+            console.log('=== DEBUG FREIE TAGE ===');
+            
+            const currentYearText = document.getElementById('freeDaysCurrentYear').value;
+            const nextYearText = document.getElementById('freeDaysNextYear').value;
+            
+            console.log('Eingaben:');
+            console.log('Jahr 1:', currentYearText);
+            console.log('Jahr 2:', nextYearText);
+            
+            const processedFreeDays = combineFreeDaysFromBothYears();
+            console.log('Verarbeitete freie Tage:', processedFreeDays);
+            
+            // Beispiel-Test
+            const examples = [];
+            processedFreeDays.slice(0, 10).forEach(dayKey => {
+                const allWeeks = getAllSchoolWeeks();
+                const foundWeek = allWeeks.find(w => dayKey.startsWith(w.week + '-'));
+                if (foundWeek) {
+                    const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr'];
+                    const dayIndex = parseInt(dayKey.split('-')[1]) - 1;
+                    examples.push(`${dayKey} = ${dayNames[dayIndex]} in KW ${foundWeek.week}/${foundWeek.year}`);
+                }
+            });
+            
+            alert(`DEBUG FREIE TAGE:\n\nEingabe Jahr 1: "${currentYearText}"\nEingabe Jahr 2: "${nextYearText}"\n\nVerarbeitet: ${processedFreeDays.length} freie Tage\n\nBeispiele:\n${examples.slice(0, 5).join('\n')}\n\nDetails in Konsole (F12)`);
         }
 
         // NEUE Sync-Funktion
