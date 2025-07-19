@@ -912,6 +912,11 @@
         }
 
         function downloadICSFile(personName, duties) {
+            if (!duties || duties.length === 0) {
+                alert('Keine Einsätze zum Exportieren vorhanden.');
+                return;
+            }
+            
             const icsContent = generateICSFile(personName, duties);
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
             const url = URL.createObjectURL(blob);
