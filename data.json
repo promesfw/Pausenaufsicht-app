@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Tom Fischer",
-      "day": "Dienstag"
-    },
-    {
       "name": "Sarah Klein",
       "day": "Mittwoch"
     },
@@ -54,42 +50,18 @@
     "39-1": [],
     "41-1": [],
     "42-1": [],
-    "29-2": [
-      "Tom Fischer"
-    ],
-    "30-2": [
-      "Tom Fischer"
-    ],
-    "31-2": [
-      "Tom Fischer"
-    ],
-    "33-2": [
-      "Tom Fischer"
-    ],
-    "34-2": [
-      "Tom Fischer"
-    ],
-    "35-2": [
-      "Tom Fischer"
-    ],
-    "36-2": [
-      "Tom Fischer"
-    ],
-    "37-2": [
-      "Tom Fischer"
-    ],
-    "38-2": [
-      "Tom Fischer"
-    ],
-    "39-2": [
-      "Tom Fischer"
-    ],
-    "41-2": [
-      "Tom Fischer"
-    ],
-    "42-2": [
-      "Tom Fischer"
-    ],
+    "29-2": [],
+    "30-2": [],
+    "31-2": [],
+    "33-2": [],
+    "34-2": [],
+    "35-2": [],
+    "36-2": [],
+    "37-2": [],
+    "38-2": [],
+    "39-2": [],
+    "41-2": [],
+    "42-2": [],
     "29-3": [
       "Sarah Klein",
       "Max Richter",
@@ -299,5 +271,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:30:59.858Z"
+  "lastUpdated": "2025-07-19T06:31:03.618Z"
 }
