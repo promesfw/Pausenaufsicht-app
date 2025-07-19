@@ -180,12 +180,6 @@
             font-size: 0.9em;
         }
 
-        .calendar-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
         /* Auto-Save Status */
         .save-status {
             position: fixed;
@@ -332,12 +326,6 @@
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
         }
 
-        .btn-small {
-            font-size: 0.8em;
-            padding: 5px 10px;
-            margin: 0;
-        }
-
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -462,10 +450,6 @@
             
             .member-assignment label {
                 min-width: unset;
-            }
-
-            .calendar-buttons {
-                flex-direction: column;
             }
         }
 
@@ -928,46 +912,6 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-        }
-
-        function createGoogleCalendarLink(duty) {
-            const eventDate = getDateFromWeekAndDay(duty.week, duty.year, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(duty.dayName));
-            
-            const startDate = new Date(eventDate);
-            startDate.setHours(9, 55, 0, 0);
-            
-            const endDate = new Date(eventDate);
-            endDate.setHours(10, 15, 0, 0);
-
-            const formatGoogleDate = (date) => {
-                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-            };
-
-            const params = new URLSearchParams({
-                action: 'TEMPLATE',
-                text: 'Pausenaufsicht - Primarschule Wohlen',
-                dates: `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`,
-                details: `Pausenaufsicht ${duty.dayName}\nKalenderwoche ${duty.week}/${duty.year}\nZeit: 09:55 - 10:15`,
-                location: 'Primarschule Wohlen'
-            });
-
-            return `https://calendar.google.com/calendar/render?${params.toString()}`;
-        }
-
-        // Hilfsfunktion für Bulk-Export zu Google Calendar
-        function exportToGoogleCalendarBulk(personName, duties) {
-            if (duties.length === 0) {
-                alert('Keine zukünftigen Einsätze vorhanden.');
-                return;
-            }
-
-            const message = `${duties.length} Einsätze gefunden.\n\nHinweis: Google Calendar kann nur einen Termin auf einmal hinzufügen. Verwenden Sie besser den "Kalenderdatei herunterladen" Button für alle Termine auf einmal.\n\nMöchten Sie trotzdem den ersten Termin zu Google Calendar hinzufügen?`;
-            
-            if (confirm(message)) {
-                const firstDuty = duties[0];
-                const googleCalendarLink = createGoogleCalendarLink(firstDuty);
-                window.open(googleCalendarLink, '_blank');
-            }
         }
 
         // Auto-Save Status Management
