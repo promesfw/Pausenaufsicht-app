@@ -1423,7 +1423,7 @@
             });
         }
 
-        // NEU: "Meine Einsätze" mit Schuljahr-Unterstützung
+        // "Meine Einsätze" mit Schuljahr-Unterstützung und Tausch-Erkennung
         function showPersonDuties() {
             const selectedPerson = document.getElementById('personSelector').value;
             if (!selectedPerson) {
@@ -1436,7 +1436,6 @@
 
             const currentWeek = getCurrentWeek();
             const currentYear = new Date().getFullYear();
-            const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member.day);
 
             let duties = [];
             let totalDuties = 0;
@@ -1445,31 +1444,38 @@
             const allWeeks = getAllSchoolWeeks();
             
             allWeeks.forEach(({ week, year }) => {
-                const dayKey = `${week}-${dayIndex + 1}`;
-                const schedule = appData.schedule[dayKey] || [];
+                // KORRIGIERT: Alle Wochentage durchsuchen, nicht nur den Standard-Tag
+                const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+                
+                days.forEach((dayName, dayIndex) => {
+                    const dayKey = `${week}-${dayIndex + 1}`;
+                    const schedule = appData.schedule[dayKey] || [];
 
-                if (schedule.includes(selectedPerson)) {
-                    const range = getWeekDateRange(week, year);
-                    const isFuture = (year > currentYear) || (year === currentYear && week >= currentWeek);
-                    
-                    duties.push({
-                        week: week,
-                        year: year,
-                        date: range.start,
-                        isFuture: isFuture
-                    });
-                    totalDuties++;
-                    if (isFuture) {
-                        futureDuties++;
+                    if (schedule.includes(selectedPerson)) {
+                        const range = getWeekDateRange(week, year);
+                        const isFuture = (year > currentYear) || (year === currentYear && week >= currentWeek);
+                        
+                        duties.push({
+                            week: week,
+                            year: year,
+                            date: range.start,
+                            dayName: dayName, // Tatsächlicher Einsatztag (kann nach Tausch abweichen)
+                            isFuture: isFuture,
+                            isSwapped: dayName !== member.day // Markierung ob getauscht
+                        });
+                        totalDuties++;
+                        if (isFuture) {
+                            futureDuties++;
+                        }
                     }
-                }
+                });
             });
 
             const futureDutiesOnly = duties.filter(duty => duty.isFuture);
 
             let html = `
                 <div class="stats-card">
-                    <h4>Einsätze für ${selectedPerson}, jeweils am ${member.day}</h4>
+                    <h4>Einsätze für ${selectedPerson} (Standard: ${member.day})</h4>
                     <p>Gesamt: ${totalDuties} Einsätze, noch ausstehend: ${futureDuties} Einsätze</p>
                 </div>
 
@@ -1479,20 +1485,26 @@
                             <th>Kalenderwoche</th>
                             <th>Datum</th>
                             <th>Wochentag</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
             if (futureDutiesOnly.length === 0) {
-                html += '<tr><td colspan="3" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
+                html += '<tr><td colspan="4" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
             } else {
                 futureDutiesOnly.forEach(duty => {
+                    const statusText = duty.isSwapped ? 
+                        `<span style="color: #f39c12; font-weight: bold;">⇄ Getauscht</span>` : 
+                        `<span style="color: #27ae60;">✓ Standard</span>`;
+                    
                     html += `
                         <tr>
                             <td>KW ${duty.week}/${duty.year}</td>
                             <td>${duty.date}</td>
-                            <td>${member.day}</td>
+                            <td><strong>${duty.dayName}</strong></td>
+                            <td>${statusText}</td>
                         </tr>
                     `;
                 });
@@ -1902,36 +1914,26 @@
             document.getElementById('addMemberBtn').addEventListener('click', addMember);
             document.getElementById('teamSize').addEventListener('change', updateTeamSize);
             
-            // NEUE Event Listeners für Jahr-Inputs
+            // Event Listeners für Jahr-Inputs
             document.getElementById('startYear').addEventListener('input', function() {
                 appData.startYear = parseInt(this.value) || appData.startYear;
                 updateYearLabels();
-                console.log('Updated startYear to:', appData.startYear);
             });
             
             document.getElementById('endYear').addEventListener('input', function() {
                 appData.endYear = parseInt(this.value) || appData.endYear;
                 updateYearLabels();
-                console.log('Updated endYear to:', appData.endYear);
             });
             
             document.getElementById('startWeek').addEventListener('input', function() {
                 appData.startWeek = parseInt(this.value) || appData.startWeek;
-                console.log('Updated startWeek to:', appData.startWeek);
             });
             
             document.getElementById('endWeek').addEventListener('input', function() {
                 appData.endWeek = parseInt(this.value) || appData.endWeek;
-                console.log('Updated endWeek to:', appData.endWeek);
             });
 
             console.log('App initialization completed');
-            console.log('Initial appData:', {
-                startYear: appData.startYear,
-                endYear: appData.endYear,
-                startWeek: appData.startWeek,
-                endWeek: appData.endWeek
-            });
         });
     </script>
 </body>
