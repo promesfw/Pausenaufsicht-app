@@ -718,7 +718,8 @@
 
                 <button class="btn" id="generateScheduleBtn" type="button">Einsatzplan generieren</button>
                 
-                <!-- DEBUG BUTTON -->
+                <!-- DEBUG & SYNC BUTTONS -->
+                <button class="btn btn-secondary" onclick="syncFormValues()" type="button">🔄 Werte synchronisieren</button>
                 <button class="btn btn-secondary" onclick="debugSchoolYear()" type="button">🔍 Debug Schuljahr</button>
                 
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
@@ -1800,10 +1801,56 @@
             await saveData();
         }
 
-        // DEBUG-Funktion
+        // NEUE Sync-Funktion
+        function syncFormValues() {
+            console.log('=== SYNC FORM VALUES ===');
+            
+            // Alte Werte
+            const oldValues = {
+                startYear: appData.startYear,
+                endYear: appData.endYear,
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek
+            };
+            console.log('Alte appData-Werte:', oldValues);
+            
+            // Neue Werte aus HTML-Inputs lesen
+            appData.startYear = parseInt(document.getElementById('startYear').value) || appData.startYear;
+            appData.endYear = parseInt(document.getElementById('endYear').value) || appData.endYear;
+            appData.startWeek = parseInt(document.getElementById('startWeek').value) || appData.startWeek;
+            appData.endWeek = parseInt(document.getElementById('endWeek').value) || appData.endWeek;
+            appData.year = appData.startYear; // Rückwärtskompatibilität
+            
+            const newValues = {
+                startYear: appData.startYear,
+                endYear: appData.endYear,
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek
+            };
+            console.log('Neue appData-Werte:', newValues);
+            
+            // UI aktualisieren
+            updateYearLabels();
+            updateScheduleTab(); // Dropdown mit allen Wochen aktualisieren
+            updateSwapSelectors(); // Swap-Dropdowns aktualisieren
+            
+            alert(`Werte synchronisiert!\n\nAlt: KW ${oldValues.startWeek}/${oldValues.startYear} bis KW ${oldValues.endWeek}/${oldValues.endYear}\n\nNeu: KW ${newValues.startWeek}/${newValues.startYear} bis KW ${newValues.endWeek}/${newValues.endYear}`);
+        }
+
+        // DEBUG-Funktion (erweitert)
         function debugSchoolYear() {
             console.log('=== DEBUG SCHULJAHR ===');
-            console.log('appData:', {
+            
+            // HTML Input-Werte
+            const htmlValues = {
+                startYear: document.getElementById('startYear').value,
+                endYear: document.getElementById('endYear').value,
+                startWeek: document.getElementById('startWeek').value,
+                endWeek: document.getElementById('endWeek').value
+            };
+            
+            console.log('HTML Input-Werte:', htmlValues);
+            console.log('appData-Werte:', {
                 startYear: appData.startYear,
                 endYear: appData.endYear,
                 startWeek: appData.startWeek,
@@ -1823,10 +1870,10 @@
             console.log('Schedule Keys (erste 10):', scheduleKeys.slice(0, 10));
             console.log('Schedule Keys (letzte 10):', scheduleKeys.slice(-10));
             
-            alert(`DEBUG INFO:\n\nSchuljahr: KW ${appData.startWeek}/${appData.startYear} bis KW ${appData.endWeek}/${appData.endYear}\n\nGenerierte Wochen: ${allWeeks.length}\nEinsätze im Schedule: ${scheduleKeys.length}\n\nDetails in der Konsole (F12)`);
+            alert(`DEBUG INFO:\n\nHTML Inputs: KW ${htmlValues.startWeek}/${htmlValues.startYear} bis KW ${htmlValues.endWeek}/${htmlValues.endYear}\n\nappData: KW ${appData.startWeek}/${appData.startYear} bis KW ${appData.endWeek}/${appData.endYear}\n\nGenerierte Wochen: ${allWeeks.length}\nEinsätze im Schedule: ${scheduleKeys.length}\n\nDetails in der Konsole (F12)`);
         }
 
-        // NEU: Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
+        // KORRIGIERT: generateSchedule liest Werte direkt aus HTML-Inputs
         async function generateSchedule() {
             // BESTÄTIGUNGSDIALOG
             const confirmed = confirm(
@@ -1839,24 +1886,40 @@
                 return;
             }
 
+            // KORRIGIERT: Werte DIREKT aus HTML-Inputs lesen
             const startWeek = parseInt(document.getElementById('startWeek').value);
             const endWeek = parseInt(document.getElementById('endWeek').value);
             const startYear = parseInt(document.getElementById('startYear').value);
             const endYear = parseInt(document.getElementById('endYear').value);
+
+            console.log('generateSchedule - Gelesene Werte:', {
+                startWeek, endWeek, startYear, endYear
+            });
 
             if (startYear > endYear || (startYear === endYear && startWeek >= endWeek)) {
                 alert('Ungültiger Zeitraum! Das Schuljahr-Ende muss nach dem Beginn liegen.');
                 return;
             }
 
+            // Werte sofort in appData übernehmen
             appData.startWeek = startWeek;
             appData.endWeek = endWeek;
             appData.startYear = startYear;
             appData.endYear = endYear;
-            appData.year = startYear;
+            appData.year = startYear; // Rückwärtskompatibilität
 
+            console.log('generateSchedule - appData aktualisiert:', {
+                startWeek: appData.startWeek,
+                endWeek: appData.endWeek, 
+                startYear: appData.startYear,
+                endYear: appData.endYear
+            });
+
+            // Freie Tage aus beiden Jahren kombinieren
             appData.freeDays = combineFreeDaysFromBothYears();
+            console.log('generateSchedule - Freie Tage:', appData.freeDays);
 
+            // Schedule zurücksetzen
             appData.schedule = {};
 
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
@@ -1869,12 +1932,13 @@
                 let currentIndex = 0;
 
                 const allWeeks = getAllSchoolWeeks();
+                console.log(`generateSchedule - ${day}: ${allWeeks.length} Wochen, ${dayMembers.length} Mitglieder`);
                 
                 allWeeks.forEach(({ week }) => {
                     const dayKey = `${week}-${dayIndex + 1}`;
 
                     if (appData.freeDays.includes(dayKey)) {
-                        return;
+                        return; // Freier Tag überspringen
                     }
 
                     const teamForDay = [];
@@ -1886,6 +1950,8 @@
                     appData.schedule[dayKey] = teamForDay.map(m => m.name);
                 });
             });
+
+            console.log('generateSchedule - Schedule erstellt, Anzahl Keys:', Object.keys(appData.schedule).length);
 
             await saveData();
             updateAdminStats();
