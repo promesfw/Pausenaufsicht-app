@@ -59,6 +59,10 @@
     {
       "name": "Aline",
       "day": "Freitag"
+    },
+    {
+      "name": "Andrea M.",
+      "day": "Donnerstag"
     }
   ],
   "schedule": {
@@ -184,5 +188,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:52:30.393Z"
+  "lastUpdated": "2025-07-19T06:52:42.186Z"
 }
