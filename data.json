@@ -59,6 +59,10 @@
     {
       "name": "Peter",
       "day": "Montag"
+    },
+    {
+      "name": "Müller",
+      "day": "Montag"
     }
   ],
   "schedule": {
@@ -382,5 +386,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:27:30.479Z"
+  "lastUpdated": "2025-07-19T06:27:43.892Z"
 }
