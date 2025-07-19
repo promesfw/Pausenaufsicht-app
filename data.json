@@ -1,10 +1,5 @@
 {
-  "members": [
-    {
-      "name": "Laura Hartmann",
-      "day": "Freitag"
-    }
-  ],
+  "members": [],
   "schedule": {
     "29-1": [],
     "30-1": [],
@@ -56,45 +51,19 @@
     "39-4": [],
     "41-4": [],
     "42-4": [],
-    "29-5": [
-      "Laura Hartmann"
-    ],
-    "30-5": [
-      "Laura Hartmann"
-    ],
-    "31-5": [
-      "Laura Hartmann"
-    ],
-    "32-5": [
-      "Laura Hartmann"
-    ],
-    "33-5": [
-      "Laura Hartmann"
-    ],
-    "34-5": [
-      "Laura Hartmann"
-    ],
-    "35-5": [
-      "Laura Hartmann"
-    ],
-    "36-5": [
-      "Laura Hartmann"
-    ],
-    "37-5": [
-      "Laura Hartmann"
-    ],
-    "38-5": [
-      "Laura Hartmann"
-    ],
-    "39-5": [
-      "Laura Hartmann"
-    ],
-    "41-5": [
-      "Laura Hartmann"
-    ],
-    "42-5": [
-      "Laura Hartmann"
-    ]
+    "29-5": [],
+    "30-5": [],
+    "31-5": [],
+    "32-5": [],
+    "33-5": [],
+    "34-5": [],
+    "35-5": [],
+    "36-5": [],
+    "37-5": [],
+    "38-5": [],
+    "39-5": [],
+    "41-5": [],
+    "42-5": []
   },
   "teamSize": 3,
   "startWeek": 29,
@@ -109,5 +78,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:31:39.900Z"
+  "lastUpdated": "2025-07-19T06:31:44.351Z"
 }
