@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Max Richter",
-      "day": "Mittwoch"
-    },
-    {
       "name": "Emma Wolf",
       "day": "Mittwoch"
     },
@@ -59,55 +55,42 @@
     "41-2": [],
     "42-2": [],
     "29-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "30-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "31-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "32-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "33-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "34-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "35-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "36-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "37-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "38-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "39-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "41-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "42-3": [
-      "Max Richter",
       "Emma Wolf"
     ],
     "29-4": [
@@ -254,5 +237,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:31:07.671Z"
+  "lastUpdated": "2025-07-19T06:31:11.637Z"
 }
