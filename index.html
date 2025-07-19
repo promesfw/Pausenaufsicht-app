@@ -1123,9 +1123,14 @@
             const week2 = document.getElementById('swapWeek2');
             const currentWeek = getCurrentWeek();
 
+            // Alphabetische Sortierung der Mitglieder für Swap-Selektoren
+            const sortedMembers = [...appData.members].sort((a, b) => 
+                a.name.localeCompare(b.name, 'de', { sensitivity: 'base' })
+            );
+
             [person1, person2].forEach(select => {
                 select.innerHTML = '<option value="">Person wählen</option>';
-                appData.members.forEach(member => {
+                sortedMembers.forEach(member => {
                     const option = document.createElement('option');
                     option.value = member.name;
                     option.textContent = member.name;
@@ -1312,7 +1317,12 @@
             const personSelector = document.getElementById('personSelector');
             personSelector.innerHTML = '<option value="">Bitte wählen</option>';
 
-            appData.members.forEach(member => {
+            // Alphabetische Sortierung der Mitglieder
+            const sortedMembers = [...appData.members].sort((a, b) => 
+                a.name.localeCompare(b.name, 'de', { sensitivity: 'base' })
+            );
+
+            sortedMembers.forEach(member => {
                 const option = document.createElement('option');
                 option.value = member.name;
                 option.textContent = member.name;
