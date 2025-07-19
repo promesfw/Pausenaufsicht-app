@@ -3,7 +3,7 @@
     {
       "name": "Erestina",
       "day": "Montag",
-      "interval": 1
+      "interval": 3
     },
     {
       "name": "Judith",
@@ -1476,5 +1476,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-07-19T17:22:21.286Z"
+  "lastUpdated": "2025-07-19T17:23:18.875Z"
 }
