@@ -160,6 +160,70 @@
             font-weight: 500;
         }
 
+        /* Auto-Save Status */
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .save-status.saving {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .save-status.saved {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .save-status.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Token Setup */
+        .token-setup {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .token-setup h4 {
+            margin-bottom: 10px;
+        }
+
+        .token-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .token-input input {
+            flex: 1;
+            min-width: 300px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
         /* Kompakteres Dashboard-Layout */
         #dashboard .week-section {
             margin-bottom: 15px;
@@ -234,6 +298,10 @@
 
         .btn-danger {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
         }
 
         .table {
@@ -414,45 +482,14 @@
             padding: 6px;
             min-height: 60px;
         }
-            .nav-tabs {
-                flex-direction: column;
-            }
-            
-            .nav-tab {
-                min-width: unset;
-            }
-            
-            .schedule-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 4px;
-            }
-            
-            #dashboard .day-card {
-                padding: 6px;
-                min-height: 70px;
-            }
-            
-            #dashboard .day-card h4 {
-                font-size: 0.75em;
-            }
-            
-            #dashboard .team-member {
-                font-size: 0.65em;
-                padding: 1px 4px;
-            }
-            
-            .member-assignment {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .member-assignment label {
-                min-width: unset;
-            }
-        }
     </style>
 </head>
 <body>
+    <!-- Auto-Save Status Indicator -->
+    <div id="saveStatus" class="save-status" style="display: none;">
+        <span id="saveStatusText">Speichern...</span>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Pausenaufsicht</h1>
@@ -470,22 +507,6 @@
         <div class="content">
             <!-- Dashboard Tab -->
             <div id="dashboard" class="tab-content">
-                <!-- Versteckte Excel-Export-Tabelle -->
-                <div style="display: none;">
-                    <table id="excel-export-table">
-                        <thead>
-                            <tr>
-                                <th>Datum</th>
-                                <th>Wochentag</th>
-                                <th>Status</th>
-                                <th>Eingeteilt</th>
-                            </tr>
-                        </thead>
-                        <tbody id="excel-export-tbody">
-                        </tbody>
-                    </table>
-                </div>
-
                 <div class="week-section">
                     <h3>📅 Pausenaufsicht diese Woche</h3>
                     <div class="week-info" id="currentWeekInfo">
@@ -505,7 +526,6 @@
                         <!-- Wird dynamisch gefüllt -->
                     </div>
                 </div>
-
             </div>
 
             <!-- Schedule Tab -->
@@ -584,6 +604,27 @@
             <!-- Admin Tab -->
             <div id="admin" class="tab-content hidden">
                 <h3>⚙️ Administration</h3>
+
+                <!-- GitHub Token Setup -->
+                <div id="tokenSetup" class="token-setup">
+                    <h4>🔑 GitHub Token Setup</h4>
+                    <p style="margin-bottom: 10px;">Für automatisches Speichern benötigen Sie einen GitHub Personal Access Token:</p>
+                    <div class="token-input">
+                        <input type="password" id="githubToken" placeholder="GitHub Personal Access Token hier eingeben" />
+                        <button class="btn btn-success" onclick="saveToken()">Token speichern</button>
+                        <button class="btn btn-secondary" onclick="showTokenHelp()">Hilfe</button>
+                    </div>
+                    <div id="tokenHelp" style="display: none; margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                        <p><strong>So erstellen Sie einen GitHub Token:</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>Gehen Sie zu GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
+                            <li>Klicken Sie auf "Generate new token (classic)"</li>
+                            <li>Geben Sie eine Beschreibung ein (z.B. "Pausenaufsicht App")</li>
+                            <li>Wählen Sie Scope "repo" (Full control of private repositories)</li>
+                            <li>Klicken Sie "Generate token" und kopieren Sie den Token hierher</li>
+                        </ol>
+                    </div>
+                </div>
                 
                 <div class="form-group">
                     <label>Teamgröße festlegen:</label>
@@ -622,19 +663,19 @@
                 <button class="btn" id="generateScheduleBtn" type="button">Einsatzplan generieren</button>
                 
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
-                    <h4 style="color: #28a745; margin-bottom: 10px;">💾 GitHub-Integration Status</h4>
+                    <h4 style="color: #28a745; margin-bottom: 10px;">💾 Auto-Save Status</h4>
                     <div id="github-status" style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 5px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span id="status-icon">⚠️</span>
-                            <span id="status-text">Prüfe GitHub-Verbindung...</span>
+                            <span id="status-text">GitHub Token nicht konfiguriert</span>
                         </div>
                     </div>
                     <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
-                        <strong>Daten-Synchronisation:</strong> Daten werden automatisch lokal gespeichert. Für dauerhafte Speicherung und Synchronisation zwischen Nutzern:
+                        <strong>Auto-Save:</strong> Speichert automatisch nach Änderungen am Einsatzplan und Teammitgliedern.
                     </p>
-                    <button class="btn btn-secondary" onclick="saveDataToGitHub()" type="button">📤 Daten für GitHub exportieren</button>
-                    <button class="btn btn-secondary" onclick="window.location.reload()" type="button">🔄 Von GitHub neu laden</button>
-                    <button class="btn btn-secondary" onclick="checkGitHubStatus()" type="button">🔍 GitHub-Status prüfen</button>
+                    <button class="btn btn-success" onclick="manualSave()">📤 Jetzt speichern</button>
+                    <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Von GitHub neu laden</button>
+                    <button class="btn btn-secondary" onclick="checkGitHubStatus()">🔍 Verbindung testen</button>
                 </div>
 
                 <div id="adminStats">
@@ -645,7 +686,15 @@
     </div>
 
     <script>
-        // Standard-Datenstruktur (Fallback)
+        // Konfiguration
+        const GITHUB_CONFIG = {
+            owner: 'promesfw',
+            repo: 'Pausenaufsicht-app',
+            dataFile: 'data.json',
+            apiUrl: 'https://api.github.com'
+        };
+
+        // Standard-Datenstruktur
         let appData = {
             members: [
                 { name: "Anna Müller", day: "Montag" },
@@ -671,49 +720,154 @@
             year: 2025,
             freeDays: ["32-1", "32-2", "40"]
         };
-        const GITHUB_CONFIG = {
-            owner: 'promesfw',
-            repo: 'Pausenaufsicht-app', 
-            dataFile: 'data.json',
-            // Für erweiterte API-Nutzung (später):
-            token: '', // Leer lassen für jetzt
-            apiUrl: 'https://api.github.com'
-        };
 
-        // Daten von GitHub laden
+        // Auto-Save Status Management
+        function showSaveStatus(status, message) {
+            const statusElement = document.getElementById('saveStatus');
+            const textElement = document.getElementById('saveStatusText');
+            
+            statusElement.className = `save-status ${status}`;
+            textElement.textContent = message;
+            statusElement.style.display = 'block';
+
+            if (status === 'saved' || status === 'error') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Token Management
+        function getGitHubToken() {
+            return localStorage.getItem('github_token');
+        }
+
+        function saveToken() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('Bitte geben Sie einen Token ein!');
+                return;
+            }
+
+            localStorage.setItem('github_token', token);
+            document.getElementById('githubToken').value = '';
+            updateGitHubStatus();
+            alert('Token wurde gespeichert!');
+        }
+
+        function showTokenHelp() {
+            const helpDiv = document.getElementById('tokenHelp');
+            helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateGitHubStatus() {
+            const token = getGitHubToken();
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (!token) {
+                statusIcon.textContent = '⚠️';
+                statusText.textContent = 'GitHub Token nicht konfiguriert - Auto-Save deaktiviert';
+            } else {
+                statusIcon.textContent = '✅';
+                statusText.textContent = 'GitHub Token konfiguriert - Auto-Save aktiviert';
+            }
+        }
+
+        // GitHub API Functions
+        async function saveDataToGitHub() {
+            const token = getGitHubToken();
+            if (!token) {
+                console.log('No GitHub token available, skipping save');
+                return false;
+            }
+
+            showSaveStatus('saving', 'Speichere auf GitHub...');
+
+            try {
+                // 1. Aktuelle Datei-Information holen (für SHA)
+                const getResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                let sha = null;
+                if (getResponse.ok) {
+                    const fileData = await getResponse.json();
+                    sha = fileData.sha;
+                }
+
+                // 2. Neue Daten vorbereiten
+                const dataToSave = {
+                    ...appData,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const content = btoa(JSON.stringify(dataToSave, null, 2));
+
+                // 3. Datei aktualisieren oder erstellen
+                const updateData = {
+                    message: `Auto-Save: Update Pausenaufsicht data at ${new Date().toLocaleString('de-DE')}`,
+                    content: content
+                };
+
+                if (sha) {
+                    updateData.sha = sha;
+                }
+
+                const updateResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateData)
+                    }
+                );
+
+                if (updateResponse.ok) {
+                    showSaveStatus('saved', 'Erfolgreich gespeichert!');
+                    console.log('Data successfully saved to GitHub');
+                    return true;
+                } else {
+                    const errorData = await updateResponse.json();
+                    throw new Error(`GitHub API error: ${errorData.message}`);
+                }
+
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                showSaveStatus('error', `Fehler beim Speichern: ${error.message}`);
+                return false;
+            }
+        }
+
         async function loadDataFromGitHub() {
             try {
                 console.log('Loading data from GitHub...');
-                const url = `https://promesfw.github.io/Pausenaufsicht-app/data.json?t=${Date.now()}`;
-                console.log('Fetching from URL:', url);
+                const url = `https://${GITHUB_CONFIG.owner}.github.io/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.dataFile}?t=${Date.now()}`;
                 
                 const response = await fetch(url);
-                console.log('Response status:', response.status, response.statusText);
                 
                 if (response.status === 404) {
                     console.warn('data.json not found (404) - this is normal on first setup');
                     return false;
                 }
-                
+
                 if (!response.ok) {
                     console.warn('HTTP error:', response.status, response.statusText);
                     return false;
                 }
+
+                const data = await response.json();
                 
-                const responseText = await response.text();
-                console.log('Response text length:', responseText.length);
-                console.log('Response preview:', responseText.substring(0, 100) + '...');
-                
-                if (!responseText.trim()) {
-                    console.warn('Empty response from GitHub');
-                    return false;
-                }
-                
-                // Versuche JSON zu parsen
-                const data = JSON.parse(responseText);
-                console.log('JSON parsed successfully');
-                
-                // Validiere Datenstruktur
                 if (data && typeof data === 'object') {
                     // Merge mit bestehenden Daten
                     if (data.members) appData.members = data.members;
@@ -723,239 +877,69 @@
                     if (data.endWeek) appData.endWeek = data.endWeek;
                     if (data.year) appData.year = data.year;
                     if (data.freeDays) appData.freeDays = data.freeDays;
-                    
+
                     console.log('Data loaded from GitHub successfully');
                     return true;
-                } else {
-                    console.warn('Invalid data structure from GitHub');
-                    return false;
                 }
-                
+
             } catch (error) {
                 console.error('Error loading data from GitHub:', error);
-                console.log('Error details:', error.message);
-                
-                if (error instanceof SyntaxError) {
-                    console.log('JSON parsing failed - data.json might be malformed or not exist yet');
-                }
-                
                 return false;
             }
         }
 
-        // Daten zu GitHub speichern (vereinfacht - zeigt JSON zum Kopieren)
-        async function saveDataToGitHub() {
-            const dataToSave = {
-                members: appData.members,
-                schedule: appData.schedule,
-                teamSize: appData.teamSize,
-                startWeek: appData.startWeek,
-                endWeek: appData.endWeek,
-                year: appData.year,
-                freeDays: appData.freeDays,
-                lastUpdated: new Date().toISOString()
-            };
+        async function checkGitHubStatus() {
+            const token = getGitHubToken();
+            if (!token) {
+                alert('Bitte konfigurieren Sie zuerst einen GitHub Token!');
+                return;
+            }
 
-            // Zeige JSON zum manuellen Kopieren
-            const jsonString = JSON.stringify(dataToSave, null, 2);
-            
-            // Erstelle Download-Link
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'data.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            showSaveStatus('saving', 'Teste Verbindung...');
 
-            // Zeige Anleitung
-            alert(`Daten wurden als data.json heruntergeladen!\n\nUm zu speichern:\n1. Datei öffnen\n2. Inhalt kopieren\n3. In GitHub: data.json bearbeiten\n4. Inhalt ersetzen\n5. Commit erstellen`);
-            
-            console.log('Data prepared for GitHub update:', dataToSave);
+            try {
+                const response = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    showSaveStatus('saved', 'GitHub-Verbindung erfolgreich!');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(`${response.status}: ${errorData.message}`);
+                }
+
+            } catch (error) {
+                showSaveStatus('error', `Verbindungsfehler: ${error.message}`);
+            }
         }
 
-        // Lokales Backup im Browser
-        function saveDataLocally() {
+        // Auto-Save wrapper für wichtige Funktionen
+        async function saveData() {
+            // Lokales Backup
             try {
                 localStorage.setItem('pausenaufsicht-backup', JSON.stringify(appData));
-                console.log('Data backed up locally');
             } catch (error) {
                 console.error('Local backup failed:', error);
             }
+
+            // Auto-Save zu GitHub (nur wenn Token vorhanden)
+            await saveDataToGitHub();
         }
 
-        // Lokales Backup laden
-        function loadDataLocally() {
-            try {
-                const backup = localStorage.getItem('pausenaufsicht-backup');
-                if (backup) {
-                    const localData = JSON.parse(backup);
-                    // Nur laden wenn lokal neuer als GitHub
-                    console.log('Local backup found');
-                    return localData;
-                }
-            } catch (error) {
-                console.error('Error loading local backup:', error);
+        async function manualSave() {
+            const success = await saveDataToGitHub();
+            if (success) {
+                alert('Daten wurden erfolgreich auf GitHub gespeichert!');
+            } else {
+                alert('Fehler beim Speichern auf GitHub. Prüfen Sie Ihren Token und die Internetverbindung.');
             }
-            return null;
-        }
-
-        // Funktionen definieren
-        function removeMember(memberName) {
-            console.log('Removing member:', memberName);
-            
-            // Einfache Löschung wie in der funktionierenden Version
-            appData.members = appData.members.filter(m => m.name !== memberName);
-            
-            // Entferne auch aus dem Einsatzplan
-            Object.keys(appData.schedule).forEach(key => {
-                if (appData.schedule[key]) {
-                    appData.schedule[key] = appData.schedule[key].filter(name => name !== memberName);
-                }
-            });
-            
-            // Aktualisiere alle relevanten Ansichten
-            updateMembersTab();
-            updateMyDutiesTab();
-            updateDashboard();
-            
-            console.log('Member removed successfully');
-        }
-
-        function exportData() {
-            console.log('Exporting data...');
-            try {
-                const dataStr = JSON.stringify(appData, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'pausenaufsicht_daten.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                alert('Daten wurden erfolgreich exportiert!');
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('Fehler beim Exportieren der Daten!');
-            }
-        }
-
-        function clearAllData() {
-            console.log('Clearing all data...');
-            if (confirm('Möchten Sie wirklich alle Daten löschen? Dies kann nicht rückgängig gemacht werden!')) {
-                appData = {
-                    members: [],
-                    schedule: {},
-                    teamSize: 3,
-                    startWeek: 29,
-                    endWeek: 42,
-                    year: 2025,
-                    freeDays: []
-                };
-                saveData();
-                updateAdminTab();
-                alert('Alle Daten wurden gelöscht!');
-            }
-        }
-
-        function addMember() {
-            console.log('Adding member...');
-            const name = document.getElementById('newMemberName').value.trim();
-            const day = document.getElementById('newMemberDay').value;
-            
-            if (!name || !day) {
-                alert('Bitte Name und Wochentag eingeben!');
-                return;
-            }
-            
-            if (appData.members.some(m => m.name === name)) {
-                alert('Mitglied mit diesem Namen existiert bereits!');
-                return;
-            }
-            
-            appData.members.push({ name, day });
-            saveData();
-            
-            document.getElementById('newMemberName').value = '';
-            document.getElementById('newMemberDay').value = '';
-            
-            updateMembersTab();
-            alert('Mitglied erfolgreich hinzugefügt!');
-        }
-
-        function changeMemberDay(memberName, newDay) {
-            console.log('Changing member day:', memberName, 'to', newDay);
-            const member = appData.members.find(m => m.name === memberName);
-            if (member) {
-                member.day = newDay;
-                saveData();
-                updateMembersTab();
-            }
-        }
-
-        function generateSchedule() {
-            console.log('Generating schedule...');
-            const startWeek = parseInt(document.getElementById('startWeek').value);
-            const endWeek = parseInt(document.getElementById('endWeek').value);
-            const year = parseInt(document.getElementById('year').value);
-            const freeDaysText = document.getElementById('freeDays').value;
-            
-            if (startWeek >= endWeek) {
-                alert('Startweek muss vor Endweek liegen!');
-                return;
-            }
-            
-            appData.startWeek = startWeek;
-            appData.endWeek = endWeek;
-            appData.year = year;
-            appData.freeDays = freeDaysText.split(',').map(s => s.trim()).filter(s => s);
-            
-            // Lösche bestehenden Einsatzplan
-            appData.schedule = {};
-            
-            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            // Generiere für jeden Tag
-            days.forEach((day, dayIndex) => {
-                const dayMembers = appData.members.filter(m => m.day === day);
-                if (dayMembers.length === 0) return;
-                
-                // Erstelle Einsatzplan für diesen Tag
-                const memberRotation = [...dayMembers];
-                let currentIndex = 0;
-                
-                for (let week = startWeek; week <= endWeek; week++) {
-                    const dayKey = `${week}-${dayIndex + 1}`;
-                    
-                    // Überspringe freie Tage
-                    if (appData.freeDays.includes(dayKey)) {
-                        continue;
-                    }
-                    
-                    // Wähle Teammitglieder für diesen Tag
-                    const teamForDay = [];
-                    for (let i = 0; i < appData.teamSize && i < memberRotation.length; i++) {
-                        teamForDay.push(memberRotation[currentIndex]);
-                        currentIndex = (currentIndex + 1) % memberRotation.length;
-                    }
-                    
-                    appData.schedule[dayKey] = teamForDay.map(m => m.name);
-                }
-            });
-            
-            saveData();
-            updateAdminStats();
-            alert('Einsatzplan erfolgreich generiert!');
-        }
-
-        function updateTeamSize() {
-            console.log('Updating team size...');
-            appData.teamSize = parseInt(document.getElementById('teamSize').value);
-            saveData();
         }
 
         // Hilfsfunktionen
@@ -968,13 +952,12 @@
 
         function getTodayInfo() {
             const today = new Date();
-            const dayOfWeek = today.getDay(); // 0 = Sonntag, 1 = Montag, etc.
+            const dayOfWeek = today.getDay();
             const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
+
             return {
                 dayName: days[dayOfWeek],
-                dayIndex: dayOfWeek - 1, // Montag = 0, Dienstag = 1, etc.
+                dayIndex: dayOfWeek - 1,
                 isWeekday: dayOfWeek >= 1 && dayOfWeek <= 5,
                 currentWeek: getCurrentWeek()
             };
@@ -983,20 +966,16 @@
         function updateHeaderForDashboard() {
             const todayInfo = getTodayInfo();
             const subtitle = document.getElementById('headerSubtitle');
-            
+
             if (!todayInfo.isWeekday) {
-                // Wochenende
                 subtitle.textContent = `Heute (${todayInfo.dayName}) ist kein Schultag`;
                 return;
             }
-            
-            // Schaue nach den heutigen Einsätzen
+
             const dayKey = `${todayInfo.currentWeek}-${todayInfo.dayIndex + 1}`;
             const todaysTeam = appData.schedule[dayKey] || [];
-            
-            // Prüfe auch, ob heute ein freier Tag ist
             const isFreeDayKey = appData.freeDays.includes(dayKey);
-            
+
             if (isFreeDayKey) {
                 subtitle.textContent = `Heute (${todayInfo.dayName}) sind Ferien / freier Tag`;
             } else if (todaysTeam.length === 0) {
@@ -1010,10 +989,10 @@
             const startOfYear = new Date(year, 0, 1);
             const startOfWeek = new Date(startOfYear);
             startOfWeek.setDate(startOfYear.getDate() + (week - 1) * 7 - startOfYear.getDay() + 1);
-            
+
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 4);
-            
+
             return {
                 start: startOfWeek.toLocaleDateString('de-DE'),
                 end: endOfWeek.toLocaleDateString('de-DE')
@@ -1027,14 +1006,12 @@
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             document.getElementById(tabId).classList.remove('hidden');
             event.target.classList.add('active');
-            
-            // Header immer mit aktuellen Pausenaufsicht-Infos aktualisieren
+
             updateHeaderForDashboard();
-            
-            // Tab-spezifische Initialisierung
+
             if (tabId === 'dashboard') {
                 updateDashboard();
             } else if (tabId === 'schedule') {
@@ -1045,7 +1022,6 @@
                 updateMembersTab();
             } else if (tabId === 'admin') {
                 updateAdminTab();
-                // Event Listeners nach Admin-Tab laden neu setzen
                 setTimeout(setupStaticEventListeners, 100);
             }
         }
@@ -1053,52 +1029,34 @@
         function updateDashboard() {
             const currentWeek = getCurrentWeek();
             const nextWeek = currentWeek + 1;
-            
-            // Aktuelle Woche
+
             const currentRange = getWeekDateRange(currentWeek, appData.year);
             document.getElementById('currentWeekInfo').textContent = 
                 `Kalenderwoche ${currentWeek} (${currentRange.start} - ${currentRange.end})`;
-            
+
             updateWeekDisplay('currentWeekSchedule', currentWeek);
-            
-            // Nächste Woche
+
             const nextRange = getWeekDateRange(nextWeek, appData.year);
             document.getElementById('nextWeekInfo').textContent = 
                 `Kalenderwoche ${nextWeek} (${nextRange.start} - ${nextRange.end})`;
-            
-            updateWeekDisplay('nextWeekSchedule', nextWeek);
-            
-            // Header immer aktualisieren (wird auf allen Tabs benötigt)
-            updateHeaderForDashboard();
-        }
 
-        // Datenpersistierung
-        function saveData() {
-            try {
-                // In einer echten Anwendung würden hier die Daten an einen Server gesendet
-                // Für diese Demo speichern wir nur in einer Variable
-                console.log('Daten gespeichert:', appData);
-                
-                // Excel-Tabelle nach Datenänderung aktualisieren
-                updateExcelExportTable();
-            } catch (error) {
-                console.error('Fehler beim Speichern:', error);
-            }
+            updateWeekDisplay('nextWeekSchedule', nextWeek);
+            updateHeaderForDashboard();
         }
 
         function updateWeekDisplay(containerId, week) {
             const container = document.getElementById(containerId);
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
+
             container.innerHTML = '';
-            
+
             days.forEach((day, index) => {
                 const dayCard = document.createElement('div');
                 dayCard.className = 'day-card';
-                
+
                 const dayKey = `${week}-${index + 1}`;
                 const isFreeDayKey = appData.freeDays.includes(dayKey);
-                
+
                 if (isFreeDayKey) {
                     dayCard.innerHTML = `
                         <h4>${day}</h4>
@@ -1114,7 +1072,7 @@
                         }
                     `;
                 }
-                
+
                 container.appendChild(dayCard);
             });
         }
@@ -1122,10 +1080,9 @@
         function updateScheduleTab() {
             const weekSelector = document.getElementById('weekSelector');
             const currentWeek = getCurrentWeek();
-            
+
             weekSelector.innerHTML = '';
-            
-            // Nur zukünftige Wochen anzeigen
+
             for (let week = currentWeek; week <= appData.endWeek; week++) {
                 const option = document.createElement('option');
                 option.value = week;
@@ -1133,10 +1090,9 @@
                 option.textContent = `KW ${week} (${range.start} - ${range.end})`;
                 weekSelector.appendChild(option);
             }
-            
-            // Swap-Selektoren aktualisieren
+
             updateSwapSelectors();
-            
+
             if (weekSelector.options.length > 0) {
                 weekSelector.selectedIndex = 0;
                 showWeekSchedule();
@@ -1149,8 +1105,7 @@
             const week1 = document.getElementById('swapWeek1');
             const week2 = document.getElementById('swapWeek2');
             const currentWeek = getCurrentWeek();
-            
-            // Personen
+
             [person1, person2].forEach(select => {
                 select.innerHTML = '<option value="">Person wählen</option>';
                 appData.members.forEach(member => {
@@ -1160,8 +1115,7 @@
                     select.appendChild(option);
                 });
             });
-            
-            // Wochen
+
             [week1, week2].forEach(select => {
                 select.innerHTML = '<option value="">Woche wählen</option>';
                 for (let week = currentWeek; week <= appData.endWeek; week++) {
@@ -1176,17 +1130,17 @@
         function showWeekSchedule() {
             const selectedWeek = document.getElementById('weekSelector').value;
             if (!selectedWeek) return;
-            
+
             const container = document.getElementById('weekScheduleView');
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
+
             let html = '<table class="table"><thead><tr><th>Tag</th><th>Eingeteilt</th><th>Aktionen</th></tr></thead><tbody>';
-            
+
             days.forEach((day, index) => {
                 const dayKey = `${selectedWeek}-${index + 1}`;
                 const schedule = appData.schedule[dayKey] || [];
                 const isFreeDayKey = appData.freeDays.includes(dayKey);
-                
+
                 html += `<tr>
                     <td><strong>${day}</strong></td>
                     <td>${isFreeDayKey ? 
@@ -1203,7 +1157,7 @@
                     </td>
                 </tr>`;
             });
-            
+
             html += '</tbody></table>';
             container.innerHTML = html;
         }
@@ -1211,13 +1165,13 @@
         function editDaySchedule(dayKey, dayName) {
             const schedule = appData.schedule[dayKey] || [];
             const availableMembers = appData.members.filter(m => m.day === dayName);
-            
+
             let html = `
                 <h4>${dayName} bearbeiten</h4>
                 <p>Verfügbare Mitglieder für ${dayName}:</p>
                 <div style="margin-bottom: 15px;">
             `;
-            
+
             availableMembers.forEach(member => {
                 const isSelected = schedule.includes(member.name);
                 html += `
@@ -1228,23 +1182,23 @@
                     </label>
                 `;
             });
-            
+
             html += `
                 </div>
                 <button class="btn" onclick="showWeekSchedule()">Fertig</button>
             `;
-            
+
             document.getElementById('weekScheduleView').innerHTML = html;
         }
 
-        function toggleMemberForDay(dayKey, memberName) {
+        async function toggleMemberForDay(dayKey, memberName) {
             if (!appData.schedule[dayKey]) {
                 appData.schedule[dayKey] = [];
             }
-            
+
             const schedule = appData.schedule[dayKey];
             const index = schedule.indexOf(memberName);
-            
+
             if (index > -1) {
                 schedule.splice(index, 1);
             } else {
@@ -1253,50 +1207,49 @@
                 } else {
                     alert(`Maximum ${appData.teamSize} Mitglieder pro Team erreicht!`);
                     event.target.checked = false;
+                    return;
                 }
             }
-            
-            saveData();
+
+            await saveData();
         }
 
-        function swapDuties() {
+        async function swapDuties() {
             const person1 = document.getElementById('swapPerson1').value;
             const week1 = document.getElementById('swapWeek1').value;
             const person2 = document.getElementById('swapPerson2').value;
             const week2 = document.getElementById('swapWeek2').value;
-            
+
             if (!person1 || !week1 || !person2 || !week2) {
                 alert('Bitte alle Felder ausfüllen!');
                 return;
             }
-            
+
             if (person1 === person2 && week1 === week2) {
                 alert('Bitte verschiedene Personen oder Wochen wählen!');
                 return;
             }
-            
-            // Finde die Tage der Personen
+
             const member1 = appData.members.find(m => m.name === person1);
             const member2 = appData.members.find(m => m.name === person2);
-            
+
             if (!member1 || !member2) {
                 alert('Personen nicht gefunden!');
                 return;
             }
-            
+
             const dayIndex1 = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member1.day);
             const dayIndex2 = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member2.day);
-            
+
             const key1 = `${week1}-${dayIndex1 + 1}`;
             const key2 = `${week2}-${dayIndex2 + 1}`;
-            
-            // Tausche die Einsätze
+
             const schedule1 = appData.schedule[key1] || [];
             const schedule2 = appData.schedule[key2] || [];
-            
+
             const index1 = schedule1.indexOf(person1);
             const index2 = schedule2.indexOf(person2);
-            
+
             if (index1 > -1 && index2 > -1) {
                 schedule1[index1] = person2;
                 schedule2[index2] = person1;
@@ -1318,11 +1271,11 @@
                     schedule2.push(person1);
                 }
             }
-            
+
             appData.schedule[key1] = schedule1;
             appData.schedule[key2] = schedule2;
-            
-            saveData();
+
+            await saveData();
             alert('Einsätze erfolgreich getauscht!');
             showWeekSchedule();
         }
@@ -1330,7 +1283,7 @@
         function updateMyDutiesTab() {
             const personSelector = document.getElementById('personSelector');
             personSelector.innerHTML = '<option value="">Bitte wählen</option>';
-            
+
             appData.members.forEach(member => {
                 const option = document.createElement('option');
                 option.value = member.name;
@@ -1345,22 +1298,21 @@
                 document.getElementById('personDutiesView').innerHTML = '';
                 return;
             }
-            
+
             const member = appData.members.find(m => m.name === selectedPerson);
             if (!member) return;
-            
+
             const currentWeek = getCurrentWeek();
             const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member.day);
-            
+
             let duties = [];
             let totalDuties = 0;
             let futureDuties = 0;
-            
-            // Sammle alle Einsätze der Person
+
             for (let week = appData.startWeek; week <= appData.endWeek; week++) {
                 const dayKey = `${week}-${dayIndex + 1}`;
                 const schedule = appData.schedule[dayKey] || [];
-                
+
                 if (schedule.includes(selectedPerson)) {
                     const range = getWeekDateRange(week, appData.year);
                     duties.push({
@@ -1374,16 +1326,15 @@
                     }
                 }
             }
-            
-            // Filtere nur zukünftige Einsätze
+
             const futureDutiesOnly = duties.filter(duty => duty.isFuture);
-            
+
             let html = `
                 <div class="stats-card">
                     <h4>Einsätze für ${selectedPerson}, jeweils am ${member.day}</h4>
                     <p>Gesamt: ${totalDuties} Einsätze, noch ausstehend: ${futureDuties} Einsätze</p>
                 </div>
-                
+
                 <table class="table">
                     <thead>
                         <tr>
@@ -1394,7 +1345,7 @@
                     </thead>
                     <tbody>
             `;
-            
+
             if (futureDutiesOnly.length === 0) {
                 html += '<tr><td colspan="3" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
             } else {
@@ -1408,21 +1359,21 @@
                     `;
                 });
             }
-            
+
             html += `
                     </tbody>
                 </table>
             `;
-            
+
             document.getElementById('personDutiesView').innerHTML = html;
         }
 
         function updateMembersTab() {
             const container = document.getElementById('membersList');
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
+
             let html = '';
-            
+
             days.forEach(day => {
                 const dayMembers = appData.members.filter(m => m.day === day);
                 html += `
@@ -1430,107 +1381,80 @@
                         <h4>${day} (${dayMembers.length} Mitglieder)</h4>
                         <div id="members-${day}">
                 `;
-                
+
                 dayMembers.forEach(member => {
-                    // Direkte JavaScript-Ausführung im onclick
                     html += `
                         <div class="member-assignment">
                             <label>${member.name}</label>
-                            <select onchange="
-                                console.log('Changing day for: ${member.name}');
-                                const member = appData.members.find(m => m.name === '${member.name}');
-                                if (member) {
-                                    member.day = this.value;
-                                    saveData();
-                                    updateMembersTab();
-                                    updateDashboard();
-                                }
-                            ">
+                            <select onchange="changeMemberDay('${member.name}', this.value)">
                                 <option value="Montag" ${member.day === 'Montag' ? 'selected' : ''}>Montag</option>
                                 <option value="Dienstag" ${member.day === 'Dienstag' ? 'selected' : ''}>Dienstag</option>
                                 <option value="Mittwoch" ${member.day === 'Mittwoch' ? 'selected' : ''}>Mittwoch</option>
                                 <option value="Donnerstag" ${member.day === 'Donnerstag' ? 'selected' : ''}>Donnerstag</option>
                                 <option value="Freitag" ${member.day === 'Freitag' ? 'selected' : ''}>Freitag</option>
                             </select>
-                            <button class="btn btn-danger" onclick="
-                                console.log('Button clicked for: ${member.name}');
-                                appData.members = appData.members.filter(m => m.name !== '${member.name}');
-                                updateMembersTab();
-                                updateMyDutiesTab();
-                                updateDashboard();
-                                alert('${member.name} wurde entfernt!');
-                            ">Entfernen</button>
+                            <button class="btn btn-danger" onclick="removeMember('${member.name}')">Entfernen</button>
                         </div>
                     `;
                 });
-                
+
                 html += '</div></div>';
             });
-            
+
             container.innerHTML = html;
-            console.log('Members tab updated with onclick handlers');
         }
 
-        function addMember() {
+        async function addMember() {
             const name = document.getElementById('newMemberName').value.trim();
             const day = document.getElementById('newMemberDay').value;
-            
+
             if (!name || !day) {
                 alert('Bitte Name und Wochentag eingeben!');
                 return;
             }
-            
+
             if (appData.members.some(m => m.name === name)) {
                 alert('Mitglied mit diesem Namen existiert bereits!');
                 return;
             }
-            
+
             appData.members.push({ name, day });
-            saveData();
-            
+            await saveData();
+
             document.getElementById('newMemberName').value = '';
             document.getElementById('newMemberDay').value = '';
-            
+
             updateMembersTab();
+            updateMyDutiesTab();
+            updateDashboard();
             alert('Mitglied erfolgreich hinzugefügt!');
         }
 
-        function changeMemberDay(memberName, newDay) {
+        async function changeMemberDay(memberName, newDay) {
             const member = appData.members.find(m => m.name === memberName);
             if (member) {
                 member.day = newDay;
-                saveData();
+                await saveData();
                 updateMembersTab();
+                updateDashboard();
             }
         }
 
-        function removeMember(memberName) {
-            console.log('Removing member:', memberName); // Debug-Ausgabe
-            
+        async function removeMember(memberName) {
             if (confirm(`Möchten Sie ${memberName} wirklich entfernen?`)) {
-                const initialLength = appData.members.length;
                 appData.members = appData.members.filter(m => m.name !== memberName);
-                
-                console.log('Members before:', initialLength, 'after:', appData.members.length); // Debug-Ausgabe
-                
-                // Entferne auch aus dem Einsatzplan
+
                 Object.keys(appData.schedule).forEach(key => {
-                    const beforeLength = appData.schedule[key].length;
-                    appData.schedule[key] = appData.schedule[key].filter(name => name !== memberName);
-                    if (beforeLength !== appData.schedule[key].length) {
-                        console.log(`Removed ${memberName} from schedule ${key}`); // Debug-Ausgabe
+                    if (appData.schedule[key]) {
+                        appData.schedule[key] = appData.schedule[key].filter(name => name !== memberName);
                     }
                 });
-                
-                saveData();
+
+                await saveData();
                 updateMembersTab();
-                
-                // Erfolgsmeldung
-                if (appData.members.length < initialLength) {
-                    alert(`${memberName} wurde erfolgreich entfernt!`);
-                } else {
-                    alert(`Fehler: ${memberName} konnte nicht entfernt werden!`);
-                }
+                updateMyDutiesTab();
+                updateDashboard();
+                alert(`${memberName} wurde erfolgreich entfernt!`);
             }
         }
 
@@ -1540,42 +1464,43 @@
             document.getElementById('endWeek').value = appData.endWeek;
             document.getElementById('year').value = appData.year;
             document.getElementById('freeDays').value = appData.freeDays.join(', ');
-            
+
             updateAdminStats();
+            updateGitHubStatus();
         }
 
         function updateAdminStats() {
             const container = document.getElementById('adminStats');
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
+
             let html = '<h4>📊 Übersicht Teammitglieder</h4>';
-            
+
             days.forEach(day => {
                 const dayMembers = appData.members.filter(m => m.day === day);
                 const dutyCounts = {};
-                
+
                 dayMembers.forEach(member => {
                     dutyCounts[member.name] = 0;
                 });
-                
+
                 const dayIndex = days.indexOf(day);
                 for (let week = appData.startWeek; week <= appData.endWeek; week++) {
                     const dayKey = `${week}-${dayIndex + 1}`;
                     const schedule = appData.schedule[dayKey] || [];
-                    
+
                     schedule.forEach(memberName => {
                         if (dutyCounts[memberName] !== undefined) {
                             dutyCounts[memberName]++;
                         }
                     });
                 }
-                
+
                 html += `
                     <div class="week-section">
                         <h5>${day}</h5>
                         <div class="schedule-grid">
                 `;
-                
+
                 dayMembers.forEach(member => {
                     html += `
                         <div class="day-card">
@@ -1584,503 +1509,124 @@
                         </div>
                     `;
                 });
-                
+
                 html += '</div></div>';
             });
-            
+
             container.innerHTML = html;
         }
 
-        function updateTeamSize() {
+        async function updateTeamSize() {
             appData.teamSize = parseInt(document.getElementById('teamSize').value);
-            saveData();
+            await saveData();
         }
 
-        function generateSchedule() {
+        async function generateSchedule() {
             const startWeek = parseInt(document.getElementById('startWeek').value);
             const endWeek = parseInt(document.getElementById('endWeek').value);
             const year = parseInt(document.getElementById('year').value);
             const freeDaysText = document.getElementById('freeDays').value;
-            
+
             if (startWeek >= endWeek) {
                 alert('Startweek muss vor Endweek liegen!');
                 return;
             }
-            
+
             appData.startWeek = startWeek;
             appData.endWeek = endWeek;
             appData.year = year;
-            appData.freeDays = freeDaysText.split(',').map(s => s.trim()).filter(s => s);
-            
-            // Lösche bestehenden Einsatzplan
-            appData.schedule = {};
-            
-            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            // Generiere für jeden Tag
-            days.forEach((day, dayIndex) => {
-                const dayMembers = appData.members.filter(m => m.day === day);
-                if (dayMembers.length === 0) return;
-                
-                // Erstelle Einsatzplan für diesen Tag
-                const memberRotation = [...dayMembers];
-                let currentIndex = 0;
-                
-                for (let week = startWeek; week <= endWeek; week++) {
-                    const dayKey = `${week}-${dayIndex + 1}`;
-                    
-                    // Überspringe freie Tage
-                    if (appData.freeDays.includes(dayKey)) {
-                        continue;
-                    }
-                    
-                    // Wähle Teammitglieder für diesen Tag
-                    const teamForDay = [];
-                    for (let i = 0; i < appData.teamSize && i < memberRotation.length; i++) {
-                        teamForDay.push(memberRotation[currentIndex]);
-                        currentIndex = (currentIndex + 1) % memberRotation.length;
-                    }
-                    
-                    appData.schedule[dayKey] = teamForDay.map(m => m.name);
-                }
-            });
-            
-            saveData();
-            updateAdminStats();
-            alert('Einsatzplan erfolgreich generiert!');
-        }
 
-        function exportData() {
-            const dataStr = JSON.stringify(appData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pausenaufsicht_daten.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function clearAllData() {
-            if (confirm('Möchten Sie wirklich alle Daten löschen? Dies kann nicht rückgängig gemacht werden!')) {
-                appData = {
-                    members: [],
-                    schedule: {},
-                    teamSize: 3,
-                    startWeek: 29,
-                    endWeek: 42,
-                    year: 2025,
-                    freeDays: []
-                };
-                saveData();
-                updateAdminTab();
-                alert('Alle Daten wurden gelöscht!');
-            }
-        }
-
-        // Globale Funktionen definieren
-        window.removeMember = function(memberName) {
-            console.log('Removing member:', memberName);
-            
-            // Entferne das Mitglied aus dem Array
-            appData.members = appData.members.filter(m => m.name !== memberName);
-            
-            // Entferne auch aus dem Einsatzplan
-            Object.keys(appData.schedule).forEach(key => {
-                if (appData.schedule[key]) {
-                    appData.schedule[key] = appData.schedule[key].filter(name => name !== memberName);
-                }
-            });
-            
-            // Aktualisiere die Anzeige
-            updateMembersTab();
-            updateMyDutiesTab();
-            updateDashboard();
-            
-            console.log('Member removed successfully');
-        };
-
-        window.changeMemberDay = function(memberName, newDay) {
-            console.log('Changing member day:', memberName, 'to', newDay);
-            
-            const member = appData.members.find(m => m.name === memberName);
-            if (member) {
-                member.day = newDay;
-                saveData();
-                updateMembersTab();
-                updateDashboard();
-            }
-        };
-
-        window.addMember = function() {
-            console.log('Adding member...');
-            const name = document.getElementById('newMemberName').value.trim();
-            const day = document.getElementById('newMemberDay').value;
-            
-            if (!name || !day) {
-                alert('Bitte Name und Wochentag eingeben!');
-                return;
-            }
-            
-            if (appData.members.some(m => m.name === name)) {
-                alert('Mitglied mit diesem Namen existiert bereits!');
-                return;
-            }
-            
-            appData.members.push({ name, day });
-            saveData();
-            
-            document.getElementById('newMemberName').value = '';
-            document.getElementById('newMemberDay').value = '';
-            
-            updateMembersTab();
-            updateMyDutiesTab();
-            updateDashboard();
-            
-            alert('Mitglied erfolgreich hinzugefügt!');
-        };
-
-        window.generateSchedule = function() {
-            console.log('Generating schedule...');
-            const startWeek = parseInt(document.getElementById('startWeek').value);
-            const endWeek = parseInt(document.getElementById('endWeek').value);
-            const year = parseInt(document.getElementById('year').value);
-            const freeDaysText = document.getElementById('freeDays').value;
-            
-            if (startWeek >= endWeek) {
-                alert('Startweek muss vor Endweek liegen!');
-                return;
-            }
-            
-            appData.startWeek = startWeek;
-            appData.endWeek = endWeek;
-            appData.year = year;
-            
-            // Verarbeite freie Tage - unterstütze sowohl einzelne Tage als auch ganze Wochen
             const freeDaysInput = freeDaysText.split(',').map(s => s.trim()).filter(s => s);
             appData.freeDays = [];
-            
+
             freeDaysInput.forEach(input => {
                 if (input.includes('-')) {
-                    // Format: KW-Tag (z.B. "32-1")
                     appData.freeDays.push(input);
                 } else {
-                    // Format: nur KW (z.B. "32") - ganze Woche
                     const week = input;
                     for (let day = 1; day <= 5; day++) {
                         appData.freeDays.push(`${week}-${day}`);
                     }
                 }
             });
-            
-            console.log('Processed free days:', appData.freeDays);
-            
-            // Lösche bestehenden Einsatzplan
+
             appData.schedule = {};
-            
+
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            // Generiere für jeden Tag
+
             days.forEach((day, dayIndex) => {
                 const dayMembers = appData.members.filter(m => m.day === day);
                 if (dayMembers.length === 0) return;
-                
-                // Erstelle Einsatzplan für diesen Tag
+
                 const memberRotation = [...dayMembers];
                 let currentIndex = 0;
-                
+
                 for (let week = startWeek; week <= endWeek; week++) {
                     const dayKey = `${week}-${dayIndex + 1}`;
-                    
-                    // Überspringe freie Tage
+
                     if (appData.freeDays.includes(dayKey)) {
                         continue;
                     }
-                    
-                    // Wähle Teammitglieder für diesen Tag
+
                     const teamForDay = [];
                     for (let i = 0; i < appData.teamSize && i < memberRotation.length; i++) {
                         teamForDay.push(memberRotation[currentIndex]);
                         currentIndex = (currentIndex + 1) % memberRotation.length;
                     }
-                    
+
                     appData.schedule[dayKey] = teamForDay.map(m => m.name);
                 }
             });
-            
-            saveData();
+
+            await saveData();
             updateAdminStats();
             updateDashboard();
-            
             alert('Einsatzplan erfolgreich generiert!');
-        };
-
-        window.updateTeamSize = function() {
-            console.log('Updating team size...');
-            appData.teamSize = parseInt(document.getElementById('teamSize').value);
-            saveData();
-        };
-
-        window.saveDataToGitHub = saveDataToGitHub;
-        window.checkGitHubStatus = checkGitHubStatus;
-        async function checkGitHubStatus() {
-            const statusIcon = document.getElementById('status-icon');
-            const statusText = document.getElementById('status-text');
-            
-            if (statusIcon) statusIcon.textContent = '🔍';
-            if (statusText) statusText.textContent = 'Prüfe GitHub-Verbindung...';
-            
-            try {
-                const url = `https://promesfw.github.io/Pausenaufsicht-app/data.json?t=${Date.now()}`;
-                const response = await fetch(url);
-                
-                if (response.status === 404) {
-                    if (statusIcon) statusIcon.textContent = '📝';
-                    if (statusText) statusText.innerHTML = '<strong>data.json nicht gefunden</strong> - Bitte erstellen Sie die Datei in GitHub';
-                    alert('⚠️ data.json nicht gefunden!\n\n' +
-                          'So erstellen Sie die Datei:\n' +
-                          '1. GitHub Repository öffnen\n' +
-                          '2. "Add file" → "Create new file"\n' +
-                          '3. Dateiname: data.json\n' +
-                          '4. Inhalt aus Export verwenden\n' +
-                          '5. "Commit new file"');
-                    return false;
-                }
-                
-                if (!response.ok) {
-                    if (statusIcon) statusIcon.textContent = '❌';
-                    if (statusText) statusText.textContent = `HTTP Fehler: ${response.status} ${response.statusText}`;
-                    return false;
-                }
-                
-                const text = await response.text();
-                const data = JSON.parse(text);
-                
-                if (statusIcon) statusIcon.textContent = '✅';
-                if (statusText) {
-                    const lastUpdated = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString('de-DE') : 'Unbekannt';
-                    statusText.innerHTML = `<strong>GitHub-Verbindung OK</strong> - Letzte Aktualisierung: ${lastUpdated}`;
-                }
-                
-                return true;
-                
-            } catch (error) {
-                if (statusIcon) statusIcon.textContent = '❌';
-                if (statusText) statusText.textContent = `Fehler: ${error.message}`;
-                return false;
-            }
-        }
-        function updateExcelExportTable() {
-            const todayInfo = getTodayInfo();
-            const tbody = document.getElementById('excel-export-tbody');
-            const today = new Date();
-            
-            if (!todayInfo.isWeekday) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td>${today.toLocaleDateString('de-DE')}</td>
-                        <td>${todayInfo.dayName}</td>
-                        <td>Kein Schultag</td>
-                        <td>-</td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            const dayKey = `${todayInfo.currentWeek}-${todayInfo.dayIndex + 1}`;
-            const todaysTeam = appData.schedule[dayKey] || [];
-            const isFreeDayKey = appData.freeDays.includes(dayKey);
-            
-            let status, eingeteilt;
-            if (isFreeDayKey) {
-                status = "Ferien / freier Tag";
-                eingeteilt = "-";
-            } else if (todaysTeam.length === 0) {
-                status = "Niemand eingeteilt";
-                eingeteilt = "-";
-            } else {
-                status = "Pausenaufsicht";
-                eingeteilt = todaysTeam.join(', ');
-            }
-            
-            tbody.innerHTML = `
-                <tr>
-                    <td>${today.toLocaleDateString('de-DE')}</td>
-                    <td>${todayInfo.dayName}</td>
-                    <td>${status}</td>
-                    <td>${eingeteilt}</td>
-                </tr>
-            `;
         }
 
-        function exportForExcel() {
-            const todayInfo = getTodayInfo();
-            const today = new Date();
-            
-            let csvContent = "Datum,Wochentag,Status,Eingeteilt\n";
-            
-            if (!todayInfo.isWeekday) {
-                csvContent += `${today.toLocaleDateString('de-DE')},${todayInfo.dayName},Kein Schultag,-\n`;
-            } else {
-                const dayKey = `${todayInfo.currentWeek}-${todayInfo.dayIndex + 1}`;
-                const todaysTeam = appData.schedule[dayKey] || [];
-                const isFreeDayKey = appData.freeDays.includes(dayKey);
-                
-                let status, eingeteilt;
-                if (isFreeDayKey) {
-                    status = "Ferien / freier Tag";
-                    eingeteilt = "-";
-                } else if (todaysTeam.length === 0) {
-                    status = "Niemand eingeteilt";
-                    eingeteilt = "-";
-                } else {
-                    status = "Pausenaufsicht";
-                    eingeteilt = todaysTeam.join('; '); // Semikolon für CSV
-                }
-                
-                csvContent += `${today.toLocaleDateString('de-DE')},${todayInfo.dayName},${status},"${eingeteilt}"\n`;
+        function setupStaticEventListeners() {
+            const generateBtn = document.getElementById('generateScheduleBtn');
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            const teamSizeSelect = document.getElementById('teamSize');
+
+            if (generateBtn) {
+                generateBtn.addEventListener('click', generateSchedule);
             }
-            
-            // CSV-Download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Pausenaufsicht_Heute_${today.toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert('CSV-Datei für Excel wurde heruntergeladen!');
-        }
 
-        function exportAllDataAsJSON() {
-            const exportData = {
-                exported: new Date().toISOString(),
-                today: getTodayInfo(),
-                todaySchedule: (() => {
-                    const todayInfo = getTodayInfo();
-                    if (!todayInfo.isWeekday) return null;
-                    
-                    const dayKey = `${todayInfo.currentWeek}-${todayInfo.dayIndex + 1}`;
-                    return {
-                        dayKey,
-                        team: appData.schedule[dayKey] || [],
-                        isFreeDay: appData.freeDays.includes(dayKey)
-                    };
-                })(),
-                teamMembers: appData.members,
-                schedule: appData.schedule,
-                freeDays: appData.freeDays,
-                config: {
-                    teamSize: appData.teamSize,
-                    startWeek: appData.startWeek,
-                    endWeek: appData.endWeek,
-                    year: appData.year
-                }
-            };
-            
-            const jsonString = JSON.stringify(exportData, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Pausenaufsicht_Daten_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert('JSON-Datei mit allen Daten wurde heruntergeladen!');
-        }
-
-        function showExcelInstructions() {
-            const instructions = document.getElementById('excel-instructions');
-            const urlElement = document.getElementById('current-url');
-            
-            // Aktuelle URL anzeigen
-            urlElement.textContent = window.location.href;
-            
-            if (instructions.style.display === 'none') {
-                instructions.style.display = 'block';
-            } else {
-                instructions.style.display = 'none';
+            if (addMemberBtn) {
+                addMemberBtn.addEventListener('click', addMember);
             }
-        }
 
-        function loadData() {
-            try {
-                // In einer echten Anwendung würden hier die Daten vom Server geladen
-                // Für diese Demo verwenden wir die Standarddaten
-                console.log('Daten geladen:', appData);
-            } catch (error) {
-                console.error('Fehler beim Laden:', error);
+            if (teamSizeSelect) {
+                teamSizeSelect.addEventListener('change', updateTeamSize);
             }
         }
 
         // Initialisierung
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('Starting app initialization...');
-            
-            // Versuche Daten von GitHub zu laden
+
             const githubLoaded = await loadDataFromGitHub();
-            
+
             if (!githubLoaded) {
-                // Fallback: Versuche lokales Backup
-                const localData = loadDataLocally();
+                const localData = localStorage.getItem('pausenaufsicht-backup');
                 if (localData) {
-                    appData = { ...appData, ...localData };
-                    console.log('Using local backup data');
-                } else {
-                    console.log('Using default data');
+                    try {
+                        appData = { ...appData, ...JSON.parse(localData) };
+                        console.log('Using local backup data');
+                    } catch (error) {
+                        console.log('Using default data');
+                    }
                 }
             }
-            
-            // UI initialisieren
+
             updateDashboard();
             updateHeaderForDashboard();
-            
-            // Event Listeners für statische Buttons
             setupStaticEventListeners();
-            
-            // GitHub-Status prüfen (verzögert, damit UI schon da ist)
-            setTimeout(checkGitHubStatus, 2000);
-            
+            updateGitHubStatus();
+
             console.log('App initialization completed');
         });
-
-        function setupStaticEventListeners() {
-            // Admin Buttons
-            const generateBtn = document.getElementById('generateScheduleBtn');
-            const addMemberBtn = document.getElementById('addMemberBtn');
-            const teamSizeSelect = document.getElementById('teamSize');
-            
-            if (generateBtn) {
-                generateBtn.addEventListener('click', function() {
-                    console.log('Generate button clicked');
-                    generateSchedule();
-                });
-            }
-            
-            if (addMemberBtn) {
-                addMemberBtn.addEventListener('click', function() {
-                    console.log('Add member button clicked');
-                    addMember();
-                });
-            }
-            
-            if (teamSizeSelect) {
-                teamSizeSelect.addEventListener('change', function() {
-                    console.log('Team size changed');
-                    updateTeamSize();
-                });
-            }
-            
-            console.log('Static event listeners setup completed');
-        }
     </script>
 </body>
 </html>
