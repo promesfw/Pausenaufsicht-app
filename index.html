@@ -877,7 +877,15 @@
 
                 // 2. Neue Daten vorbereiten (UTF-8 sicher)
                 const dataToSave = {
-                    ...appData,
+                    members: appData.members,
+                    schedule: appData.schedule,
+                    teamSize: appData.teamSize,
+                    startWeek: appData.startWeek,
+                    endWeek: appData.endWeek,
+                    startYear: appData.startYear,
+                    endYear: appData.endYear,
+                    year: appData.year || appData.startYear, // Rückwärtskompatibilität
+                    freeDays: appData.freeDays,
                     lastUpdated: new Date().toISOString()
                 };
 
@@ -1415,30 +1423,39 @@
             if (!member) return;
 
             const currentWeek = getCurrentWeek();
+            const currentYear = new Date().getFullYear();
             const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member.day);
 
             let duties = [];
             let totalDuties = 0;
             let futureDuties = 0;
 
-            for (let week = appData.startWeek; week <= appData.endWeek; week++) {
-                const dayKey = `${week}-${dayIndex + 1}`;
+            // Alle Wochen im Schuljahr-Zeitraum durchgehen
+            const allWeeks = getAllWeeksInRange();
+            
+            allWeeks.forEach(weekInfo => {
+                const dayKey = `${weekInfo.week}-${dayIndex + 1}`;
                 const schedule = appData.schedule[dayKey] || [];
 
                 if (schedule.includes(selectedPerson)) {
-                    const range = getWeekDateRange(week, appData.year);
+                    const range = getWeekDateRange(weekInfo.week, weekInfo.year);
+                    const isFuture = (weekInfo.year > currentYear) || 
+                                   (weekInfo.year === currentYear && weekInfo.week >= currentWeek);
+                    
                     duties.push({
-                        week: week,
+                        week: weekInfo.week,
+                        year: weekInfo.year,
                         date: range.start,
-                        isFuture: week >= currentWeek
+                        isFuture: isFuture
                     });
                     totalDuties++;
-                    if (week >= currentWeek) {
+                    if (isFuture) {
                         futureDuties++;
                     }
                 }
-            }
+            });
 
+            // Filtere nur zukünftige Einsätze für die Anzeige
             const futureDutiesOnly = duties.filter(duty => duty.isFuture);
 
             let html = `
@@ -1451,6 +1468,7 @@
                     <thead>
                         <tr>
                             <th>Kalenderwoche</th>
+                            <th>Jahr</th>
                             <th>Datum</th>
                             <th>Wochentag</th>
                         </tr>
@@ -1459,12 +1477,13 @@
             `;
 
             if (futureDutiesOnly.length === 0) {
-                html += '<tr><td colspan="3" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
+                html += '<tr><td colspan="4" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
             } else {
                 futureDutiesOnly.forEach(duty => {
                     html += `
                         <tr>
                             <td>KW ${duty.week}</td>
+                            <td>${duty.year}</td>
                             <td>${duty.date}</td>
                             <td>${member.day}</td>
                         </tr>
@@ -1737,8 +1756,12 @@
                 });
 
                 const dayIndex = days.indexOf(day);
-                for (let week = appData.startWeek; week <= appData.endWeek; week++) {
-                    const dayKey = `${week}-${dayIndex + 1}`;
+                
+                // Alle Wochen im Schuljahr-Zeitraum durchgehen
+                const allWeeks = getAllWeeksInRange();
+                
+                allWeeks.forEach(weekInfo => {
+                    const dayKey = `${weekInfo.week}-${dayIndex + 1}`;
                     const schedule = appData.schedule[dayKey] || [];
 
                     schedule.forEach(memberName => {
@@ -1746,7 +1769,7 @@
                             dutyCounts[memberName]++;
                         }
                     });
-                }
+                });
 
                 html += `
                     <div class="week-section">
