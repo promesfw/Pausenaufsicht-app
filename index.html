@@ -808,17 +808,17 @@
             apiUrl: 'https://api.github.com'
         };
 
-        // Standard-Datenstruktur
+        // Standard-Datenstruktur mit Beispiel-Einsatzplan
         let appData = {
             members: [
                 { name: "Anna Müller", day: "Montag", interval: 1 },
-                { name: "Peter Schmidt", day: "Montag", interval: 1 },
+                { name: "Peter Schmidt", day: "Montag", interval: 2 },
                 { name: "Maria Weber", day: "Montag", interval: 1 },
                 { name: "Hans Meier", day: "Dienstag", interval: 1 },
                 { name: "Lisa Bauer", day: "Dienstag", interval: 1 },
                 { name: "Tom Fischer", day: "Dienstag", interval: 1 },
                 { name: "Sarah Klein", day: "Mittwoch", interval: 1 },
-                { name: "Max Richter", day: "Mittwoch", interval: 1 },
+                { name: "Max Richter", day: "Mittwoch", interval: 3 },
                 { name: "Emma Wolf", day: "Mittwoch", interval: 1 },
                 { name: "Jonas Kraft", day: "Donnerstag", interval: 1 },
                 { name: "Nina Braun", day: "Donnerstag", interval: 1 },
@@ -827,9 +827,20 @@
                 { name: "David Schneider", day: "Freitag", interval: 1 },
                 { name: "Laura Hartmann", day: "Freitag", interval: 1 }
             ],
-            schedule: {},
+            schedule: {
+                "29-1": ["Anna Müller", "Maria Weber", "Peter Schmidt"],
+                "29-2": ["Hans Meier", "Lisa Bauer", "Tom Fischer"],
+                "29-3": ["Sarah Klein", "Emma Wolf", "Max Richter"],
+                "29-4": ["Jonas Kraft", "Nina Braun", "Luca Zimmermann"],
+                "29-5": ["Sophie Hofmann", "David Schneider", "Laura Hartmann"],
+                "30-1": ["Maria Weber", "Anna Müller", "Peter Schmidt"],
+                "30-2": ["Lisa Bauer", "Tom Fischer", "Hans Meier"],
+                "30-3": ["Emma Wolf", "Sarah Klein", "Max Richter"],
+                "30-4": ["Nina Braun", "Luca Zimmermann", "Jonas Kraft"],
+                "30-5": ["David Schneider", "Laura Hartmann", "Sophie Hofmann"]
+            },
             teamSize: 3,
-            startWeek: 33,
+            startWeek: 29,
             endWeek: 27,
             startYear: 2025,
             endYear: 2026,
