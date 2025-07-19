@@ -342,6 +342,8 @@
   "teamSize": 4,
   "startWeek": 29,
   "endWeek": 42,
+  "startYear": 2025,
+  "endYear": 2025,
   "year": 2025,
   "freeDays": [
     "29-1",
@@ -382,5 +384,5 @@
     "51-4",
     "51-5"
   ],
-  "lastUpdated": "2025-07-19T07:05:01.632Z"
+  "lastUpdated": "2025-07-19T10:16:14.312Z"
 }
