@@ -654,9 +654,35 @@
 
                 <div class="form-group">
                     <label>Freie Tage/Ferien:</label>
-                    <textarea id="freeDays" placeholder="Einzelne Tage: 32-1, 32-2 (KW-Tag)&#10;Ganze Wochen: 40, 41 (nur KW)&#10;Gemischt: 32-1, 32-2, 40, 41" rows="3"></textarea>
-                    <small style="color: #666; font-size: 0.9em; margin-top: 5px; display: block;">
-                        Format: KW-Tag für einzelne Tage (z.B. 32-1 = Montag in KW 32) oder nur KW für ganze Wochen (z.B. 40 = ganze KW 40)
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="font-size: 0.9em; color: #667eea; margin-bottom: 5px;">
+                                📅 Freie Tage im Jahr <span id="currentYearLabel">2025</span>:
+                            </label>
+                            <textarea id="freeDaysCurrentYear" 
+                                placeholder="Einzelne Tage: 32-1, 32-2 (KW-Tag)&#10;Ganze Wochen: 40, 41 (nur KW)&#10;Beispiel: 40, 41, 52-1" 
+                                rows="4"></textarea>
+                            <small style="color: #666; font-size: 0.8em; display: block; margin-top: 3px;">
+                                Kalenderwochen 1-53 für <span id="currentYearLabel2">2025</span>
+                            </small>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.9em; color: #667eea; margin-bottom: 5px;">
+                                📅 Freie Tage im Jahr <span id="nextYearLabel">2026</span>:
+                            </label>
+                            <textarea id="freeDaysNextYear" 
+                                placeholder="Einzelne Tage: 2-1, 2-2 (KW-Tag)&#10;Ganze Wochen: 7, 8 (nur KW)&#10;Beispiel: 7, 8, 15-3" 
+                                rows="4"></textarea>
+                            <small style="color: #666; font-size: 0.8em; display: block; margin-top: 3px;">
+                                Kalenderwochen 1-53 für <span id="nextYearLabel2">2026</span>
+                            </small>
+                        </div>
+                    </div>
+                    <small style="color: #666; font-size: 0.9em; margin-top: 10px; display: block; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <strong>📖 Format-Hilfe:</strong><br>
+                        • <strong>Einzelne Tage:</strong> KW-Tag (z.B. 32-1 = Montag in KW 32, 32-2 = Dienstag in KW 32)<br>
+                        • <strong>Ganze Wochen:</strong> nur KW (z.B. 40 = komplette KW 40)<br>
+                        • <strong>Mehrere Angaben:</strong> mit Komma trennen (z.B. 32-1, 32-2, 40, 41)
                     </small>
                 </div>
 
@@ -1575,14 +1601,77 @@
         }
 
         function updateAdminTab() {
+            const year = parseInt(document.getElementById('year').value) || appData.year;
+            
             document.getElementById('teamSize').value = appData.teamSize;
             document.getElementById('startWeek').value = appData.startWeek;
             document.getElementById('endWeek').value = appData.endWeek;
-            document.getElementById('year').value = appData.year;
-            document.getElementById('freeDays').value = appData.freeDays.join(', ');
+            document.getElementById('year').value = year;
+
+            // Jahr-Labels aktualisieren
+            updateYearLabels(year);
+
+            // Freie Tage nach Jahren aufteilen
+            const { currentYearDays, nextYearDays } = splitFreeDaysByYear(appData.freeDays, year);
+            document.getElementById('freeDaysCurrentYear').value = currentYearDays.join(', ');
+            document.getElementById('freeDaysNextYear').value = nextYearDays.join(', ');
 
             updateAdminStats();
             updateGitHubStatus();
+        }
+
+        function updateYearLabels(year) {
+            const currentYear = year;
+            const nextYear = year + 1;
+            
+            document.getElementById('currentYearLabel').textContent = currentYear;
+            document.getElementById('currentYearLabel2').textContent = currentYear;
+            document.getElementById('nextYearLabel').textContent = nextYear;
+            document.getElementById('nextYearLabel2').textContent = nextYear;
+        }
+
+        function splitFreeDaysByYear(freeDays, baseYear) {
+            const currentYearDays = [];
+            const nextYearDays = [];
+
+            freeDays.forEach(dayString => {
+                // Prüfen ob Format KW-Tag oder nur KW
+                if (dayString.includes('-')) {
+                    // Format: "KW-Tag" 
+                    const [week] = dayString.split('-');
+                    const weekNum = parseInt(week);
+                    
+                    // Heuristik: Wochen 1-30 gehören meist zum Folgjahr (Schuljahr geht bis Juli)
+                    // Wochen 31-53 gehören zum aktuellen Jahr
+                    if (weekNum >= 1 && weekNum <= 30) {
+                        nextYearDays.push(dayString);
+                    } else {
+                        currentYearDays.push(dayString);
+                    }
+                } else {
+                    // Format: nur "KW"
+                    const weekNum = parseInt(dayString);
+                    
+                    // Gleiche Heuristik für ganze Wochen
+                    if (weekNum >= 1 && weekNum <= 30) {
+                        nextYearDays.push(dayString);
+                    } else {
+                        currentYearDays.push(dayString);
+                    }
+                }
+            });
+
+            return { currentYearDays, nextYearDays };
+        }
+
+        function combineFreeDaysFromBothYears() {
+            const currentYearText = document.getElementById('freeDaysCurrentYear').value;
+            const nextYearText = document.getElementById('freeDaysNextYear').value;
+
+            const currentYearDays = currentYearText.split(',').map(s => s.trim()).filter(s => s);
+            const nextYearDays = nextYearText.split(',').map(s => s.trim()).filter(s => s);
+
+            return [...currentYearDays, ...nextYearDays];
         }
 
         function updateAdminStats() {
@@ -1704,6 +1793,7 @@
             const generateBtn = document.getElementById('generateScheduleBtn');
             const addMemberBtn = document.getElementById('addMemberBtn');
             const teamSizeSelect = document.getElementById('teamSize');
+            const yearInput = document.getElementById('year');
 
             if (generateBtn) {
                 generateBtn.addEventListener('click', generateSchedule);
@@ -1715,6 +1805,13 @@
 
             if (teamSizeSelect) {
                 teamSizeSelect.addEventListener('change', updateTeamSize);
+            }
+
+            if (yearInput) {
+                yearInput.addEventListener('input', function() {
+                    const year = parseInt(this.value) || new Date().getFullYear();
+                    updateYearLabels(year);
+                });
             }
         }
 
