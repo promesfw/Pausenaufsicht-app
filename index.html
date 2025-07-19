@@ -1293,8 +1293,19 @@
             appData.schedule[key2] = schedule2;
 
             await saveData();
+            
+            // Alle relevanten Bereiche automatisch aktualisieren
+            showWeekSchedule(); // Aktuelle Wochenansicht
+            updateDashboard();  // Dashboard (diese/nächste Woche)
+            updateMyDutiesTab(); // Meine Einsätze Dropdown
+            
+            // Swap-Felder zurücksetzen
+            document.getElementById('swapPerson1').value = '';
+            document.getElementById('swapWeek1').value = '';
+            document.getElementById('swapPerson2').value = '';
+            document.getElementById('swapWeek2').value = '';
+            
             alert('Einsätze erfolgreich getauscht!');
-            showWeekSchedule();
         }
 
         function updateMyDutiesTab() {
@@ -1399,10 +1410,16 @@
                         <div id="members-${day}">
                 `;
 
-                dayMembers.forEach(member => {
+                dayMembers.forEach((member, index) => {
+                    const uniqueId = `member-${day}-${index}`;
                     html += `
-                        <div class="member-assignment">
-                            <label>${member.name}</label>
+                        <div class="member-assignment" id="${uniqueId}">
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                <span id="${uniqueId}-name" style="min-width: 150px; font-weight: 500;">${member.name}</span>
+                                <input type="text" id="${uniqueId}-input" value="${member.name}" 
+                                       style="min-width: 150px; display: none;" 
+                                       onkeydown="if(event.key==='Enter') saveMemberName('${member.name}', '${uniqueId}'); if(event.key==='Escape') cancelEditName('${uniqueId}')">
+                            </div>
                             <select onchange="changeMemberDay('${member.name}', this.value)">
                                 <option value="Montag" ${member.day === 'Montag' ? 'selected' : ''}>Montag</option>
                                 <option value="Dienstag" ${member.day === 'Dienstag' ? 'selected' : ''}>Dienstag</option>
@@ -1410,6 +1427,7 @@
                                 <option value="Donnerstag" ${member.day === 'Donnerstag' ? 'selected' : ''}>Donnerstag</option>
                                 <option value="Freitag" ${member.day === 'Freitag' ? 'selected' : ''}>Freitag</option>
                             </select>
+                            <button class="btn btn-secondary" onclick="editMemberName('${uniqueId}')" title="Name bearbeiten">✏️</button>
                             <button class="btn btn-danger" onclick="removeMember('${member.name}')">Entfernen</button>
                         </div>
                     `;
@@ -1419,6 +1437,77 @@
             });
 
             container.innerHTML = html;
+        }
+
+        // Name-Editing Funktionen
+        function editMemberName(uniqueId) {
+            const nameSpan = document.getElementById(`${uniqueId}-name`);
+            const nameInput = document.getElementById(`${uniqueId}-input`);
+            
+            nameSpan.style.display = 'none';
+            nameInput.style.display = 'block';
+            nameInput.focus();
+            nameInput.select();
+        }
+
+        function cancelEditName(uniqueId) {
+            const nameSpan = document.getElementById(`${uniqueId}-name`);
+            const nameInput = document.getElementById(`${uniqueId}-input`);
+            
+            nameSpan.style.display = 'block';
+            nameInput.style.display = 'none';
+            // Reset input value to original
+            nameInput.value = nameSpan.textContent;
+        }
+
+        async function saveMemberName(oldName, uniqueId) {
+            const nameSpan = document.getElementById(`${uniqueId}-name`);
+            const nameInput = document.getElementById(`${uniqueId}-input`);
+            const newName = nameInput.value.trim();
+            
+            if (!newName) {
+                alert('Name darf nicht leer sein!');
+                nameInput.focus();
+                return;
+            }
+
+            if (newName === oldName) {
+                // Kein Änderung
+                cancelEditName(uniqueId);
+                return;
+            }
+
+            // Prüfen ob Name bereits existiert
+            if (appData.members.some(m => m.name === newName && m.name !== oldName)) {
+                alert('Ein Mitglied mit diesem Namen existiert bereits!');
+                nameInput.focus();
+                return;
+            }
+
+            // Namen in members array ändern
+            const member = appData.members.find(m => m.name === oldName);
+            if (member) {
+                member.name = newName;
+            }
+
+            // Namen in schedule ändern
+            Object.keys(appData.schedule).forEach(key => {
+                if (appData.schedule[key]) {
+                    appData.schedule[key] = appData.schedule[key].map(name => 
+                        name === oldName ? newName : name
+                    );
+                }
+            });
+
+            await saveData();
+            
+            // UI aktualisieren
+            updateMembersTab();
+            updateMyDutiesTab();
+            updateDashboard();
+            updateSwapSelectors(); // Swap-Selektoren auch aktualisieren
+            
+            alert(`Name wurde von "${oldName}" zu "${newName}" geändert!`);
         }
 
         async function addMember() {
