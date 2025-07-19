@@ -592,6 +592,12 @@
                             <option value="Donnerstag">Donnerstag</option>
                             <option value="Freitag">Freitag</option>
                         </select>
+                        <select id="newMemberInterval" style="flex: 1; min-width: 180px;">
+                            <option value="1">Jede Woche</option>
+                            <option value="2">Alle 2 Wochen</option>
+                            <option value="3">Alle 3 Wochen</option>
+                            <option value="4">Alle 4 Wochen</option>
+                        </select>
                         <button class="btn" id="addMemberBtn" type="button">Hinzufügen</button>
                     </div>
                 </div>
@@ -783,21 +789,21 @@
         // Standard-Datenstruktur
         let appData = {
             members: [
-                { name: "Anna Müller", day: "Montag" },
-                { name: "Peter Schmidt", day: "Montag" },
-                { name: "Maria Weber", day: "Montag" },
-                { name: "Hans Meier", day: "Dienstag" },
-                { name: "Lisa Bauer", day: "Dienstag" },
-                { name: "Tom Fischer", day: "Dienstag" },
-                { name: "Sarah Klein", day: "Mittwoch" },
-                { name: "Max Richter", day: "Mittwoch" },
-                { name: "Emma Wolf", day: "Mittwoch" },
-                { name: "Jonas Kraft", day: "Donnerstag" },
-                { name: "Nina Braun", day: "Donnerstag" },
-                { name: "Luca Zimmermann", day: "Donnerstag" },
-                { name: "Sophie Hofmann", day: "Freitag" },
-                { name: "David Schneider", day: "Freitag" },
-                { name: "Laura Hartmann", day: "Freitag" }
+                { name: "Anna Müller", day: "Montag", interval: 1 },
+                { name: "Peter Schmidt", day: "Montag", interval: 1 },
+                { name: "Maria Weber", day: "Montag", interval: 1 },
+                { name: "Hans Meier", day: "Dienstag", interval: 1 },
+                { name: "Lisa Bauer", day: "Dienstag", interval: 1 },
+                { name: "Tom Fischer", day: "Dienstag", interval: 1 },
+                { name: "Sarah Klein", day: "Mittwoch", interval: 1 },
+                { name: "Max Richter", day: "Mittwoch", interval: 1 },
+                { name: "Emma Wolf", day: "Mittwoch", interval: 1 },
+                { name: "Jonas Kraft", day: "Donnerstag", interval: 1 },
+                { name: "Nina Braun", day: "Donnerstag", interval: 1 },
+                { name: "Luca Zimmermann", day: "Donnerstag", interval: 1 },
+                { name: "Sophie Hofmann", day: "Freitag", interval: 1 },
+                { name: "David Schneider", day: "Freitag", interval: 1 },
+                { name: "Laura Hartmann", day: "Freitag", interval: 1 }
             ],
             schedule: {},
             teamSize: 3,
@@ -976,7 +982,12 @@
                 const data = await response.json();
                 
                 if (data && typeof data === 'object') {
-                    if (data.members) appData.members = data.members;
+                    if (data.members) {
+                        appData.members = data.members.map(member => ({
+                            ...member,
+                            interval: member.interval || 1 // Rückwärtskompatibilität
+                        }));
+                    }
                     if (data.schedule) appData.schedule = data.schedule;
                     if (data.teamSize) appData.teamSize = data.teamSize;
                     if (data.startWeek) appData.startWeek = data.startWeek;
@@ -1564,6 +1575,8 @@
 
                 dayMembers.forEach((member, index) => {
                     const uniqueId = `member-${day}-${index}`;
+                    const intervalText = member.interval === 1 ? 'Jede Woche' : `Alle ${member.interval} Wochen`;
+                    
                     html += `
                         <div class="member-assignment" id="${uniqueId}">
                             <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
@@ -1571,6 +1584,7 @@
                                 <input type="text" id="${uniqueId}-input" value="${member.name}" 
                                        style="min-width: 150px; display: none;" 
                                        onkeydown="if(event.key==='Enter') saveMemberName('${member.name}', '${uniqueId}'); if(event.key==='Escape') cancelEditName('${uniqueId}')">
+                                <span style="color: #667eea; font-size: 0.9em; min-width: 100px;">${intervalText}</span>
                             </div>
                             <select onchange="changeMemberDay('${member.name}', this.value)">
                                 <option value="Montag" ${member.day === 'Montag' ? 'selected' : ''}>Montag</option>
@@ -1578,6 +1592,12 @@
                                 <option value="Mittwoch" ${member.day === 'Mittwoch' ? 'selected' : ''}>Mittwoch</option>
                                 <option value="Donnerstag" ${member.day === 'Donnerstag' ? 'selected' : ''}>Donnerstag</option>
                                 <option value="Freitag" ${member.day === 'Freitag' ? 'selected' : ''}>Freitag</option>
+                            </select>
+                            <select onchange="changeMemberInterval('${member.name}', this.value)" title="Einsatz-Häufigkeit">
+                                <option value="1" ${member.interval === 1 ? 'selected' : ''}>Jede Woche</option>
+                                <option value="2" ${member.interval === 2 ? 'selected' : ''}>Alle 2 Wochen</option>
+                                <option value="3" ${member.interval === 3 ? 'selected' : ''}>Alle 3 Wochen</option>
+                                <option value="4" ${member.interval === 4 ? 'selected' : ''}>Alle 4 Wochen</option>
                             </select>
                             <button class="btn btn-secondary" onclick="editMemberName('${uniqueId}')" title="Name bearbeiten">✏️</button>
                             <button class="btn btn-danger" onclick="removeMember('${member.name}')">Entfernen</button>
@@ -1658,6 +1678,7 @@
         async function addMember() {
             const name = document.getElementById('newMemberName').value.trim();
             const day = document.getElementById('newMemberDay').value;
+            const interval = parseInt(document.getElementById('newMemberInterval').value);
 
             if (!name || !day) {
                 alert('Bitte Name und Wochentag eingeben!');
@@ -1669,11 +1690,12 @@
                 return;
             }
 
-            appData.members.push({ name, day });
+            appData.members.push({ name, day, interval });
             await saveData();
 
             document.getElementById('newMemberName').value = '';
             document.getElementById('newMemberDay').value = '';
+            document.getElementById('newMemberInterval').value = '1';
 
             updateMembersTab();
             updateMyDutiesTab();
@@ -1690,6 +1712,21 @@
                 updateMembersTab();
                 updateDashboard();
                 updateTeamInfo(); // Team-Info aktualisieren
+            }
+        }
+
+        async function changeMemberInterval(memberName, newInterval) {
+            const member = appData.members.find(m => m.name === memberName);
+            if (member) {
+                member.interval = parseInt(newInterval);
+                await saveData();
+                updateMembersTab();
+                updateDashboard();
+                updateTeamInfo(); // Team-Info aktualisieren
+                
+                // Info-Dialog über die Änderung
+                const intervalText = member.interval === 1 ? 'jede Woche' : `alle ${member.interval} Wochen`;
+                alert(`${memberName} wird nun ${intervalText} eingeteilt.\n\nHinweis: Generieren Sie den Einsatzplan neu, damit diese Änderung wirksam wird.`);
             }
         }
 
@@ -1829,10 +1866,13 @@
                 `;
 
                 dayMembers.forEach(member => {
+                    const intervalText = member.interval === 1 ? '' : ` (alle ${member.interval} Wo.)`;
+                    const intervalColor = member.interval === 1 ? '#667eea' : '#f39c12';
+                    
                     html += `
                         <div class="day-card">
                             <strong>${member.name}</strong><br>
-                            <span style="color: #667eea;">${dutyCounts[member.name]} Einsätze</span>
+                            <span style="color: ${intervalColor}; font-size: 0.8em;">${dutyCounts[member.name]} Einsätze${intervalText}</span>
                         </div>
                     `;
                 });
@@ -1846,6 +1886,59 @@
         async function updateTeamSize() {
             appData.teamSize = parseInt(document.getElementById('teamSize').value);
             await saveData();
+        }
+
+        // Neue Funktion für intervall-basierte Einsatzplanung
+        function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
+            // Tracking für letzte Einsätze jeder Person
+            const lastAssigned = {};
+            dayMembers.forEach(member => {
+                lastAssigned[member.name] = -999; // Startwert: sehr lange her
+            });
+
+            let weekCounter = 0;
+
+            allWeeks.forEach(({ week }) => {
+                const dayKey = `${week}-${dayIndex + 1}`;
+
+                if (appData.freeDays.includes(dayKey)) {
+                    return; // Freier Tag überspringen
+                }
+
+                // Verfügbare Mitglieder für diese Woche ermitteln
+                const availableMembers = dayMembers.filter(member => {
+                    const weeksSinceLastAssignment = weekCounter - lastAssigned[member.name];
+                    return weeksSinceLastAssignment >= member.interval;
+                });
+
+                // Falls nicht genügend verfügbar sind, nehmen wir die, die am längsten warten
+                let selectedMembers = [];
+                if (availableMembers.length >= appData.teamSize) {
+                    // Sortiere nach letztem Einsatz (am längsten wartend zuerst)
+                    availableMembers.sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
+                    selectedMembers = availableMembers.slice(0, appData.teamSize);
+                } else {
+                    // Notfall: Alle verfügbaren + die am längsten wartenden bis teamSize erreicht
+                    selectedMembers = [...availableMembers];
+                    
+                    if (selectedMembers.length < appData.teamSize) {
+                        const remaining = dayMembers
+                            .filter(m => !selectedMembers.includes(m))
+                            .sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
+                        
+                        const needed = Math.min(appData.teamSize - selectedMembers.length, remaining.length);
+                        selectedMembers.push(...remaining.slice(0, needed));
+                    }
+                }
+
+                // Einsätze zuweisen und tracking aktualisieren
+                appData.schedule[dayKey] = selectedMembers.map(member => {
+                    lastAssigned[member.name] = weekCounter;
+                    return member.name;
+                });
+
+                weekCounter++;
+            });
         }
 
         // Team-spezifische Einsatzplan-Generierung
@@ -1866,7 +1959,8 @@
                 `Team: ${selectedDay}-Team\n` +
                 `Mitglieder: ${memberNames}\n\n` +
                 `⚠️ WARNUNG: Alle ${selectedDay}-Einsätze werden neu generiert!\n` +
-                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n\n` +
+                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n` +
+                `Einsatz-Intervalle werden berücksichtigt.\n\n` +
                 `Möchten Sie fortfahren?`
             );
             
@@ -1896,37 +1990,28 @@
             appData.freeDays = combineFreeDaysFromBothYears();
 
             const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(selectedDay);
-            const memberRotation = [...dayMembers];
-            let currentIndex = 0;
-
             const allWeeks = getAllSchoolWeeks();
-            let regeneratedCount = 0;
 
-            // NUR für den gewählten Tag die Einsätze neu generieren
-            allWeeks.forEach(({ week }) => {
-                const dayKey = `${week}-${dayIndex + 1}`;
-
-                if (appData.freeDays.includes(dayKey)) {
-                    return; // Freier Tag überspringen
-                }
-
-                const teamForDay = [];
-                for (let i = 0; i < appData.teamSize && i < memberRotation.length; i++) {
-                    teamForDay.push(memberRotation[currentIndex]);
-                    currentIndex = (currentIndex + 1) % memberRotation.length;
-                }
-
-                appData.schedule[dayKey] = teamForDay.map(m => m.name);
-                regeneratedCount++;
-            });
+            // Team-spezifische Generierung mit Intervall-Berücksichtigung
+            generateDayScheduleWithIntervals(selectedDay, dayIndex, dayMembers, allWeeks);
 
             await saveData();
             updateAdminStats();
             updateDashboard();
             updateScheduleTab();
             
+            // Anzahl der regenerierten Einsätze zählen
+            let regeneratedCount = 0;
+            allWeeks.forEach(({ week }) => {
+                const dayKey = `${week}-${dayIndex + 1}`;
+                if (!appData.freeDays.includes(dayKey) && appData.schedule[dayKey]) {
+                    regeneratedCount++;
+                }
+            });
+            
             alert(`✅ ${selectedDay}-Team erfolgreich neu geplant!\n\n` +
                   `${regeneratedCount} Einsätze wurden neu generiert.\n` +
+                  `Einsatz-Intervalle wurden berücksichtigt.\n` +
                   `Alle anderen Teams blieben unverändert.`);
         }
 
@@ -1988,38 +2073,21 @@
             appData.schedule = {};
 
             const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+            const allWeeks = getAllSchoolWeeks();
 
+            // Für jeden Tag separate Generierung mit Intervall-Berücksichtigung
             days.forEach((day, dayIndex) => {
                 const dayMembers = appData.members.filter(m => m.day === day);
                 if (dayMembers.length === 0) return;
 
-                const memberRotation = [...dayMembers];
-                let currentIndex = 0;
-
-                const allWeeks = getAllSchoolWeeks();
-                
-                allWeeks.forEach(({ week }) => {
-                    const dayKey = `${week}-${dayIndex + 1}`;
-
-                    if (appData.freeDays.includes(dayKey)) {
-                        return; // Freier Tag überspringen
-                    }
-
-                    const teamForDay = [];
-                    for (let i = 0; i < appData.teamSize && i < memberRotation.length; i++) {
-                        teamForDay.push(memberRotation[currentIndex]);
-                        currentIndex = (currentIndex + 1) % memberRotation.length;
-                    }
-
-                    appData.schedule[dayKey] = teamForDay.map(m => m.name);
-                });
+                generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks);
             });
 
             await saveData();
             updateAdminStats();
             updateDashboard();
             updateScheduleTab();
-            alert('✅ Einsatzplan erfolgreich generiert!\n\nDer Plan wurde für das komplette Schuljahr erstellt.');
+            alert('✅ Einsatzplan erfolgreich generiert!\n\nDer Plan wurde für das komplette Schuljahr erstellt und berücksichtigt alle Einsatz-Intervalle.');
         }
 
         // Event Listeners
@@ -2039,6 +2107,12 @@
                     }
                 }
             }
+
+            // Rückwärtskompatibilität: interval-Feld für bestehende Mitglieder hinzufügen
+            appData.members = appData.members.map(member => ({
+                ...member,
+                interval: member.interval || 1
+            }));
 
             updateDashboard();
             updateHeaderForDashboard();
