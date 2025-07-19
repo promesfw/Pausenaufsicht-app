@@ -160,6 +160,32 @@
             font-weight: 500;
         }
 
+        /* Calendar Export Styles */
+        .calendar-export {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+
+        .calendar-export h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .calendar-export p {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .calendar-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         /* Auto-Save Status */
         .save-status {
             position: fixed;
@@ -285,6 +311,8 @@
             font-weight: 600;
             transition: all 0.3s ease;
             margin: 5px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn:hover {
@@ -302,6 +330,12 @@
 
         .btn-success {
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn-small {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            margin: 0;
         }
 
         .table {
@@ -428,6 +462,10 @@
             
             .member-assignment label {
                 min-width: unset;
+            }
+
+            .calendar-buttons {
+                flex-direction: column;
             }
         }
 
@@ -814,6 +852,123 @@
             year: 2025, // Rückwärtskompatibilität
             freeDays: ["40", "41", "52-1", "7", "8", "15-3"]
         };
+
+        // Kalender-Export Funktionen
+        function getDateFromWeekAndDay(week, year, dayIndex) {
+            // dayIndex: 0 = Montag, 1 = Dienstag, etc.
+            const firstDayOfYear = new Date(year, 0, 1);
+            const daysFromFirstWeek = (week - 1) * 7;
+            const dayOfWeek = firstDayOfYear.getDay(); // 0 = Sonntag, 1 = Montag, etc.
+            
+            // Berechne den ersten Montag des Jahres
+            const firstMonday = new Date(firstDayOfYear);
+            const daysToFirstMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
+            firstMonday.setDate(firstDayOfYear.getDate() + daysToFirstMonday);
+            
+            // Berechne das Zieldatum
+            const targetDate = new Date(firstMonday);
+            targetDate.setDate(firstMonday.getDate() + daysFromFirstWeek + dayIndex);
+            
+            return targetDate;
+        }
+
+        function formatDateForICS(date) {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        }
+
+        function generateICSFile(personName, duties) {
+            const schoolName = "Primarschule Wohlen";
+            let icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Pausenaufsicht App//DE',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH'
+            ];
+
+            duties.forEach((duty, index) => {
+                const eventDate = getDateFromWeekAndDay(duty.week, duty.year, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(duty.dayName));
+                
+                // Start: 09:55, Ende: 10:15
+                const startDate = new Date(eventDate);
+                startDate.setHours(9, 55, 0, 0);
+                
+                const endDate = new Date(eventDate);
+                endDate.setHours(10, 15, 0, 0);
+
+                const eventId = `pausenaufsicht-${duty.week}-${duty.year}-${duty.dayName.toLowerCase()}@${schoolName.replace(/\s+/g, '-').toLowerCase()}.com`;
+
+                icsContent.push(
+                    'BEGIN:VEVENT',
+                    `UID:${eventId}`,
+                    `DTSTART:${formatDateForICS(startDate)}`,
+                    `DTEND:${formatDateForICS(endDate)}`,
+                    `SUMMARY:Pausenaufsicht - ${schoolName}`,
+                    `DESCRIPTION:Pausenaufsicht ${duty.dayName}\\nKalenderwoche ${duty.week}/${duty.year}\\nZeit: 09:55 - 10:15`,
+                    `LOCATION:${schoolName}`,
+                    'STATUS:CONFIRMED',
+                    'TRANSP:OPAQUE',
+                    'END:VEVENT'
+                );
+            });
+
+            icsContent.push('END:VCALENDAR');
+            return icsContent.join('\r\n');
+        }
+
+        function downloadICSFile(personName, duties) {
+            const icsContent = generateICSFile(personName, duties);
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Pausenaufsicht-${personName.replace(/\s+/g, '-')}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function createGoogleCalendarLink(duty) {
+            const eventDate = getDateFromWeekAndDay(duty.week, duty.year, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(duty.dayName));
+            
+            const startDate = new Date(eventDate);
+            startDate.setHours(9, 55, 0, 0);
+            
+            const endDate = new Date(eventDate);
+            endDate.setHours(10, 15, 0, 0);
+
+            const formatGoogleDate = (date) => {
+                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            };
+
+            const params = new URLSearchParams({
+                action: 'TEMPLATE',
+                text: 'Pausenaufsicht - Primarschule Wohlen',
+                dates: `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`,
+                details: `Pausenaufsicht ${duty.dayName}\nKalenderwoche ${duty.week}/${duty.year}\nZeit: 09:55 - 10:15`,
+                location: 'Primarschule Wohlen'
+            });
+
+            return `https://calendar.google.com/calendar/render?${params.toString()}`;
+        }
+
+        // Hilfsfunktion für Bulk-Export zu Google Calendar
+        function exportToGoogleCalendarBulk(personName, duties) {
+            if (duties.length === 0) {
+                alert('Keine zukünftigen Einsätze vorhanden.');
+                return;
+            }
+
+            const message = `${duties.length} Einsätze gefunden.\n\nHinweis: Google Calendar kann nur einen Termin auf einmal hinzufügen. Verwenden Sie besser den "Kalenderdatei herunterladen" Button für alle Termine auf einmal.\n\nMöchten Sie trotzdem den ersten Termin zu Google Calendar hinzufügen?`;
+            
+            if (confirm(message)) {
+                const firstDuty = duties[0];
+                const googleCalendarLink = createGoogleCalendarLink(firstDuty);
+                window.open(googleCalendarLink, '_blank');
+            }
+        }
 
         // Auto-Save Status Management
         function showSaveStatus(status, message) {
@@ -1464,7 +1619,7 @@
             });
         }
 
-        // "Meine Einsätze" mit Schuljahr-Unterstützung und Tausch-Erkennung
+        // "Meine Einsätze" mit Schuljahr-Unterstützung, Tausch-Erkennung und Kalender-Export
         function showPersonDuties() {
             const selectedPerson = document.getElementById('personSelector').value;
             if (!selectedPerson) {
@@ -1520,6 +1675,22 @@
                     <p>Gesamt: ${totalDuties} Einsätze, noch ausstehend: ${futureDuties} Einsätze</p>
                 </div>
 
+                <div class="calendar-export">
+                    <h4>📅 Kalender-Export</h4>
+                    <p>Exportieren Sie alle zukünftigen Einsätze in Ihren Kalender. Zeit: <strong>09:55 - 10:15 Uhr</strong></p>
+                    <div class="calendar-buttons">
+                        <button class="btn btn-success" onclick="downloadICSFile('${selectedPerson}', ${JSON.stringify(futureDutiesOnly).replace(/"/g, '&quot;')})">
+                            📥 Als Kalenderdatei (.ics) herunterladen
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportToGoogleCalendarBulk('${selectedPerson}', ${JSON.stringify(futureDutiesOnly).replace(/"/g, '&quot;')})">
+                            🗓️ Alle zu Google Calendar hinzufügen
+                        </button>
+                    </div>
+                    <small style="color: #666; font-size: 0.8em; margin-top: 10px; display: block;">
+                        💡 Die .ics-Datei funktioniert mit allen Kalender-Apps: Outlook, Apple Calendar, Google Calendar, Thunderbird, etc.
+                    </small>
+                </div>
+
                 <table class="table">
                     <thead>
                         <tr>
@@ -1527,25 +1698,33 @@
                             <th>Datum</th>
                             <th>Wochentag</th>
                             <th>Status</th>
+                            <th>Aktionen</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
             if (futureDutiesOnly.length === 0) {
-                html += '<tr><td colspan="4" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
+                html += '<tr><td colspan="5" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
             } else {
                 futureDutiesOnly.forEach(duty => {
                     const statusText = duty.isSwapped ? 
                         `<span style="color: #f39c12; font-weight: bold;">⇄ Getauscht</span>` : 
                         `<span style="color: #27ae60;">✓ Standard</span>`;
                     
+                    const googleCalendarLink = createGoogleCalendarLink(duty);
+                    
                     html += `
                         <tr>
                             <td>KW ${duty.week}/${duty.year}</td>
                             <td>${duty.date}</td>
-                            <td><strong>${duty.dayName}</strong></td>
+                            <td><strong>${duty.dayName}</strong><br><small style="color: #666;">09:55 - 10:15</small></td>
                             <td>${statusText}</td>
+                            <td>
+                                <a href="${googleCalendarLink}" target="_blank" class="btn btn-secondary btn-small">
+                                    📅 + Google
+                                </a>
+                            </td>
                         </tr>
                     `;
                 });
