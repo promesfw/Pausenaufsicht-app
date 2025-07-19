@@ -1,10 +1,6 @@
 {
   "members": [
     {
-      "name": "Hans Meier",
-      "day": "Dienstag"
-    },
-    {
       "name": "Lisa Bauer",
       "day": "Dienstag"
     },
@@ -63,62 +59,50 @@
     "41-1": [],
     "42-1": [],
     "29-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "30-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "31-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "33-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "34-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "35-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "36-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "37-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "38-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "39-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "41-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
     "42-2": [
-      "Hans Meier",
       "Lisa Bauer",
       "Tom Fischer"
     ],
@@ -331,5 +315,5 @@
     "40-4",
     "40-5"
   ],
-  "lastUpdated": "2025-07-19T06:30:51.786Z"
+  "lastUpdated": "2025-07-19T06:30:56.080Z"
 }
