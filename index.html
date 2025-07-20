@@ -340,6 +340,11 @@
             transition: border-color 0.3s ease;
         }
 
+        /* Verbesserte Lesbarkeit für Dropdown-Menüs */
+        select {
+            font-size: 16px;
+        }
+
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
@@ -487,7 +492,7 @@
             padding: 10px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .swap-arrow {
@@ -572,6 +577,14 @@
             .swap-row select {
                 min-width: unset;
                 width: 100%;
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            /* Bessere Lesbarkeit für alle Dropdown-Menüs auf mobilen Geräten */
+            select {
+                font-size: 18px !important;
+                padding: 12px !important;
             }
 
             .swap-arrow {
@@ -608,6 +621,13 @@
                 font-size: 12px;
                 margin-left: 5px;
                 flex-shrink: 0;
+            }
+
+            /* Noch bessere Lesbarkeit für sehr kleine Geräte */
+            select {
+                font-size: 19px !important;
+                padding: 14px !important;
+                min-height: 50px;
             }
         }
 
