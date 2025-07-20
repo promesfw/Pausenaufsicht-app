@@ -57,7 +57,7 @@
 
         .nav-row {
             display: flex;
-            gap: 5px;
+            gap: 3px;
             margin-bottom: 5px;
             align-items: center;
         }
@@ -518,19 +518,22 @@
             .nav-row:first-child {
                 flex-direction: row;
                 align-items: center;
+                gap: 2px;
             }
             
             .nav-tab {
                 min-width: unset;
                 font-size: 16px;
-                padding: 10px 12px;
+                padding: 10px 8px;
+                flex: 1;
             }
 
             .setup-toggle {
                 width: 35px;
                 height: 35px;
                 font-size: 13px;
-                margin-left: 8px;
+                margin-left: 6px;
+                flex-shrink: 0;
             }
 
             .setup-tabs.show {
@@ -606,20 +609,22 @@
             .nav-row:first-child {
                 flex-direction: row;
                 overflow-x: auto;
+                gap: 1px;
             }
             
             .nav-tab {
-                min-width: 80px;
+                min-width: 70px;
                 font-size: 1rem;
-                padding: 8px 12px;
+                padding: 8px 6px;
                 white-space: nowrap;
+                flex: 1;
             }
 
             .setup-toggle {
                 width: 32px;
                 height: 32px;
                 font-size: 11px;
-                margin-left: 5px;
+                margin-left: 4px;
                 flex-shrink: 0;
             }
 
@@ -628,6 +633,22 @@
                 font-size: 19px !important;
                 padding: 14px !important;
                 min-height: 50px;
+            }
+        }
+
+        /* Für sehr schmale Bildschirme */
+        @media (max-width: 400px) {
+            .nav-tab {
+                font-size: 0.9rem !important;
+                padding: 8px 4px !important;
+                min-width: 60px !important;
+            }
+            
+            .setup-toggle {
+                width: 30px !important;
+                height: 30px !important;
+                margin-left: 2px !important;
+                font-size: 10px !important;
             }
         }
 
