@@ -76,7 +76,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
-            font-size: 17px;
+            font-size: 18px;
             text-align: center;
         }
 
@@ -523,8 +523,8 @@
             
             .nav-tab {
                 min-width: unset;
-                font-size: 16px;
-                padding: 10px 8px;
+                font-size: 17px;
+                padding: 10px 10px;
                 flex: 1;
             }
 
@@ -614,8 +614,8 @@
             
             .nav-tab {
                 min-width: 70px;
-                font-size: 1rem;
-                padding: 8px 6px;
+                font-size: 1.1rem;
+                padding: 8px 8px;
                 white-space: nowrap;
                 flex: 1;
             }
@@ -639,9 +639,9 @@
         /* Für sehr schmale Bildschirme */
         @media (max-width: 400px) {
             .nav-tab {
-                font-size: 0.9rem !important;
-                padding: 8px 4px !important;
-                min-width: 60px !important;
+                font-size: 1rem !important;
+                padding: 8px 6px !important;
+                min-width: 65px !important;
             }
             
             .setup-toggle {
@@ -699,7 +699,7 @@
             <div class="nav-row">
                 <button class="nav-tab active" onclick="showTab('dashboard')">Aktuell</button>
                 <button class="nav-tab" onclick="showTab('schedule')">Plan</button>
-                <button class="nav-tab" onclick="showTab('myduties')">Meine Einsätze</button>
+                <button class="nav-tab" onclick="showTab('myduties')">Meine Daten</button>
                 <div class="setup-toggle" onclick="toggleSetupTabs()" title="Setup anzeigen/verbergen">
                     <span id="setupToggleIcon">▼</span>
                 </div>
@@ -779,7 +779,7 @@
 
             <!-- My Duties Tab -->
             <div id="myduties" class="tab-content hidden">
-                <h3>👤 Meine Einsätze</h3>
+                <h3>👤 Meine Daten</h3>
                 <div class="form-group">
                     <label>Person auswählen:</label>
                     <select id="personSelector" onchange="showPersonDuties()">
