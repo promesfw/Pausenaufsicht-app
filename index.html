@@ -76,7 +76,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
         }
 
@@ -94,14 +94,14 @@
             background: rgba(102, 126, 234, 0.1);
             border: 2px solid #667eea;
             border-radius: 10px;
-            width: 45px;
-            height: 45px;
+            width: 38px;
+            height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 16px;
+            font-size: 14px;
             color: #667eea;
             margin-left: 10px;
         }
@@ -522,14 +522,14 @@
             
             .nav-tab {
                 min-width: unset;
-                font-size: 13px;
+                font-size: 14px;
                 padding: 10px 12px;
             }
 
             .setup-toggle {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
+                width: 35px;
+                height: 35px;
+                font-size: 13px;
                 margin-left: 8px;
             }
 
@@ -610,15 +610,15 @@
             
             .nav-tab {
                 min-width: 80px;
-                font-size: 0.8rem;
+                font-size: 0.85rem;
                 padding: 8px 12px;
                 white-space: nowrap;
             }
 
             .setup-toggle {
-                width: 35px;
-                height: 35px;
-                font-size: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 11px;
                 margin-left: 5px;
                 flex-shrink: 0;
             }
@@ -680,7 +680,7 @@
                 <button class="nav-tab" onclick="showTab('schedule')">Einsatzplan</button>
                 <button class="nav-tab" onclick="showTab('myduties')">Meine Einsätze</button>
                 <div class="setup-toggle" onclick="toggleSetupTabs()" title="Setup anzeigen/verbergen">
-                    <span id="setupToggleIcon">⚙️</span>
+                    <span id="setupToggleIcon">▼</span>
                 </div>
             </div>
             <div class="setup-tabs" id="setupTabs">
@@ -1022,11 +1022,11 @@
             
             if (setupTabsVisible) {
                 setupTabs.classList.add('show');
-                toggleIcon.textContent = '▼';
+                toggleIcon.textContent = '▲';
                 toggleButton.classList.add('active');
             } else {
                 setupTabs.classList.remove('show');
-                toggleIcon.textContent = '⚙️';
+                toggleIcon.textContent = '▼';
                 toggleButton.classList.remove('active');
                 
                 // Falls ein Setup-Tab aktiv ist, zum Dashboard wechseln
