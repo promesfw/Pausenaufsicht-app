@@ -59,6 +59,7 @@
             display: flex;
             gap: 5px;
             margin-bottom: 5px;
+            align-items: center;
         }
 
         .nav-row:last-child {
@@ -77,6 +78,42 @@
             font-weight: 500;
             font-size: 14px;
             text-align: center;
+        }
+
+        .setup-toggle {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            color: #667eea;
+            margin-left: 10px;
+        }
+
+        .setup-toggle:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: scale(1.05);
+        }
+
+        .setup-toggle.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .setup-tabs {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .setup-tabs.show {
+            max-height: 80px;
         }
 
         .nav-tab.active {
@@ -473,10 +510,22 @@
                 gap: 5px;
             }
             
+            .nav-row:first-child {
+                flex-direction: row;
+                align-items: center;
+            }
+            
             .nav-tab {
                 min-width: unset;
                 font-size: 13px;
                 padding: 10px 12px;
+            }
+
+            .setup-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+                margin-left: 8px;
             }
             
             .schedule-grid {
@@ -537,7 +586,7 @@
                 font-size: 1.8rem;
             }
             
-            .nav-row {
+            .nav-row:first-child {
                 flex-direction: row;
                 overflow-x: auto;
             }
@@ -547,6 +596,14 @@
                 font-size: 0.8rem;
                 padding: 8px 12px;
                 white-space: nowrap;
+            }
+
+            .setup-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 12px;
+                margin-left: 5px;
+                flex-shrink: 0;
             }
         }
 
@@ -598,10 +655,15 @@
                 <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
                 <button class="nav-tab" onclick="showTab('schedule')">Einsatzplan</button>
                 <button class="nav-tab" onclick="showTab('myduties')">Meine Einsätze</button>
+                <div class="setup-toggle" onclick="toggleSetupTabs()" title="Setup anzeigen/verbergen">
+                    <span id="setupToggleIcon">⚙️</span>
+                </div>
             </div>
-            <div class="nav-row">
-                <button class="nav-tab" onclick="showTab('members')">Teammitglieder verwalten</button>
-                <button class="nav-tab" onclick="showTab('admin')">Administration</button>
+            <div class="setup-tabs" id="setupTabs">
+                <div class="nav-row">
+                    <button class="nav-tab" onclick="showTab('members')">Teammitglieder verwalten</button>
+                    <button class="nav-tab" onclick="showTab('admin')">Administration</button>
+                </div>
             </div>
         </div>
 
@@ -1330,6 +1392,37 @@
             return weeks;
         }
 
+        // Setup Toggle Funktionalität
+        let setupTabsVisible = false;
+
+        function toggleSetupTabs() {
+            const setupTabs = document.getElementById('setupTabs');
+            const toggleIcon = document.getElementById('setupToggleIcon');
+            const toggleButton = document.querySelector('.setup-toggle');
+            
+            setupTabsVisible = !setupTabsVisible;
+            
+            if (setupTabsVisible) {
+                setupTabs.classList.add('show');
+                toggleIcon.textContent = '▼';
+                toggleButton.classList.add('active');
+            } else {
+                setupTabs.classList.remove('show');
+                toggleIcon.textContent = '⚙️';
+                toggleButton.classList.remove('active');
+                
+                // Falls ein Setup-Tab aktiv ist, zum Dashboard wechseln
+                const activeTab = document.querySelector('.nav-tab.active');
+                if (activeTab && (activeTab.textContent.includes('Teammitglieder') || activeTab.textContent.includes('Administration'))) {
+                    showTab('dashboard');
+                    // Active-Klasse manuell setzen, da der Tab-Button versteckt ist
+                    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+                    document.querySelector('.nav-tab[onclick*="dashboard"]').classList.add('active');
+                }
+            }
+        }
+
+        function showTab(tabId) {
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
@@ -1340,6 +1433,13 @@
 
             document.getElementById(tabId).classList.remove('hidden');
             event.target.classList.add('active');
+
+            // Wenn ein Setup-Tab angezeigt wird, Setup-Bereich automatisch aufklappen
+            if (tabId === 'members' || tabId === 'admin') {
+                if (!setupTabsVisible) {
+                    toggleSetupTabs();
+                }
+            }
 
             updateHeaderForDashboard();
 
