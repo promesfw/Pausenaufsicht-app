@@ -6,11 +6,6 @@
       "interval": 1
     },
     {
-      "name": "Judith",
-      "day": "Montag",
-      "interval": 1
-    },
-    {
       "name": "Kilian",
       "day": "Montag",
       "interval": 1
@@ -114,218 +109,175 @@
   "schedule": {
     "33-1": [
       "Erestina",
-      "Judith",
       "Kilian"
     ],
     "34-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "35-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "36-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "37-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "40-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "41-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "42-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "43-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "44-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "45-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "46-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "47-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "49-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "50-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "51-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "1-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "2-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "3-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "4-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "5-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "6-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "7-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "8-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "9-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "10-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "11-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "12-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "13-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "14-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "15-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "16-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "17-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "18-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "19-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "20-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "21-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "22-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "23-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "24-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "25-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "26-1": [
       "Marina",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "27-1": [
       "Kilian",
-      "Erestina",
-      "Judith"
+      "Erestina"
     ],
     "33-2": [
       "Mila",
@@ -1231,5 +1183,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-08-04T14:55:05.422Z"
+  "lastUpdated": "2025-08-04T14:55:18.276Z"
 }
