@@ -112,7 +112,7 @@
     },
     {
       "name": "Evelyne",
-      "day": "Freitag",
+      "day": "Montag",
       "interval": 1
     }
   ],
@@ -1258,5 +1258,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-08-04T14:52:35.605Z"
+  "lastUpdated": "2025-08-04T14:52:52.277Z"
 }
