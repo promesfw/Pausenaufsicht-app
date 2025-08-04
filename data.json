@@ -28,7 +28,7 @@
     {
       "name": "Mila",
       "day": "Dienstag",
-      "interval": 2
+      "interval": 1
     },
     {
       "name": "Nathanja",
@@ -1188,5 +1188,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-08-04T14:56:41.466Z"
+  "lastUpdated": "2025-08-04T14:57:12.902Z"
 }
