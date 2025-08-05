@@ -1,30 +1,2295 @@
-// VERBESSERTE Funktion für gleichmäßige intervall-basierte Einsatzplanung
-        function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
-            // Zähle zunächst alle Arbeitswochen
-            const totalWorkWeeks = allWeeks.filter(({ week }) => {
-                const dayKey = `${week}-${dayIndex + 1}`;
-                return !appData.freeDays.includes(dayKey);
-            }).length;
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pausenaufsicht - Primarschule Wohlen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            // Berechne Soll-Einsätze pro Person
-            const targetAssignments = {};
-            let totalTargetSlots = 0;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header h2 {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .nav-tabs {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-row {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+
+        .nav-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .setup-toggle {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #667eea;
+            margin-left: 10px;
+        }
+
+        .setup-toggle:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: scale(1.05);
+        }
+
+        .setup-toggle.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .setup-tabs {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .setup-tabs.show {
+            max-height: 80px;
+        }
+
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+
+        .week-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .week-section h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .week-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: #667eea;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .day-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .day-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .day-card h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-bottom: 1px solid #667eea;
+            padding-bottom: 3px;
+        }
+
+        .team-member {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin: 2px 0;
+            font-size: 0.75em;
+            display: block;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Calendar Export Styles */
+        .calendar-export {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+
+        .calendar-export h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .calendar-export p {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .calendar-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Auto-Save Status */
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .save-status.saving {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .save-status.saved {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .save-status.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Token Setup */
+        .token-setup {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .token-setup h4 {
+            margin-bottom: 10px;
+        }
+
+        .token-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .token-input input {
+            flex: 1;
+            min-width: 300px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
+        /* Kompakteres Dashboard-Layout */
+        #dashboard .week-section {
+            margin-bottom: 15px;
+        }
+
+        #dashboard .schedule-grid {
+            gap: 6px;
+        }
+
+        #dashboard .day-card {
+            padding: 8px;
+            min-height: 80px;
+        }
+
+        #dashboard .day-card h4 {
+            font-size: 0.8em;
+            margin-bottom: 6px;
+        }
+
+        #dashboard .team-member {
+            font-size: 0.7em;
+            padding: 2px 6px;
+            margin: 1px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        /* Verbesserte Lesbarkeit für Dropdown-Menüs */
+        select {
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn-small {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            margin: 0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .member-assignment {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .member-assignment label {
+            min-width: 150px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .stats-card p {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .week-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .edit-cell {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .swap-controls {
+            margin-bottom: 20px;
+        }
+
+        .swap-controls h4 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .swap-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .swap-row select {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .swap-arrow {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .swap-button-row {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Teams-spezifische Optimierungen */
+        @media (max-width: 768px) {
+            .nav-row {
+                flex-direction: column;
+                gap: 5px;
+            }
             
-            dayMembers.forEach(member => {
-                const expectedDuties = Math.floor(totalWorkWeeks / member.interval);
-                targetAssignments[member.name] = expectedDuties;
-                totalTargetSlots += expectedDuties;
+            .nav-row:first-child {
+                flex-direction: row;
+                align-items: center;
+                gap: 2px;
+            }
+            
+            .nav-tab {
+                min-width: unset;
+                font-size: 17px;
+                padding: 10px 10px;
+                flex: 1;
+            }
+
+            .setup-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 13px;
+                margin-left: 6px;
+                flex-shrink: 0;
+            }
+
+            .setup-tabs.show {
+                max-height: 120px;
+            }
+            
+            .schedule-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 4px;
+            }
+            
+            #dashboard .day-card {
+                padding: 6px;
+                min-height: 70px;
+            }
+            
+            #dashboard .day-card h4 {
+                font-size: 0.75em;
+            }
+            
+            #dashboard .team-member {
+                font-size: 0.65em;
+                padding: 1px 4px;
+            }
+            
+            .member-assignment {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .member-assignment label {
+                min-width: unset;
+            }
+
+            .calendar-buttons {
+                flex-direction: column;
+            }
+
+            .swap-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .swap-row select {
+                min-width: unset;
+                width: 100%;
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            /* Bessere Lesbarkeit für alle Dropdown-Menüs auf mobilen Geräten */
+            select {
+                font-size: 18px !important;
+                padding: 12px !important;
+            }
+
+            .swap-arrow {
+                font-size: 1.5em;
+                margin: 5px 0;
+            }
+        }
+
+        @media (max-width: 768px) and (min-height: 600px) {
+            /* Teams Mobile - kompakte Darstellung beibehalten */
+            .container {
+                padding: 5px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-row:first-child {
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 1px;
+            }
+            
+            .nav-tab {
+                min-width: 70px;
+                font-size: 1.1rem;
+                padding: 8px 8px;
+                white-space: nowrap;
+                flex: 1;
+            }
+
+            .setup-toggle {
+                width: 32px;
+                height: 32px;
+                font-size: 11px;
+                margin-left: 4px;
+                flex-shrink: 0;
+            }
+
+            /* Noch bessere Lesbarkeit für sehr kleine Geräte */
+            select {
+                font-size: 19px !important;
+                padding: 14px !important;
+                min-height: 50px;
+            }
+        }
+
+        /* Für sehr schmale Bildschirme */
+        @media (max-width: 400px) {
+            .nav-tab {
+                font-size: 1rem !important;
+                padding: 8px 6px !important;
+                min-width: 65px !important;
+            }
+            
+            .setup-toggle {
+                width: 30px !important;
+                height: 30px !important;
+                margin-left: 2px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        /* Teams Desktop Integration */
+        body.teams-embedded {
+            background: #f3f2f1;
+        }
+
+        body.teams-embedded .container {
+            max-width: 100%;
+            padding: 10px;
+        }
+
+        body.teams-embedded .header {
+            background: linear-gradient(135deg, #6264a7 0%, #8b5a9c 100%);
+            margin-bottom: 15px;
+        }
+
+        /* Kompakte Darstellung für Teams */
+        .teams-compact .week-section {
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .teams-compact .schedule-grid {
+            gap: 4px;
+        }
+
+        .teams-compact .day-card {
+            padding: 6px;
+            min-height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auto-Save Status Indicator -->
+    <div id="saveStatus" class="save-status" style="display: none;">
+        <span id="saveStatusText">Speichern...</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Pausenaufsicht</h1>
+            <h2 id="headerSubtitle">Primarschule Wohlen</h2>
+        </div>
+
+        <div class="nav-tabs">
+            <div class="nav-row">
+                <button class="nav-tab active" onclick="showTab('dashboard')">Aktuell</button>
+                <button class="nav-tab" onclick="showTab('schedule')">Plan</button>
+                <button class="nav-tab" onclick="showTab('myduties')">Meine Daten</button>
+                <div class="setup-toggle" onclick="toggleSetupTabs()" title="Setup anzeigen/verbergen">
+                    <span id="setupToggleIcon">▼</span>
+                </div>
+            </div>
+            <div class="setup-tabs" id="setupTabs">
+                <div class="nav-row">
+                    <button class="nav-tab" onclick="showTab('members')">Teammitglieder verwalten</button>
+                    <button class="nav-tab" onclick="showTab('admin')">Administration</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content">
+                <div class="week-section">
+                    <h3>📅 Pausenaufsicht diese Woche</h3>
+                    <div class="week-info" id="currentWeekInfo">
+                        Kalenderwoche 29 (14.07. - 18.07.2025)
+                    </div>
+                    <div class="schedule-grid" id="currentWeekSchedule">
+                        <!-- Wird dynamisch gefüllt -->
+                    </div>
+                </div>
+
+                <div class="week-section">
+                    <h3>📋 Pausenaufsicht nächste Woche</h3>
+                    <div class="week-info" id="nextWeekInfo">
+                        Kalenderwoche 30 (21.07. - 25.07.2025)
+                    </div>
+                    <div class="schedule-grid" id="nextWeekSchedule">
+                        <!-- Wird dynamisch gefüllt -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Tab -->
+            <div id="schedule" class="tab-content hidden">
+                <h3>📋 Einsatzplan verwalten</h3>
+                <div class="swap-controls">
+                    <h4>Einsätze tauschen:</h4>
+                    <div class="swap-row">
+                        <select id="swapPerson1">
+                            <option value="">Person 1 wählen</option>
+                        </select>
+                        <select id="swapWeek1">
+                            <option value="">Woche 1 wählen</option>
+                        </select>
+                    </div>
+                    <div class="swap-row">
+                        <div class="swap-arrow">⇄</div>
+                    </div>
+                    <div class="swap-row">
+                        <select id="swapPerson2">
+                            <option value="">Person 2 wählen</option>
+                        </select>
+                        <select id="swapWeek2">
+                            <option value="">Woche 2 wählen</option>
+                        </select>
+                    </div>
+                    <div class="swap-button-row">
+                        <button class="btn" onclick="swapDuties()">Tauschen</button>
+                    </div>
+                </div>
+                
+                <div class="week-selector">
+                    <label>Woche auswählen:</label>
+                    <select id="weekSelector" onchange="showWeekSchedule()">
+                        <!-- Wird dynamisch gefüllt -->
+                    </select>
+                </div>
+                
+                <div id="weekScheduleView">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+
+            <!-- My Duties Tab -->
+            <div id="myduties" class="tab-content hidden">
+                <h3>👤 Meine Daten</h3>
+                <div class="form-group">
+                    <label>Person auswählen:</label>
+                    <select id="personSelector" onchange="showPersonDuties()">
+                        <option value="">Bitte wählen</option>
+                    </select>
+                </div>
+                
+                <div id="personDutiesView">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+
+            <!-- Members Tab -->
+            <div id="members" class="tab-content hidden">
+                <h3>👥 Teammitglieder verwalten</h3>
+                
+                <div class="form-group">
+                    <label>Neues Teammitglied hinzufügen:</label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="newMemberName" placeholder="Name eingeben" style="flex: 1; min-width: 200px;">
+                        <select id="newMemberDay" style="flex: 1; min-width: 150px;">
+                            <option value="">Wochentag wählen</option>
+                            <option value="Montag">Montag</option>
+                            <option value="Dienstag">Dienstag</option>
+                            <option value="Mittwoch">Mittwoch</option>
+                            <option value="Donnerstag">Donnerstag</option>
+                            <option value="Freitag">Freitag</option>
+                        </select>
+                        <select id="newMemberInterval" style="flex: 1; min-width: 180px;">
+                            <option value="1">Jede Woche</option>
+                            <option value="2">Alle 2 Wochen</option>
+                            <option value="3">Alle 3 Wochen</option>
+                            <option value="4">Alle 4 Wochen</option>
+                        </select>
+                        <button class="btn" id="addMemberBtn" type="button">Hinzufügen</button>
+                    </div>
+                </div>
+
+                <div id="membersList">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+
+            <!-- Admin Tab -->
+            <div id="admin" class="tab-content hidden">
+                <h3>⚙️ Administration</h3>
+
+                <!-- GitHub Token Setup -->
+                <div id="tokenSetup" class="token-setup">
+                    <h4>🔑 GitHub Token Setup</h4>
+                    <p style="margin-bottom: 10px;">Für automatisches Speichern benötigen Sie einen GitHub Personal Access Token:</p>
+                    <div class="token-input">
+                        <input type="password" id="githubToken" placeholder="GitHub Personal Access Token hier eingeben" />
+                        <button class="btn btn-success" onclick="saveToken()">Token speichern</button>
+                        <button class="btn btn-secondary" onclick="showTokenHelp()">Hilfe</button>
+                    </div>
+                    <div id="tokenHelp" style="display: none; margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                        <p><strong>So erstellen Sie einen GitHub Token:</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>Gehen Sie zu GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
+                            <li>Klicken Sie auf "Generate new token (classic)"</li>
+                            <li>Geben Sie eine Beschreibung ein (z.B. "Pausenaufsicht App")</li>
+                            <li>Wählen Sie Scope "repo" (Full control of private repositories)</li>
+                            <li>Klicken Sie "Generate token" und kopieren Sie den Token hierher</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Teamgröße festlegen:</label>
+                    <select id="teamSize">
+                        <option value="3">3 Mitglieder pro Team</option>
+                        <option value="4">4 Mitglieder pro Team</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Zeitraum festlegen (Schuljahr):</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                            <label style="font-size: 0.9em; color: #28a745; margin-bottom: 8px; display: block;">
+                                📅 Schuljahr-Beginn:
+                            </label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Jahr:</label>
+                                    <input type="number" id="startYear" min="2024" max="2030" value="2025" style="width: 100%;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Kalenderwoche:</label>
+                                    <input type="number" id="startWeek" min="1" max="53" value="33" style="width: 100%;">
+                                </div>
+                            </div>
+                            <small style="color: #666; font-size: 0.8em; margin-top: 5px; display: block;">
+                                z.B. KW 33/2025 = Mitte August 2025
+                            </small>
+                        </div>
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545;">
+                            <label style="font-size: 0.9em; color: #dc3545; margin-bottom: 8px; display: block;">
+                                📅 Schuljahr-Ende:
+                            </label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Jahr:</label>
+                                    <input type="number" id="endYear" min="2024" max="2030" value="2026" style="width: 100%;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Kalenderwoche:</label>
+                                    <input type="number" id="endWeek" min="1" max="53" value="27" style="width: 100%;">
+                                </div>
+                            </div>
+                            <small style="color: #666; font-size: 0.8em; margin-top: 5px; display: block;">
+                                z.B. KW 27/2026 = Anfang Juli 2026
+                            </small>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px; border-left: 4px solid #2196f3;">
+                        <strong style="color: #1976d2;">📚 Schuljahr-Beispiel:</strong>
+                        <span style="color: #666; font-size: 0.9em;">
+                            Von KW 33/2025 (Mitte August) bis KW 27/2026 (Anfang Juli) = komplettes Schuljahr
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Freie Tage/Ferien:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="font-size: 0.9em; color: #667eea; margin-bottom: 5px;">
+                                📅 Freie Tage im Jahr <span id="currentYearLabel">2025</span>:
+                            </label>
+                            <textarea id="freeDaysCurrentYear" 
+                                placeholder="Einzelne Tage: 32-1, 32-2 (KW-Tag)&#10;Ganze Wochen: 40, 41 (nur KW)&#10;Beispiel: 40, 41, 52-1" 
+                                rows="4"></textarea>
+                            <small style="color: #666; font-size: 0.8em; display: block; margin-top: 3px;">
+                                Kalenderwochen 1-53 für <span id="currentYearLabel2">2025</span>
+                            </small>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.9em; color: #667eea; margin-bottom: 5px;">
+                                📅 Freie Tage im Jahr <span id="nextYearLabel">2026</span>:
+                            </label>
+                            <textarea id="freeDaysNextYear" 
+                                placeholder="Einzelne Tage: 2-1, 2-2 (KW-Tag)&#10;Ganze Wochen: 7, 8 (nur KW)&#10;Beispiel: 7, 8, 15-3" 
+                                rows="4"></textarea>
+                            <small style="color: #666; font-size: 0.8em; display: block; margin-top: 3px;">
+                                Kalenderwochen 1-53 für <span id="nextYearLabel2">2026</span>
+                            </small>
+                        </div>
+                    </div>
+                    <small style="color: #666; font-size: 0.9em; margin-top: 10px; display: block; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <strong>📖 Format-Hilfe:</strong><br>
+                        • <strong>Einzelne Tage:</strong> KW-Tag (z.B. 32-1 = Montag in KW 32, 32-2 = Dienstag in KW 32)<br>
+                        • <strong>Ganze Wochen:</strong> nur KW (z.B. 40 = komplette KW 40)<br>
+                        • <strong>Mehrere Angaben:</strong> mit Komma trennen (z.B. 32-1, 32-2, 40, 41)
+                    </small>
+                </div>
+
+                <button class="btn" id="generateScheduleBtn" type="button">Kompletten Einsatzplan generieren</button>
+                
+                <!-- NEUE TEAM-SPEZIFISCHE GENERIERUNG -->
+                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <h4 style="color: #856404; margin-bottom: 15px;">🔄 Einzelnes Team neu planen</h4>
+                    <p style="color: #856404; margin-bottom: 15px; font-size: 0.9em;">
+                        <strong>Hinweis:</strong> Nur die Einsätze des gewählten Teams werden neu generiert. 
+                        Alle anderen Teams bleiben unverändert.
+                    </p>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #856404;">
+                                Team (Wochentag) auswählen:
+                            </label>
+                            <select id="teamDaySelector" style="width: 100%; padding: 10px; border: 2px solid #ffc107; border-radius: 8px;">
+                                <option value="">Bitte wählen</option>
+                                <option value="Montag">Montag-Team</option>
+                                <option value="Dienstag">Dienstag-Team</option>
+                                <option value="Mittwoch">Mittwoch-Team</option>
+                                <option value="Donnerstag">Donnerstag-Team</option>
+                                <option value="Freitag">Freitag-Team</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="generateTeamSchedule()" type="button" style="background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);">
+                            Team neu planen
+                        </button>
+                    </div>
+                    <div id="teamInfo" style="margin-top: 15px; padding: 10px; background: rgba(255, 255, 255, 0.7); border-radius: 5px; display: none;">
+                        <strong>Team-Mitglieder:</strong> <span id="teamMembers"></span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h4 style="color: #28a745; margin-bottom: 10px;">💾 Auto-Save Status</h4>
+                    <div id="github-status" style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 5px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="status-icon">⚠️</span>
+                            <span id="status-text">GitHub Token nicht konfiguriert</span>
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                        <strong>Auto-Save:</strong> Speichert automatisch nach Änderungen am Einsatzplan und Teammitgliedern.
+                    </p>
+                    <button class="btn btn-success" onclick="manualSave()">📤 Jetzt speichern</button>
+                    <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Von GitHub neu laden</button>
+                    <button class="btn btn-secondary" onclick="checkGitHubStatus()">🔍 Verbindung testen</button>
+                </div>
+
+                <div id="adminStats">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Konfiguration
+        const GITHUB_CONFIG = {
+            owner: 'promesfw',
+            repo: 'Pausenaufsicht-app',
+            dataFile: 'data.json',
+            apiUrl: 'https://api.github.com'
+        };
+
+        // Standard-Datenstruktur
+        let appData = {
+            members: [
+                { name: "Anna Müller", day: "Montag", interval: 1 },
+                { name: "Peter Schmidt", day: "Montag", interval: 1 },
+                { name: "Maria Weber", day: "Montag", interval: 1 },
+                { name: "Hans Meier", day: "Dienstag", interval: 1 },
+                { name: "Lisa Bauer", day: "Dienstag", interval: 1 },
+                { name: "Tom Fischer", day: "Dienstag", interval: 1 },
+                { name: "Sarah Klein", day: "Mittwoch", interval: 1 },
+                { name: "Max Richter", day: "Mittwoch", interval: 1 },
+                { name: "Emma Wolf", day: "Mittwoch", interval: 1 },
+                { name: "Jonas Kraft", day: "Donnerstag", interval: 1 },
+                { name: "Nina Braun", day: "Donnerstag", interval: 1 },
+                { name: "Luca Zimmermann", day: "Donnerstag", interval: 1 },
+                { name: "Sophie Hofmann", day: "Freitag", interval: 1 },
+                { name: "David Schneider", day: "Freitag", interval: 1 },
+                { name: "Laura Hartmann", day: "Freitag", interval: 1 }
+            ],
+            schedule: {},
+            teamSize: 3,
+            startWeek: 33,
+            endWeek: 27,
+            startYear: 2025,
+            endYear: 2026,
+            year: 2025, // Rückwärtskompatibilität
+            freeDays: ["40", "41", "52-1", "7", "8", "15-3"]
+        };
+
+        // Setup Toggle Funktionalität
+        let setupTabsVisible = false;
+
+        function toggleSetupTabs() {
+            const setupTabs = document.getElementById('setupTabs');
+            const toggleIcon = document.getElementById('setupToggleIcon');
+            const toggleButton = document.querySelector('.setup-toggle');
+            
+            setupTabsVisible = !setupTabsVisible;
+            
+            if (setupTabsVisible) {
+                setupTabs.classList.add('show');
+                toggleIcon.textContent = '▲';
+                toggleButton.classList.add('active');
+            } else {
+                setupTabs.classList.remove('show');
+                toggleIcon.textContent = '▼';
+                toggleButton.classList.remove('active');
+                
+                // Falls ein Setup-Tab aktiv ist, zum Dashboard wechseln
+                const activeTab = document.querySelector('.nav-tab.active');
+                if (activeTab && (activeTab.textContent.includes('Teammitglieder') || activeTab.textContent.includes('Administration'))) {
+                    // Dashboard-Tab aktivieren
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+                    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.querySelector('.nav-tab[onclick*="dashboard"]').classList.add('active');
+                    updateDashboard();
+                }
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
             });
 
-            // Tracking für tatsächliche Einsätze
-            const actualAssignments = {};
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Aktiven Tab markieren
+            const clickedTab = document.querySelector(`.nav-tab[onclick*="${tabId}"]`);
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+
+            // Wenn ein Setup-Tab angezeigt wird, Setup-Bereich automatisch aufklappen
+            if (tabId === 'members' || tabId === 'admin') {
+                if (!setupTabsVisible) {
+                    toggleSetupTabs();
+                }
+            }
+
+            updateHeaderForDashboard();
+
+            if (tabId === 'dashboard') {
+                updateDashboard();
+            } else if (tabId === 'schedule') {
+                updateScheduleTab();
+            } else if (tabId === 'myduties') {
+                updateMyDutiesTab();
+            } else if (tabId === 'members') {
+                updateMembersTab();
+            } else if (tabId === 'admin') {
+                updateAdminTab();
+            }
+        }
+
+        // Kalender-Export Funktionen
+        function getDateFromWeekAndDay(week, year, dayIndex) {
+            // dayIndex: 0 = Montag, 1 = Dienstag, etc.
+            const firstDayOfYear = new Date(year, 0, 1);
+            const daysFromFirstWeek = (week - 1) * 7;
+            const dayOfWeek = firstDayOfYear.getDay(); // 0 = Sonntag, 1 = Montag, etc.
+            
+            // Berechne den ersten Montag des Jahres
+            const firstMonday = new Date(firstDayOfYear);
+            const daysToFirstMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
+            firstMonday.setDate(firstDayOfYear.getDate() + daysToFirstMonday);
+            
+            // Berechne das Zieldatum
+            const targetDate = new Date(firstMonday);
+            targetDate.setDate(firstMonday.getDate() + daysFromFirstWeek + dayIndex);
+            
+            return targetDate;
+        }
+
+        function formatDateForICS(date) {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        }
+
+        function generateICSFile(personName, duties) {
+            const schoolName = "Primarschule Wohlen";
+            let icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Pausenaufsicht App//DE',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH'
+            ];
+
+            duties.forEach((duty, index) => {
+                const eventDate = getDateFromWeekAndDay(duty.week, duty.year, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(duty.dayName));
+                
+                // Start: 09:55, Ende: 10:15
+                const startDate = new Date(eventDate);
+                startDate.setHours(9, 55, 0, 0);
+                
+                const endDate = new Date(eventDate);
+                endDate.setHours(10, 15, 0, 0);
+
+                const eventId = `pausenaufsicht-${duty.week}-${duty.year}-${duty.dayName.toLowerCase()}@${schoolName.replace(/\s+/g, '-').toLowerCase()}.com`;
+
+                icsContent.push(
+                    'BEGIN:VEVENT',
+                    `UID:${eventId}`,
+                    `DTSTART:${formatDateForICS(startDate)}`,
+                    `DTEND:${formatDateForICS(endDate)}`,
+                    `SUMMARY:Pausenaufsicht - ${schoolName}`,
+                    `DESCRIPTION:Pausenaufsicht ${duty.dayName}\\nKalenderwoche ${duty.week}/${duty.year}\\nZeit: 09:55 - 10:15`,
+                    `LOCATION:${schoolName}`,
+                    'STATUS:CONFIRMED',
+                    'TRANSP:OPAQUE',
+                    'END:VEVENT'
+                );
+            });
+
+            icsContent.push('END:VCALENDAR');
+            return icsContent.join('\r\n');
+        }
+
+        function downloadICSFile(personName, duties) {
+            const icsContent = generateICSFile(personName, duties);
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Pausenaufsicht-${personName.replace(/\s+/g, '-')}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-Save Status Management
+        function showSaveStatus(status, message) {
+            const statusElement = document.getElementById('saveStatus');
+            const textElement = document.getElementById('saveStatusText');
+            
+            statusElement.className = `save-status ${status}`;
+            textElement.textContent = message;
+            statusElement.style.display = 'block';
+
+            if (status === 'saved' || status === 'error') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Token Management
+        function getGitHubToken() {
+            return localStorage.getItem('github_token');
+        }
+
+        function saveToken() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('Bitte geben Sie einen Token ein!');
+                return;
+            }
+
+            localStorage.setItem('github_token', token);
+            document.getElementById('githubToken').value = '';
+            updateGitHubStatus();
+            alert('Token wurde gespeichert!');
+        }
+
+        function showTokenHelp() {
+            const helpDiv = document.getElementById('tokenHelp');
+            helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateGitHubStatus() {
+            const token = getGitHubToken();
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (!token) {
+                statusIcon.textContent = '⚠️';
+                statusText.textContent = 'GitHub Token nicht konfiguriert - Auto-Save deaktiviert';
+            } else {
+                statusIcon.textContent = '✅';
+                statusText.textContent = 'GitHub Token konfiguriert - Auto-Save aktiviert';
+            }
+        }
+
+        // UTF-8 sichere Base64 Funktionen
+        function utf8ToBase64(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
+        }
+
+        function base64ToUtf8(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        // GitHub API Functions
+        async function saveDataToGitHub() {
+            const token = getGitHubToken();
+            if (!token) {
+                console.log('No GitHub token available, skipping save');
+                return false;
+            }
+
+            showSaveStatus('saving', 'Speichere auf GitHub...');
+
+            try {
+                const getResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                let sha = null;
+                if (getResponse.ok) {
+                    const fileData = await getResponse.json();
+                    sha = fileData.sha;
+                }
+
+                const dataToSave = {
+                    members: appData.members,
+                    schedule: appData.schedule,
+                    teamSize: appData.teamSize,
+                    startWeek: appData.startWeek,
+                    endWeek: appData.endWeek,
+                    startYear: appData.startYear,
+                    endYear: appData.endYear,
+                    year: appData.year || appData.startYear,
+                    freeDays: appData.freeDays,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const jsonString = JSON.stringify(dataToSave, null, 2);
+                const content = utf8ToBase64(jsonString);
+
+                const updateData = {
+                    message: `Auto-Save: Update Pausenaufsicht data at ${new Date().toLocaleString('de-DE')}`,
+                    content: content
+                };
+
+                if (sha) {
+                    updateData.sha = sha;
+                }
+
+                const updateResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateData)
+                    }
+                );
+
+                if (updateResponse.ok) {
+                    showSaveStatus('saved', 'Erfolgreich gespeichert!');
+                    console.log('Data successfully saved to GitHub');
+                    return true;
+                } else {
+                    const errorData = await updateResponse.json();
+                    throw new Error(`GitHub API error: ${errorData.message}`);
+                }
+
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                showSaveStatus('error', `Fehler beim Speichern: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function loadDataFromGitHub() {
+            try {
+                console.log('Loading data from GitHub...');
+                const url = `https://${GITHUB_CONFIG.owner}.github.io/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.dataFile}?t=${Date.now()}`;
+                
+                const response = await fetch(url);
+                
+                if (response.status === 404) {
+                    console.warn('data.json not found (404) - this is normal on first setup');
+                    return false;
+                }
+
+                if (!response.ok) {
+                    console.warn('HTTP error:', response.status, response.statusText);
+                    return false;
+                }
+
+                const data = await response.json();
+                
+                if (data && typeof data === 'object') {
+                    if (data.members) {
+                        appData.members = data.members.map(member => ({
+                            ...member,
+                            interval: member.interval || 1 // Rückwärtskompatibilität
+                        }));
+                    }
+                    if (data.schedule) appData.schedule = data.schedule;
+                    if (data.teamSize) appData.teamSize = data.teamSize;
+                    if (data.startWeek) appData.startWeek = data.startWeek;
+                    if (data.endWeek) appData.endWeek = data.endWeek;
+                    if (data.freeDays) appData.freeDays = data.freeDays;
+                    
+                    if (data.startYear) appData.startYear = data.startYear;
+                    if (data.endYear) appData.endYear = data.endYear;
+                    if (data.year) {
+                        appData.year = data.year;
+                        if (!data.startYear) appData.startYear = data.year;
+                        if (!data.endYear) appData.endYear = data.year;
+                    }
+
+                    console.log('Data loaded from GitHub successfully');
+                    return true;
+                }
+
+            } catch (error) {
+                console.error('Error loading data from GitHub:', error);
+                return false;
+            }
+        }
+
+        async function checkGitHubStatus() {
+            const token = getGitHubToken();
+            if (!token) {
+                alert('Bitte konfigurieren Sie zuerst einen GitHub Token!');
+                return;
+            }
+
+            showSaveStatus('saving', 'Teste Verbindung...');
+
+            try {
+                const response = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    showSaveStatus('saved', 'GitHub-Verbindung erfolgreich!');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(`${response.status}: ${errorData.message}`);
+                }
+
+            } catch (error) {
+                showSaveStatus('error', `Verbindungsfehler: ${error.message}`);
+            }
+        }
+
+        async function saveData() {
+            try {
+                localStorage.setItem('pausenaufsicht-backup', JSON.stringify(appData));
+            } catch (error) {
+                console.error('Local backup failed:', error);
+            }
+            await saveDataToGitHub();
+        }
+
+        async function manualSave() {
+            const success = await saveDataToGitHub();
+            if (success) {
+                alert('Daten wurden erfolgreich auf GitHub gespeichert!');
+            } else {
+                alert('Fehler beim Speichern auf GitHub. Prüfen Sie Ihren Token und die Internetverbindung.');
+            }
+        }
+
+        // Hilfsfunktionen
+        function getCurrentWeek() {
+            const today = new Date();
+            const startOfYear = new Date(today.getFullYear(), 0, 1);
+            const days = Math.floor((today - startOfYear) / (24 * 60 * 60 * 1000));
+            return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        }
+
+        function getTodayInfo() {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+            return {
+                dayName: days[dayOfWeek],
+                dayIndex: dayOfWeek - 1,
+                isWeekday: dayOfWeek >= 1 && dayOfWeek <= 5,
+                currentWeek: getCurrentWeek()
+            };
+        }
+
+        function updateHeaderForDashboard() {
+            const todayInfo = getTodayInfo();
+            const subtitle = document.getElementById('headerSubtitle');
+
+            if (!todayInfo.isWeekday) {
+                subtitle.textContent = `Heute (${todayInfo.dayName}) ist kein Schultag`;
+                return;
+            }
+
+            const dayKey = `${todayInfo.currentWeek}-${todayInfo.dayIndex + 1}`;
+            const todaysTeam = appData.schedule[dayKey] || [];
+            const isFreeDayKey = appData.freeDays.includes(dayKey);
+
+            if (isFreeDayKey) {
+                subtitle.textContent = `Heute (${todayInfo.dayName}) sind Ferien / freier Tag`;
+            } else if (todaysTeam.length === 0) {
+                subtitle.textContent = `Heute (${todayInfo.dayName}) ist niemand eingeteilt`;
+            } else {
+                subtitle.textContent = `Heute haben Pausenaufsicht: ${todaysTeam.join(', ')}`;
+            }
+        }
+
+        function getWeekDateRange(week, year) {
+            const startOfYear = new Date(year, 0, 1);
+            const startOfWeek = new Date(startOfYear);
+            startOfWeek.setDate(startOfYear.getDate() + (week - 1) * 7 - startOfYear.getDay() + 1);
+
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 4);
+
+            return {
+                start: startOfWeek.toLocaleDateString('de-DE'),
+                end: endOfWeek.toLocaleDateString('de-DE')
+            };
+        }
+
+        // NEU: Schuljahr-übergreifende Wochen-Generierung
+        function getAllSchoolWeeks() {
+            const weeks = [];
+            
+            if (appData.startYear === appData.endYear) {
+                // Einfacher Fall: alles im gleichen Jahr
+                for (let week = appData.startWeek; week <= appData.endWeek; week++) {
+                    weeks.push({ week, year: appData.startYear });
+                }
+            } else {
+                // Schuljahr geht über Jahresgrenze
+                // Teil 1: Von startWeek bis 53 im startYear
+                for (let week = appData.startWeek; week <= 53; week++) {
+                    weeks.push({ week, year: appData.startYear });
+                }
+                
+                // Teil 2: Von 1 bis endWeek im endYear  
+                for (let week = 1; week <= appData.endWeek; week++) {
+                    weeks.push({ week, year: appData.endYear });
+                }
+            }
+            
+            return weeks;
+        }
+
+        function updateDashboard() {
+            const currentWeek = getCurrentWeek();
+            const currentYear = new Date().getFullYear();
+            const nextWeek = currentWeek + 1;
+            let nextWeekYear = currentYear;
+
+            if (nextWeek > 53) {
+                nextWeekYear = currentYear + 1;
+            }
+
+            const currentRange = getWeekDateRange(currentWeek, currentYear);
+            document.getElementById('currentWeekInfo').textContent = 
+                `Kalenderwoche ${currentWeek} (${currentRange.start} - ${currentRange.end})`;
+
+            updateWeekDisplay('currentWeekSchedule', currentWeek);
+
+            const nextRange = getWeekDateRange(nextWeek > 53 ? 1 : nextWeek, nextWeekYear);
+            document.getElementById('nextWeekInfo').textContent = 
+                `Kalenderwoche ${nextWeek > 53 ? 1 : nextWeek} (${nextRange.start} - ${nextRange.end})`;
+
+            updateWeekDisplay('nextWeekSchedule', nextWeek > 53 ? 1 : nextWeek);
+            updateHeaderForDashboard();
+        }
+
+        function updateWeekDisplay(containerId, week) {
+            const container = document.getElementById(containerId);
+            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+
+            container.innerHTML = '';
+
+            days.forEach((day, index) => {
+                const dayCard = document.createElement('div');
+                dayCard.className = 'day-card';
+
+                const dayKey = `${week}-${index + 1}`;
+                const isFreeDayKey = appData.freeDays.includes(dayKey);
+
+                if (isFreeDayKey) {
+                    dayCard.innerHTML = `
+                        <h4>${day}</h4>
+                        <div style="color: #95a5a6; font-style: italic;">Frei / Ferien</div>
+                    `;
+                } else {
+                    const schedule = appData.schedule[dayKey] || [];
+                    dayCard.innerHTML = `
+                        <h4>${day}</h4>
+                        ${schedule.length > 0 ? 
+                            schedule.map(person => `<div class="team-member">${person}</div>`).join('') :
+                            '<div style="color: #95a5a6; font-style: italic;">Noch nicht eingeteilt</div>'
+                        }
+                    `;
+                }
+
+                container.appendChild(dayCard);
+            });
+        }
+
+        // KORRIGIERT: Schedule Tab zeigt alle Wochen des Schuljahres
+        function updateScheduleTab() {
+            const weekSelector = document.getElementById('weekSelector');
+            weekSelector.innerHTML = '';
+
+            const allWeeks = getAllSchoolWeeks();
+            
+            allWeeks.forEach(({ week, year }) => {
+                const option = document.createElement('option');
+                option.value = week;
+                option.dataset.year = year;
+                const range = getWeekDateRange(week, year);
+                option.textContent = `KW ${week}/${year} (${range.start} - ${range.end})`;
+                weekSelector.appendChild(option);
+            });
+
+            updateSwapSelectors();
+
+            if (weekSelector.options.length > 0) {
+                weekSelector.selectedIndex = 0;
+                showWeekSchedule();
+            }
+        }
+
+        // KORRIGIERT: Swap-Selektoren zeigen alle Wochen des Schuljahres
+        function updateSwapSelectors() {
+            const person1 = document.getElementById('swapPerson1');
+            const person2 = document.getElementById('swapPerson2');
+            const week1 = document.getElementById('swapWeek1');
+            const week2 = document.getElementById('swapWeek2');
+
+            const sortedMembers = [...appData.members].sort((a, b) => 
+                a.name.localeCompare(b.name, 'de', { sensitivity: 'base' })
+            );
+
+            [person1, person2].forEach(select => {
+                select.innerHTML = '<option value="">Person wählen</option>';
+                sortedMembers.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.name;
+                    option.textContent = member.name;
+                    select.appendChild(option);
+                });
+            });
+
+            const allWeeks = getAllSchoolWeeks();
+            
+            [week1, week2].forEach(select => {
+                select.innerHTML = '<option value="">Woche wählen</option>';
+                allWeeks.forEach(({ week, year }) => {
+                    const option = document.createElement('option');
+                    option.value = week;
+                    option.dataset.year = year;
+                    option.textContent = `KW ${week}/${year}`;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function showWeekSchedule() {
+            const selectedWeek = document.getElementById('weekSelector').value;
+            if (!selectedWeek) return;
+
+            const container = document.getElementById('weekScheduleView');
+            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+
+            let html = '<table class="table"><thead><tr><th>Tag</th><th>Eingeteilt</th><th>Aktionen</th></tr></thead><tbody>';
+
+            days.forEach((day, index) => {
+                const dayKey = `${selectedWeek}-${index + 1}`;
+                const schedule = appData.schedule[dayKey] || [];
+                const isFreeDayKey = appData.freeDays.includes(dayKey);
+
+                html += `<tr>
+                    <td><strong>${day}</strong></td>
+                    <td>${isFreeDayKey ? 
+                        '<em style="color: #95a5a6;">Frei / Ferien</em>' : 
+                        schedule.length > 0 ? 
+                            schedule.map(person => `<span class="team-member">${person}</span>`).join(' ') :
+                            '<em style="color: #95a5a6;">Noch nicht eingeteilt</em>'
+                    }</td>
+                    <td>
+                        ${!isFreeDayKey ? 
+                            `<button class="btn" onclick="editDaySchedule('${dayKey}', '${day}')">Bearbeiten</button>` :
+                            ''
+                        }
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function editDaySchedule(dayKey, dayName) {
+            const schedule = appData.schedule[dayKey] || [];
+            const availableMembers = appData.members.filter(m => m.day === dayName);
+
+            let html = `
+                <h4>${dayName} bearbeiten</h4>
+                <p>Verfügbare Mitglieder für ${dayName}:</p>
+                <div style="margin-bottom: 15px;">
+            `;
+
+            availableMembers.forEach(member => {
+                const isSelected = schedule.includes(member.name);
+                html += `
+                    <label style="display: block; margin: 5px 0;">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                               onchange="toggleMemberForDay('${dayKey}', '${member.name}')">
+                        ${member.name}
+                    </label>
+                `;
+            });
+
+            html += `
+                </div>
+                <button class="btn" onclick="showWeekSchedule()">Fertig</button>
+            `;
+
+            document.getElementById('weekScheduleView').innerHTML = html;
+        }
+
+        async function toggleMemberForDay(dayKey, memberName) {
+            if (!appData.schedule[dayKey]) {
+                appData.schedule[dayKey] = [];
+            }
+
+            const schedule = appData.schedule[dayKey];
+            const index = schedule.indexOf(memberName);
+
+            if (index > -1) {
+                schedule.splice(index, 1);
+            } else {
+                if (schedule.length < appData.teamSize) {
+                    schedule.push(memberName);
+                } else {
+                    alert(`Maximum ${appData.teamSize} Mitglieder pro Team erreicht!`);
+                    event.target.checked = false;
+                    return;
+                }
+            }
+
+            await saveData();
+        }
+
+        async function swapDuties() {
+            const person1 = document.getElementById('swapPerson1').value;
+            const week1 = document.getElementById('swapWeek1').value;
+            const person2 = document.getElementById('swapPerson2').value;
+            const week2 = document.getElementById('swapWeek2').value;
+
+            if (!person1 || !week1 || !person2 || !week2) {
+                alert('Bitte alle Felder ausfüllen!');
+                return;
+            }
+
+            if (person1 === person2 && week1 === week2) {
+                alert('Bitte verschiedene Personen oder Wochen wählen!');
+                return;
+            }
+
+            const member1 = appData.members.find(m => m.name === person1);
+            const member2 = appData.members.find(m => m.name === person2);
+
+            if (!member1 || !member2) {
+                alert('Personen nicht gefunden!');
+                return;
+            }
+
+            const dayIndex1 = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member1.day);
+            const dayIndex2 = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(member2.day);
+
+            const key1 = `${week1}-${dayIndex1 + 1}`;
+            const key2 = `${week2}-${dayIndex2 + 1}`;
+
+            const schedule1 = appData.schedule[key1] || [];
+            const schedule2 = appData.schedule[key2] || [];
+
+            const index1 = schedule1.indexOf(person1);
+            const index2 = schedule2.indexOf(person2);
+
+            if (index1 > -1 && index2 > -1) {
+                schedule1[index1] = person2;
+                schedule2[index2] = person1;
+            } else if (index1 > -1 && index2 === -1) {
+                schedule1[index1] = person2;
+                if (schedule2.length < appData.teamSize) {
+                    schedule2.push(person1);
+                }
+            } else if (index1 === -1 && index2 > -1) {
+                schedule2[index2] = person1;
+                if (schedule1.length < appData.teamSize) {
+                    schedule1.push(person2);
+                }
+            } else {
+                if (schedule1.length < appData.teamSize) {
+                    schedule1.push(person2);
+                }
+                if (schedule2.length < appData.teamSize) {
+                    schedule2.push(person1);
+                }
+            }
+
+            appData.schedule[key1] = schedule1;
+            appData.schedule[key2] = schedule2;
+
+            await saveData();
+            
+            showWeekSchedule();
+            updateDashboard();
+            updateMyDutiesTab();
+            
+            document.getElementById('swapPerson1').value = '';
+            document.getElementById('swapWeek1').value = '';
+            document.getElementById('swapPerson2').value = '';
+            document.getElementById('swapWeek2').value = '';
+            
+            alert('Einsätze erfolgreich getauscht!');
+        }
+
+        function updateMyDutiesTab() {
+            const personSelector = document.getElementById('personSelector');
+            personSelector.innerHTML = '<option value="">Bitte wählen</option>';
+
+            const sortedMembers = [...appData.members].sort((a, b) => 
+                a.name.localeCompare(b.name, 'de', { sensitivity: 'base' })
+            );
+
+            sortedMembers.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.name;
+                option.textContent = member.name;
+                personSelector.appendChild(option);
+            });
+        }
+
+        // "Meine Einsätze" mit Schuljahr-Unterstützung, Tausch-Erkennung und Kalender-Export (ohne Google Calendar und Aktionen-Spalte)
+        function showPersonDuties() {
+            const selectedPerson = document.getElementById('personSelector').value;
+            if (!selectedPerson) {
+                document.getElementById('personDutiesView').innerHTML = '';
+                return;
+            }
+
+            const member = appData.members.find(m => m.name === selectedPerson);
+            if (!member) return;
+
+            const currentWeek = getCurrentWeek();
+            const currentYear = new Date().getFullYear();
+
+            let duties = [];
+            let totalDuties = 0;
+            let futureDuties = 0;
+
+            const allWeeks = getAllSchoolWeeks();
+            
+            allWeeks.forEach(({ week, year }) => {
+                // KORRIGIERT: Alle Wochentage durchsuchen, nicht nur den Standard-Tag
+                const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+                
+                days.forEach((dayName, dayIndex) => {
+                    const dayKey = `${week}-${dayIndex + 1}`;
+                    const schedule = appData.schedule[dayKey] || [];
+
+                    if (schedule.includes(selectedPerson)) {
+                        const range = getWeekDateRange(week, year);
+                        const isFuture = (year > currentYear) || (year === currentYear && week >= currentWeek);
+                        
+                        duties.push({
+                            week: week,
+                            year: year,
+                            date: range.start,
+                            dayName: dayName, // Tatsächlicher Einsatztag (kann nach Tausch abweichen)
+                            isFuture: isFuture,
+                            isSwapped: dayName !== member.day // Markierung ob getauscht
+                        });
+                        totalDuties++;
+                        if (isFuture) {
+                            futureDuties++;
+                        }
+                    }
+                });
+            });
+
+            const futureDutiesOnly = duties.filter(duty => duty.isFuture);
+
+            let html = `
+                <div class="stats-card">
+                    <h4>Einsätze für ${selectedPerson} (Standard: ${member.day})</h4>
+                    <p>Gesamt: ${totalDuties} Einsätze, noch ausstehend: ${futureDuties} Einsätze</p>
+                </div>
+
+                <div class="calendar-export">
+                    <h4>📅 Kalender-Export</h4>
+                    <p>Exportieren Sie alle zukünftigen Einsätze in Ihren Kalender. Zeit: <strong>09:55 - 10:15 Uhr</strong></p>
+                    <div class="calendar-buttons">
+                        <button class="btn btn-success" onclick="downloadICSFile('${selectedPerson}', ${JSON.stringify(futureDutiesOnly).replace(/"/g, '&quot;')})">
+                            📥 Als Kalenderdatei (.ics) herunterladen
+                        </button>
+                    </div>
+                    <small style="color: #666; font-size: 0.8em; margin-top: 10px; display: block;">
+                        💡 Die .ics-Datei funktioniert mit allen Kalender-Apps: Outlook, Apple Calendar, Google Calendar, Thunderbird, etc.
+                    </small>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Kalenderwoche</th>
+                            <th>Datum</th>
+                            <th>Wochentag</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            if (futureDutiesOnly.length === 0) {
+                html += '<tr><td colspan="4" style="text-align: center; color: #95a5a6;">Keine zukünftigen Einsätze</td></tr>';
+            } else {
+                futureDutiesOnly.forEach(duty => {
+                    const statusText = duty.isSwapped ? 
+                        `<span style="color: #f39c12; font-weight: bold;">⇄ Getauscht</span>` : 
+                        `<span style="color: #27ae60;">✓ Standard</span>`;
+                    
+                    html += `
+                        <tr>
+                            <td>KW ${duty.week}/${duty.year}</td>
+                            <td>${duty.date}</td>
+                            <td><strong>${duty.dayName}</strong><br><small style="color: #666;">09:55 - 10:15</small></td>
+                            <td>${statusText}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('personDutiesView').innerHTML = html;
+        }
+
+        function updateMembersTab() {
+            const container = document.getElementById('membersList');
+            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+
+            let html = '';
+
+            days.forEach(day => {
+                const dayMembers = appData.members.filter(m => m.day === day);
+                html += `
+                    <div class="week-section">
+                        <h4>${day} (${dayMembers.length} Mitglieder)</h4>
+                        <div id="members-${day}">
+                `;
+
+                dayMembers.forEach((member, index) => {
+                    const uniqueId = `member-${day}-${index}`;
+                    const intervalText = member.interval === 1 ? 'Jede Woche' : `Alle ${member.interval} Wochen`;
+                    
+                    html += `
+                        <div class="member-assignment" id="${uniqueId}">
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                <span id="${uniqueId}-name" style="min-width: 150px; font-weight: 500;">${member.name}</span>
+                                <input type="text" id="${uniqueId}-input" value="${member.name}" 
+                                       style="min-width: 150px; display: none;" 
+                                       onkeydown="if(event.key==='Enter') saveMemberName('${member.name}', '${uniqueId}'); if(event.key==='Escape') cancelEditName('${uniqueId}')">
+                                <span style="color: #667eea; font-size: 0.9em; min-width: 100px;">${intervalText}</span>
+                            </div>
+                            <select onchange="changeMemberDay('${member.name}', this.value)">
+                                <option value="Montag" ${member.day === 'Montag' ? 'selected' : ''}>Montag</option>
+                                <option value="Dienstag" ${member.day === 'Dienstag' ? 'selected' : ''}>Dienstag</option>
+                                <option value="Mittwoch" ${member.day === 'Mittwoch' ? 'selected' : ''}>Mittwoch</option>
+                                <option value="Donnerstag" ${member.day === 'Donnerstag' ? 'selected' : ''}>Donnerstag</option>
+                                <option value="Freitag" ${member.day === 'Freitag' ? 'selected' : ''}>Freitag</option>
+                            </select>
+                            <select onchange="changeMemberInterval('${member.name}', this.value)" title="Einsatz-Häufigkeit">
+                                <option value="1" ${member.interval === 1 ? 'selected' : ''}>Jede Woche</option>
+                                <option value="2" ${member.interval === 2 ? 'selected' : ''}>Alle 2 Wochen</option>
+                                <option value="3" ${member.interval === 3 ? 'selected' : ''}>Alle 3 Wochen</option>
+                                <option value="4" ${member.interval === 4 ? 'selected' : ''}>Alle 4 Wochen</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="editMemberName('${uniqueId}')" title="Name bearbeiten">✏️</button>
+                            <button class="btn btn-danger" onclick="removeMember('${member.name}')">Entfernen</button>
+                        </div>
+                    `;
+                });
+
+                html += '</div></div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function editMemberName(uniqueId) {
+            const nameSpan = document.getElementById(`${uniqueId}-name`);
+            const nameInput = document.getElementById(`${uniqueId}-input`);
+            
+            nameSpan.style.display = 'none';
+            nameInput.style.display = 'block';
+            nameInput.focus();
+            nameInput.select();
+        }
+
+        function cancelEditName(uniqueId) {
+            const nameSpan = document.getElementById(`${uniqueId}-name`);
+            const nameInput = document.getElementById(`${uniqueId}-input`);
+            
+            nameSpan.style.display = 'block';
+            nameInput.style.display = 'none';
+            nameInput.value = nameSpan.textContent;
+        }
+
+        async function saveMemberName(oldName, uniqueId) {
+            const nameSpan = document.getElementById(`${uniqueId}-name`);
+            const nameInput = document.getElementById(`${uniqueId}-input`);
+            const newName = nameInput.value.trim();
+            
+            if (!newName) {
+                alert('Name darf nicht leer sein!');
+                nameInput.focus();
+                return;
+            }
+
+            if (newName === oldName) {
+                cancelEditName(uniqueId);
+                return;
+            }
+
+            if (appData.members.some(m => m.name === newName && m.name !== oldName)) {
+                alert('Ein Mitglied mit diesem Namen existiert bereits!');
+                nameInput.focus();
+                return;
+            }
+
+            const member = appData.members.find(m => m.name === oldName);
+            if (member) {
+                member.name = newName;
+            }
+
+            Object.keys(appData.schedule).forEach(key => {
+                if (appData.schedule[key]) {
+                    appData.schedule[key] = appData.schedule[key].map(name => 
+                        name === oldName ? newName : name
+                    );
+                }
+            });
+
+            await saveData();
+            
+            updateMembersTab();
+            updateMyDutiesTab();
+            updateDashboard();
+            updateSwapSelectors();
+            
+            alert(`Name wurde von "${oldName}" zu "${newName}" geändert!`);
+        }
+
+        async function addMember() {
+            const name = document.getElementById('newMemberName').value.trim();
+            const day = document.getElementById('newMemberDay').value;
+            const interval = parseInt(document.getElementById('newMemberInterval').value);
+
+            if (!name || !day) {
+                alert('Bitte Name und Wochentag eingeben!');
+                return;
+            }
+
+            if (appData.members.some(m => m.name === name)) {
+                alert('Mitglied mit diesem Namen existiert bereits!');
+                return;
+            }
+
+            appData.members.push({ name, day, interval });
+            await saveData();
+
+            document.getElementById('newMemberName').value = '';
+            document.getElementById('newMemberDay').value = '';
+            document.getElementById('newMemberInterval').value = '1';
+
+            updateMembersTab();
+            updateMyDutiesTab();
+            updateDashboard();
+            updateTeamInfo(); // Team-Info aktualisieren
+            alert('Mitglied erfolgreich hinzugefügt!');
+        }
+
+        async function changeMemberDay(memberName, newDay) {
+            const member = appData.members.find(m => m.name === memberName);
+            if (member) {
+                member.day = newDay;
+                await saveData();
+                updateMembersTab();
+                updateDashboard();
+                updateTeamInfo(); // Team-Info aktualisieren
+            }
+        }
+
+        async function changeMemberInterval(memberName, newInterval) {
+            const member = appData.members.find(m => m.name === memberName);
+            if (member) {
+                member.interval = parseInt(newInterval);
+                await saveData();
+                updateMembersTab();
+                updateDashboard();
+                updateTeamInfo(); // Team-Info aktualisieren
+                
+                // Info-Dialog über die Änderung
+                const intervalText = member.interval === 1 ? 'jede Woche' : `alle ${member.interval} Wochen`;
+                alert(`${memberName} wird nun ${intervalText} eingeteilt.\n\nHinweis: Generieren Sie den Einsatzplan neu, damit diese Änderung wirksam wird.`);
+            }
+        }
+
+        async function removeMember(memberName) {
+            if (confirm(`Möchten Sie ${memberName} wirklich entfernen?`)) {
+                appData.members = appData.members.filter(m => m.name !== memberName);
+
+                Object.keys(appData.schedule).forEach(key => {
+                    if (appData.schedule[key]) {
+                        appData.schedule[key] = appData.schedule[key].filter(name => name !== memberName);
+                    }
+                });
+
+                await saveData();
+                updateMembersTab();
+                updateMyDutiesTab();
+                updateDashboard();
+                updateTeamInfo(); // Team-Info aktualisieren
+                alert(`${memberName} wurde erfolgreich entfernt!`);
+            }
+        }
+
+        function updateAdminTab() {
+            document.getElementById('teamSize').value = appData.teamSize;
+            document.getElementById('startWeek').value = appData.startWeek;
+            document.getElementById('endWeek').value = appData.endWeek;
+            document.getElementById('startYear').value = appData.startYear;
+            document.getElementById('endYear').value = appData.endYear;
+
+            updateYearLabels();
+
+            const { currentYearDays, nextYearDays } = splitFreeDaysByYear(appData.freeDays, appData.startYear);
+            document.getElementById('freeDaysCurrentYear').value = currentYearDays.join(', ');
+            document.getElementById('freeDaysNextYear').value = nextYearDays.join(', ');
+
+            updateAdminStats();
+            updateGitHubStatus();
+        }
+
+        function updateYearLabels() {
+            const currentYear = appData.startYear;
+            const nextYear = appData.endYear;
+            
+            document.getElementById('currentYearLabel').textContent = currentYear;
+            document.getElementById('currentYearLabel2').textContent = currentYear;
+            document.getElementById('nextYearLabel').textContent = nextYear;
+            document.getElementById('nextYearLabel2').textContent = nextYear;
+        }
+
+        function splitFreeDaysByYear(freeDays, baseYear) {
+            const currentYearDays = [];
+            const nextYearDays = [];
+
+            freeDays.forEach(dayString => {
+                if (dayString.includes('-')) {
+                    const [week] = dayString.split('-');
+                    const weekNum = parseInt(week);
+                    
+                    if (weekNum >= 1 && weekNum <= 30) {
+                        nextYearDays.push(dayString);
+                    } else {
+                        currentYearDays.push(dayString);
+                    }
+                } else {
+                    const weekNum = parseInt(dayString);
+                    
+                    if (weekNum >= 1 && weekNum <= 30) {
+                        nextYearDays.push(dayString);
+                    } else {
+                        currentYearDays.push(dayString);
+                    }
+                }
+            });
+
+            return { currentYearDays, nextYearDays };
+        }
+
+        function combineFreeDaysFromBothYears() {
+            const currentYearText = document.getElementById('freeDaysCurrentYear').value;
+            const nextYearText = document.getElementById('freeDaysNextYear').value;
+
+            const currentYearDays = currentYearText.split(',').map(s => s.trim()).filter(s => s);
+            const nextYearDays = nextYearText.split(',').map(s => s.trim()).filter(s => s);
+
+            const allFreeDaysInput = [...currentYearDays, ...nextYearDays];
+            const processedFreeDays = [];
+
+            // Ganze Wochen in Einzeltage umwandeln
+            allFreeDaysInput.forEach(input => {
+                if (input.includes('-')) {
+                    // Einzelner Tag (z.B. "40-1")
+                    processedFreeDays.push(input);
+                } else {
+                    // Ganze Woche (z.B. "40") -> in alle 5 Schultage umwandeln
+                    const week = input;
+                    for (let day = 1; day <= 5; day++) {
+                        processedFreeDays.push(`${week}-${day}`);
+                    }
+                }
+            });
+
+            return processedFreeDays;
+        }
+
+        function updateAdminStats() {
+            const container = document.getElementById('adminStats');
+            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+
+            let html = '<h4>📊 Übersicht Teammitglieder</h4>';
+
+            days.forEach(day => {
+                const dayMembers = appData.members.filter(m => m.day === day);
+                const dutyCounts = {};
+
+                dayMembers.forEach(member => {
+                    dutyCounts[member.name] = 0;
+                });
+
+                const dayIndex = days.indexOf(day);
+                
+                const allWeeks = getAllSchoolWeeks();
+                let totalWorkWeeks = 0;
+                
+                allWeeks.forEach(({ week }) => {
+                    const dayKey = `${week}-${dayIndex + 1}`;
+                    if (!appData.freeDays.includes(dayKey)) {
+                        totalWorkWeeks++;
+                    }
+                    
+                    const schedule = appData.schedule[dayKey] || [];
+                    schedule.forEach(memberName => {
+                        if (dutyCounts[memberName] !== undefined) {
+                            dutyCounts[memberName]++;
+                        }
+                    });
+                });
+
+                html += `
+                    <div class="week-section">
+                        <h5>${day} (${totalWorkWeeks} Arbeitswochen)</h5>
+                        <div class="schedule-grid">
+                `;
+
+                dayMembers.forEach(member => {
+                    const actualDuties = dutyCounts[member.name];
+                    const expectedDuties = Math.floor(totalWorkWeeks / member.interval);
+                    const intervalText = member.interval === 1 ? '' : ` (alle ${member.interval} Wo.)`;
+                    const intervalColor = member.interval === 1 ? '#667eea' : '#f39c12';
+                    
+                    // Färbung basierend auf Abweichung vom Soll
+                    let backgroundColor = '#f8f9fa';
+                    if (actualDuties > expectedDuties + 1) {
+                        backgroundColor = '#ffe6e6'; // Zu viele Einsätze (rot)
+                    } else if (actualDuties < expectedDuties - 1) {
+                        backgroundColor = '#e6f3ff'; // Zu wenige Einsätze (blau)
+                    } else {
+                        backgroundColor = '#e6ffe6'; // Optimal (grün)
+                    }
+                    
+                    html += `
+                        <div class="day-card" style="background-color: ${backgroundColor};">
+                            <strong>${member.name}</strong><br>
+                            <span style="color: ${intervalColor}; font-size: 0.8em;">${actualDuties} Einsätze${intervalText}</span><br>
+                            <small style="color: #666; font-size: 0.7em;">Soll: ~${expectedDuties}</small>
+                        </div>
+                    `;
+                });
+
+                html += '</div></div>';
+            });
+
+            // Gesamtstatistik hinzufügen
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <h5 style="color: #1976d2; margin-bottom: 10px;">📈 Verteilungs-Legende</h5>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9em;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 20px; height: 15px; background: #e6ffe6; border: 1px solid #ddd; border-radius: 3px;"></div>
+                            <span>Optimal verteilt</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 20px; height: 15px; background: #e6f3ff; border: 1px solid #ddd; border-radius: 3px;"></div>
+                            <span>Zu wenige Einsätze</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 20px; height: 15px; background: #ffe6e6; border: 1px solid #ddd; border-radius: 3px;"></div>
+                            <span>Zu viele Einsätze</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="color: #f39c12;">●</span>
+                            <span>Teilzeit-Mitarbeiter</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        async function updateTeamSize() {
+            appData.teamSize = parseInt(document.getElementById('teamSize').value);
+            await saveData();
+        }
+
+        // FINALE Funktion für intervall-basierte Einsatzplanung (ohne Debug-Ausgaben)
+        function generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks) {
+            // Einfaches Tracking: Wann war jede Person zuletzt dran?
             const lastAssigned = {};
             dayMembers.forEach(member => {
-                actualAssignments[member.name] = 0;
-                lastAssigned[member.name] = -999;
+                lastAssigned[member.name] = -999; // Startwert: sehr lange her
             });
 
-            let workWeek = 0;
+            let workWeek = 0; // Zähler für Arbeitswochen
 
             allWeeks.forEach(({ week }) => {
                 const dayKey = `${week}-${dayIndex + 1}`;
@@ -36,64 +2301,244 @@
 
                 let selectedMembers = [];
 
-                // SCHRITT 1: Teilzeit-Personen prüfen (interval > 1)
+                // SCHRITT 1: Alle Teilzeit-Personen prüfen (interval > 1)
                 const teilzeitPersonen = dayMembers.filter(m => m.interval > 1);
                 teilzeitPersonen.forEach(member => {
                     const wochenSeitLetztemEinsatz = workWeek - lastAssigned[member.name];
                     const istDran = wochenSeitLetztemEinsatz >= member.interval;
-                    const hatNochBedarf = actualAssignments[member.name] < targetAssignments[member.name];
                     
-                    if (istDran && hatNochBedarf && selectedMembers.length < appData.teamSize) {
+                    if (istDran && selectedMembers.length < appData.teamSize) {
                         selectedMembers.push(member);
                         lastAssigned[member.name] = workWeek;
-                        actualAssignments[member.name]++;
                     }
                 });
 
-                // SCHRITT 2: Vollzeit-Personen nach Bedarf sortieren
+                // SCHRITT 2: Restliche Plätze mit Vollzeit-Personen auffüllen
                 const vollzeitPersonen = dayMembers.filter(m => m.interval === 1);
                 
-                // Sortiere nach: 1. Bedarf (wer hat weniger als Soll), 2. längste Pause
-                vollzeitPersonen.sort((a, b) => {
-                    const bedarfA = targetAssignments[a.name] - actualAssignments[a.name];
-                    const bedarfB = targetAssignments[b.name] - actualAssignments[b.name];
-                    
-                    // Zuerst nach Bedarf (höherer Bedarf = niedrigere Position)
-                    if (bedarfA !== bedarfB) {
-                        return bedarfB - bedarfA;
-                    }
-                    
-                    // Bei gleichem Bedarf: längste Pause zuerst
-                    return lastAssigned[a.name] - lastAssigned[b.name];
-                });
+                // Sortiere Vollzeit-Personen nach letztem Einsatz (längste Pause zuerst)
+                vollzeitPersonen.sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
                 
-                // Fülle restliche Plätze mit Vollzeit-Personen
                 vollzeitPersonen.forEach(member => {
                     if (selectedMembers.length < appData.teamSize) {
                         selectedMembers.push(member);
                         lastAssigned[member.name] = workWeek;
-                        actualAssignments[member.name]++;
                     }
                 });
-
-                // Falls immer noch zu wenige Leute: Fülle mit allen verfügbaren auf
-                if (selectedMembers.length < appData.teamSize) {
-                    const remainingMembers = dayMembers.filter(m => 
-                        !selectedMembers.some(s => s.name === m.name)
-                    ).sort((a, b) => lastAssigned[a.name] - lastAssigned[b.name]);
-                    
-                    remainingMembers.forEach(member => {
-                        if (selectedMembers.length < appData.teamSize) {
-                            selectedMembers.push(member);
-                            lastAssigned[member.name] = workWeek;
-                            actualAssignments[member.name]++;
-                        }
-                    });
-                }
 
                 // Einsätze speichern
                 appData.schedule[dayKey] = selectedMembers.map(m => m.name);
 
-                workWeek++;
+                workWeek++; // Nur bei echten Arbeitswochen erhöhen
             });
         }
+
+        // Team-spezifische Einsatzplan-Generierung
+        async function generateTeamSchedule() {
+            const selectedDay = document.getElementById('teamDaySelector').value;
+            
+            if (!selectedDay) {
+                alert('Bitte wählen Sie zuerst ein Team (Wochentag) aus!');
+                return;
+            }
+
+            const dayMembers = appData.members.filter(m => m.day === selectedDay);
+            const memberNames = dayMembers.map(m => m.name).join(', ');
+
+            // BESTÄTIGUNGSDIALOG
+            const confirmed = confirm(
+                `🔄 TEAM NEU PLANEN\n\n` +
+                `Team: ${selectedDay}-Team\n` +
+                `Mitglieder: ${memberNames}\n\n` +
+                `⚠️ WARNUNG: Alle ${selectedDay}-Einsätze werden neu generiert!\n` +
+                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n` +
+                `Einsatz-Intervalle werden berücksichtigt.\n\n` +
+                `Möchten Sie fortfahren?`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+
+            if (dayMembers.length === 0) {
+                alert(`Keine Mitglieder im ${selectedDay}-Team gefunden!`);
+                return;
+            }
+
+            // Aktuelle Werte aus Formular lesen
+            const startWeek = parseInt(document.getElementById('startWeek').value);
+            const endWeek = parseInt(document.getElementById('endWeek').value);
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+
+            // Werte in appData übernehmen
+            appData.startWeek = startWeek;
+            appData.endWeek = endWeek;
+            appData.startYear = startYear;
+            appData.endYear = endYear;
+            appData.year = startYear;
+
+            // Freie Tage aktualisieren
+            appData.freeDays = combineFreeDaysFromBothYears();
+
+            const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(selectedDay);
+            const allWeeks = getAllSchoolWeeks();
+
+            // Team-spezifische Generierung mit Intervall-Berücksichtigung
+            generateDayScheduleWithIntervals(selectedDay, dayIndex, dayMembers, allWeeks);
+
+            await saveData();
+            updateAdminStats();
+            updateDashboard();
+            updateScheduleTab();
+            
+            // Anzahl der regenerierten Einsätze zählen
+            let regeneratedCount = 0;
+            allWeeks.forEach(({ week }) => {
+                const dayKey = `${week}-${dayIndex + 1}`;
+                if (!appData.freeDays.includes(dayKey) && appData.schedule[dayKey]) {
+                    regeneratedCount++;
+                }
+            });
+            
+            alert(`✅ ${selectedDay}-Team erfolgreich neu geplant!\n\n` +
+                  `${regeneratedCount} Einsätze wurden neu generiert.\n` +
+                  `Einsatz-Intervalle wurden berücksichtigt.\n` +
+                  `Alle anderen Teams blieben unverändert.`);
+        }
+
+        // Team-Info anzeigen wenn Dropdown geändert wird
+        function updateTeamInfo() {
+            const selectedDay = document.getElementById('teamDaySelector').value;
+            const teamInfo = document.getElementById('teamInfo');
+            const teamMembersSpan = document.getElementById('teamMembers');
+
+            if (selectedDay) {
+                const dayMembers = appData.members.filter(m => m.day === selectedDay);
+                if (dayMembers.length > 0) {
+                    teamMembersSpan.textContent = dayMembers.map(m => m.name).join(', ');
+                    teamInfo.style.display = 'block';
+                } else {
+                    teamMembersSpan.textContent = 'Keine Mitglieder in diesem Team';
+                    teamInfo.style.display = 'block';
+                }
+            } else {
+                teamInfo.style.display = 'none';
+            }
+        }
+
+        // Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
+        async function generateSchedule() {
+            // BESTÄTIGUNGSDIALOG
+            const confirmed = confirm(
+                '⚠️ WARNUNG: Dies wird den kompletten Einsatzplan neu generieren!\n\n' +
+                'Alle aktuellen Einsatz-Zuordnungen gehen verloren.\n' +
+                'Möchten Sie wirklich fortfahren?'
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+
+            // Werte direkt aus HTML-Inputs lesen
+            const startWeek = parseInt(document.getElementById('startWeek').value);
+            const endWeek = parseInt(document.getElementById('endWeek').value);
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+
+            if (startYear > endYear || (startYear === endYear && startWeek >= endWeek)) {
+                alert('Ungültiger Zeitraum! Das Schuljahr-Ende muss nach dem Beginn liegen.');
+                return;
+            }
+
+            // Werte in appData übernehmen
+            appData.startWeek = startWeek;
+            appData.endWeek = endWeek;
+            appData.startYear = startYear;
+            appData.endYear = endYear;
+            appData.year = startYear; // Rückwärtskompatibilität
+
+            // Freie Tage aus beiden Jahren kombinieren
+            appData.freeDays = combineFreeDaysFromBothYears();
+
+            // Schedule zurücksetzen
+            appData.schedule = {};
+
+            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+            const allWeeks = getAllSchoolWeeks();
+
+            // Für jeden Tag separate Generierung mit Intervall-Berücksichtigung
+            days.forEach((day, dayIndex) => {
+                const dayMembers = appData.members.filter(m => m.day === day);
+                if (dayMembers.length === 0) return;
+
+                generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks);
+            });
+
+            await saveData();
+            updateAdminStats();
+            updateDashboard();
+            updateScheduleTab();
+            alert('✅ Einsatzplan erfolgreich generiert!\n\nDer Plan wurde für das komplette Schuljahr erstellt und berücksichtigt alle Einsatz-Intervalle.');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Starting app initialization...');
+
+            const githubLoaded = await loadDataFromGitHub();
+
+            if (!githubLoaded) {
+                const localData = localStorage.getItem('pausenaufsicht-backup');
+                if (localData) {
+                    try {
+                        appData = { ...appData, ...JSON.parse(localData) };
+                        console.log('Using local backup data');
+                    } catch (error) {
+                        console.log('Using default data');
+                    }
+                }
+            }
+
+            // Rückwärtskompatibilität: interval-Feld für bestehende Mitglieder hinzufügen
+            appData.members = appData.members.map(member => ({
+                ...member,
+                interval: member.interval || 1
+            }));
+
+            updateDashboard();
+            updateHeaderForDashboard();
+            updateGitHubStatus();
+
+            // Event Listeners für Admin Tab
+            document.getElementById('generateScheduleBtn').addEventListener('click', generateSchedule);
+            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+            document.getElementById('teamSize').addEventListener('change', updateTeamSize);
+            
+            // Event Listener für Team-Dropdown
+            document.getElementById('teamDaySelector').addEventListener('change', updateTeamInfo);
+            
+            // Event Listeners für Jahr-Inputs
+            document.getElementById('startYear').addEventListener('input', function() {
+                appData.startYear = parseInt(this.value) || appData.startYear;
+                updateYearLabels();
+            });
+            
+            document.getElementById('endYear').addEventListener('input', function() {
+                appData.endYear = parseInt(this.value) || appData.endYear;
+                updateYearLabels();
+            });
+            
+            document.getElementById('startWeek').addEventListener('input', function() {
+                appData.startWeek = parseInt(this.value) || appData.startWeek;
+            });
+            
+            document.getElementById('endWeek').addEventListener('input', function() {
+                appData.endWeek = parseInt(this.value) || appData.endWeek;
+            });
+
+            console.log('App initialization completed');
+        });
+    </script>
+</body>
+</html>
