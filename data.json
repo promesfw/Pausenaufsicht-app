@@ -98,7 +98,7 @@
     {
       "name": "Esther",
       "day": "Montag",
-      "interval": 1
+      "interval": 2
     },
     {
       "name": "Evelyne",
@@ -1471,5 +1471,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-08-05T06:21:23.873Z"
+  "lastUpdated": "2025-08-05T06:21:27.648Z"
 }
