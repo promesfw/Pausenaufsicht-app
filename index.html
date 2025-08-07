@@ -2334,8 +2334,7 @@
         }
 
         // Team-spezifische Einsatzplan-Generierung
-        async // Anpassung der Verteilungslogik zur gleichmässigen Verteilung
-function generateTeamSchedule(dayName = null) {
+        async function generateTeamSchedule(dayName = null) {
     const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
     const allWeeks = getAllSchoolWeeks();
     const teamSize = appData.teamSize;
@@ -2350,7 +2349,6 @@ function generateTeamSchedule(dayName = null) {
         const usage = {};
         members.forEach(m => usage[m.name] = 0);
 
-        // Initialisiere alle relevanten Einsätze (tag-weise)
         allWeeks.forEach(({ week, year }) => {
             const weekIndex = allWeeks.findIndex(w => w.week === week && w.year === year);
             const intervalMembers = members.filter(m => weekIndex % m.interval === 0);
@@ -2366,7 +2364,6 @@ function generateTeamSchedule(dayName = null) {
                 return;
             }
 
-            // Sortiere Mitglieder mit geringster Nutzung zuerst
             const sorted = intervalMembers.sort((a, b) => usage[a.name] - usage[b.name]);
             const selected = sorted.slice(0, teamSize);
 
