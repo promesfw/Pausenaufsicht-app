@@ -2334,48 +2334,72 @@
         }
 
         // Team-spezifische Einsatzplan-Generierung
-        async function generateTeamSchedule(dayName = null) {
-    const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-    const allWeeks = getAllSchoolWeeks();
-    const teamSize = appData.teamSize;
-
-    const dayOptions = dayName ? [dayName] : days;
-
-    dayOptions.forEach(day => {
-        const members = appData.members.filter(m => m.day === day);
-
-        if (members.length === 0) return;
-
-        const usage = {};
-        members.forEach(m => usage[m.name] = 0);
-
-        allWeeks.forEach(({ week, year }) => {
-            const weekIndex = allWeeks.findIndex(w => w.week === week && w.year === year);
-            const intervalMembers = members.filter(m => weekIndex % m.interval === 0);
-
-            const dayIndex = days.indexOf(day) + 1;
-            const dayKey = `${week}-${dayIndex}`;
-
-            const isFree = appData.freeDays.includes(week.toString()) ||
-                appData.freeDays.includes(dayKey);
-
-            if (isFree) {
-                appData.schedule[dayKey] = [];
+        async function generateTeamSchedule() {
+            const selectedDay = document.getElementById('teamDaySelector').value;
+            
+            if (!selectedDay) {
+                alert('Bitte wählen Sie zuerst ein Team (Wochentag) aus!');
                 return;
             }
 
-            const sorted = intervalMembers.sort((a, b) => usage[a.name] - usage[b.name]);
-            const selected = sorted.slice(0, teamSize);
+            const dayMembers = appData.members.filter(m => m.day === selectedDay);
+            const memberNames = dayMembers.map(m => m.name).join(', ');
 
-            selected.forEach(m => usage[m.name]++);
-            appData.schedule[dayKey] = selected.map(m => m.name);
-        });
-    });
+            // BESTÄTIGUNGSDIALOG
+            const confirmed = confirm(
+                `🔄 TEAM NEU PLANEN\n\n` +
+                `Team: ${selectedDay}-Team\n` +
+                `Mitglieder: ${memberNames}\n\n` +
+                `⚠️ WARNUNG: Alle ${selectedDay}-Einsätze werden neu generiert!\n` +
+                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n` +
+                `Einsatz-Intervalle werden berücksichtigt.\n\n` +
+                `Möchten Sie fortfahren?`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
 
-    saveData();
-    updateDashboard();
-    updateScheduleTab();
-});
+            if (dayMembers.length === 0) {
+                alert(`Keine Mitglieder im ${selectedDay}-Team gefunden!`);
+                return;
+            }
+
+            // Aktuelle Werte aus Formular lesen
+            const startWeek = parseInt(document.getElementById('startWeek').value);
+            const endWeek = parseInt(document.getElementById('endWeek').value);
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+
+            // Werte in appData übernehmen
+            appData.startWeek = startWeek;
+            appData.endWeek = endWeek;
+            appData.startYear = startYear;
+            appData.endYear = endYear;
+            appData.year = startYear;
+
+            // Freie Tage aktualisieren
+            appData.freeDays = combineFreeDaysFromBothYears();
+
+            const dayIndex = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(selectedDay);
+            const allWeeks = getAllSchoolWeeks();
+
+            // Team-spezifische Generierung mit Intervall-Berücksichtigung
+            generateDayScheduleWithIntervals(selectedDay, dayIndex, dayMembers, allWeeks);
+
+            await saveData();
+            updateAdminStats();
+            updateDashboard();
+            updateScheduleTab();
+            
+            // Anzahl der regenerierten Einsätze zählen
+            let regeneratedCount = 0;
+            allWeeks.forEach(({ week }) => {
+                const dayKey = `${week}-${dayIndex + 1}`;
+                if (!appData.freeDays.includes(dayKey) && appData.schedule[dayKey]) {
+                    regeneratedCount++;
+                }
+            });
             
             alert(`✅ ${selectedDay}-Team erfolgreich neu geplant!\n\n` +
                   `${regeneratedCount} Einsätze wurden neu generiert.\n` +
