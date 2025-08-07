@@ -1564,10 +1564,170 @@
             URL.revokeObjectURL(url);
         }
 
-        // Speicher-Funktionen (vereinfacht - ohne GitHub)
+        // GitHub-Konfiguration
+        const GITHUB_CONFIG = {
+            owner: 'your-username',
+            repo: 'pausenaufsicht-data',
+            dataFile: 'data.json',
+            apiUrl: 'https://api.github.com'
+        };
+
+        // Speicher-Funktionen mit GitHub-Integration
         function saveData() {
-            // Hier könnte GitHub-Speicherung implementiert werden
-            console.log('Daten gespeichert:', appData);
+            saveDataToGitHub();
+        }
+
+        // Token Management
+        function getGitHubToken() {
+            return localStorage.getItem('github_token');
+        }
+
+        function updateGitHubStatus() {
+            const token = getGitHubToken();
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (statusIcon && statusText) {
+                if (!token) {
+                    statusIcon.textContent = '⚠️';
+                    statusText.textContent = 'GitHub Token nicht konfiguriert - Auto-Save deaktiviert';
+                } else {
+                    statusIcon.textContent = '✅';
+                    statusText.textContent = 'GitHub Token konfiguriert - Auto-Save aktiviert';
+                }
+            }
+        }
+
+        // UTF-8 sichere Base64 Funktionen
+        function utf8ToBase64(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
+        }
+
+        function base64ToUtf8(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        // GitHub API Functions
+        async function saveDataToGitHub() {
+            const token = getGitHubToken();
+            if (!token) {
+                console.log('No GitHub token available, skipping save');
+                return false;
+            }
+
+            showSaveStatus('saving', 'Speichere auf GitHub...');
+
+            try {
+                const getResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                let sha = null;
+                if (getResponse.ok) {
+                    const fileData = await getResponse.json();
+                    sha = fileData.sha;
+                }
+
+                const dataToSave = {
+                    members: appData.members,
+                    schedule: appData.schedule,
+                    teamSize: appData.teamSize,
+                    startWeek: appData.startWeek,
+                    endWeek: appData.endWeek,
+                    startYear: appData.startYear,
+                    endYear: appData.endYear,
+                    year: appData.year || appData.startYear,
+                    freeDays: appData.freeDays,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const jsonString = JSON.stringify(dataToSave, null, 2);
+                const content = utf8ToBase64(jsonString);
+
+                const updateData = {
+                    message: `Auto-Save: Update Pausenaufsicht data at ${new Date().toLocaleString('de-DE')}`,
+                    content: content
+                };
+
+                if (sha) {
+                    updateData.sha = sha;
+                }
+
+                const updateResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateData)
+                    }
+                );
+
+                if (updateResponse.ok) {
+                    showSaveStatus('saved', 'Erfolgreich gespeichert!');
+                    console.log('Data successfully saved to GitHub');
+                    return true;
+                } else {
+                    const errorData = await updateResponse.json();
+                    throw new Error(`GitHub API error: ${errorData.message}`);
+                }
+
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                showSaveStatus('error', `Fehler beim Speichern: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function loadDataFromGitHub() {
+            const token = getGitHubToken();
+            if (!token) {
+                console.log('No GitHub token available, using default data');
+                return false;
+            }
+
+            try {
+                const response = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const jsonString = base64ToUtf8(fileData.content);
+                    const loadedData = JSON.parse(jsonString);
+                    
+                    // Merge loaded data with app data
+                    Object.assign(appData, loadedData);
+                    
+                    console.log('Data successfully loaded from GitHub');
+                    return true;
+                } else {
+                    console.log('No existing data file found on GitHub');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                return false;
+            }
         }
 
         function showSaveStatus(status, message) {
@@ -1592,10 +1752,11 @@
                 alert('Bitte geben Sie einen Token ein!');
                 return;
             }
-            
-            // In echtem Szenario würde hier der Token sicher gespeichert
-            alert('Token wurde gespeichert! (Simulation)');
+
+            localStorage.setItem('github_token', token);
             document.getElementById('githubToken').value = '';
+            updateGitHubStatus();
+            alert('Token wurde gespeichert!');
         }
 
         function showTokenHelp() {
@@ -1604,13 +1765,28 @@
         }
 
         // Initialisierung der App
-        function initializeApp() {
+        async function initializeApp() {
             // Lade Einstellungen in Admin-Tab
             document.getElementById('teamSize').value = appData.teamSize;
             document.getElementById('startWeek').value = appData.startWeek;
             document.getElementById('endWeek').value = appData.endWeek;
             document.getElementById('startYear').value = appData.startYear;
             document.getElementById('endYear').value = appData.endYear;
+
+            // Aktualisiere GitHub Status
+            updateGitHubStatus();
+
+            // Versuche Daten von GitHub zu laden
+            const dataLoaded = await loadDataFromGitHub();
+            
+            if (dataLoaded) {
+                // Aktualisiere UI nach dem Laden der Daten
+                document.getElementById('teamSize').value = appData.teamSize;
+                document.getElementById('startWeek').value = appData.startWeek;
+                document.getElementById('endWeek').value = appData.endWeek;
+                document.getElementById('startYear').value = appData.startYear;
+                document.getElementById('endYear').value = appData.endYear;
+            }
 
             // Erstelle initialen Einsatzplan wenn noch keiner existiert
             if (Object.keys(appData.schedule).length === 0) {
