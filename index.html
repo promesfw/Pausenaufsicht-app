@@ -1592,9 +1592,9 @@
                 alert('Bitte geben Sie einen Token ein!');
                 return;
             }
-
-            // In einer echten Implementierung würde der Token sicher gespeichert
-            alert('Token wurde gespeichert! (Demo-Modus)');
+            
+            // In echtem Szenario würde hier der Token sicher gespeichert
+            alert('Token wurde gespeichert! (Simulation)');
             document.getElementById('githubToken').value = '';
         }
 
@@ -1603,164 +1603,35 @@
             helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Initialisierung beim Laden der Seite
+        // Initialisierung der App
         function initializeApp() {
-            // Setze Standardwerte
+            // Lade Einstellungen in Admin-Tab
             document.getElementById('teamSize').value = appData.teamSize;
             document.getElementById('startWeek').value = appData.startWeek;
             document.getElementById('endWeek').value = appData.endWeek;
             document.getElementById('startYear').value = appData.startYear;
             document.getElementById('endYear').value = appData.endYear;
 
-            // Aktualisiere alle Tabs
-            updateDashboard();
-            updateMembersTab();
-            
-            // Zeige Dashboard als Standard
-            showTab('dashboard');
+            // Erstelle initialen Einsatzplan wenn noch keiner existiert
+            if (Object.keys(appData.schedule).length === 0) {
+                generateCompleteSchedule();
+            } else {
+                updateDashboard();
+            }
         }
 
-        // Event Listeners
+        // Event Listener für Enter-Taste bei Mitglied hinzufügen
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                if (e.altKey) {
-                    switch(e.key) {
-                        case '1':
-                            e.preventDefault();
-                            document.querySelector('[onclick="showTab(\'dashboard\')"]').click();
-                            break;
-                        case '2':
-                            e.preventDefault();
-                            document.querySelector('[onclick="showTab(\'schedule\')"]').click();
-                            break;
-                        case '3':
-                            e.preventDefault();
-                            document.querySelector('[onclick="showTab(\'myduties\')"]').click();
-                            break;
-                    }
-                }
-            });
-
-            // Enter-Key für Mitglieder hinzufügen
+            // Enter-Taste Unterstützung
             document.getElementById('newMemberName').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     addMember();
                 }
             });
+
+            // Initialisiere die App
+            initializeApp();
         });
-
-        // Zusätzliche Hilfsfunktionen
-        function getTeamMembersForDay(day) {
-            return appData.members.filter(m => m.day === day);
-        }
-
-        function getTotalWeeksInSchoolYear() {
-            return generateSchoolYearWeeks().length;
-        }
-
-        function exportScheduleToJSON() {
-            const dataStr = JSON.stringify(appData, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = 'pausenaufsicht-backup.json';
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-        }
-
-        function importScheduleFromJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    // Validiere die importierten Daten
-                    if (!importedData.members || !Array.isArray(importedData.members)) {
-                        throw new Error('Ungültige Datenstruktur');
-                    }
-
-                    const confirmed = confirm(
-                        'Möchten Sie die importierten Daten laden?\n\n' +
-                        'Dies überschreibt alle aktuellen Daten!'
-                    );
-
-                    if (confirmed) {
-                        appData = importedData;
-                        initializeApp();
-                        alert('✅ Daten erfolgreich importiert!');
-                    }
-                } catch (error) {
-                    alert('❌ Fehler beim Importieren: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // Erweiterte Statistiken
-        function getDetailedStats() {
-            const stats = {
-                totalMembers: appData.members.length,
-                membersByDay: {},
-                totalWeeks: getTotalWeeksInSchoolYear(),
-                scheduledWeeks: Object.keys(appData.schedule).length
-            };
-
-            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            weekdays.forEach(day => {
-                stats.membersByDay[day] = getTeamMembersForDay(day).length;
-            });
-
-            return stats;
-        }
-
-        // Validierungsfunktionen
-        function validateSchedule() {
-            const issues = [];
-            const stats = getDetailedStats();
-
-            // Prüfe ob genug Mitglieder für Teams vorhanden sind
-            Object.keys(stats.membersByDay).forEach(day => {
-                const memberCount = stats.membersByDay[day];
-                if (memberCount > 0 && memberCount < appData.teamSize) {
-                    issues.push(`${day}: Nur ${memberCount} Mitglieder für Teamgröße ${appData.teamSize}`);
-                }
-            });
-
-            // Prüfe auf unbesetzte Wochen
-            const weeks = generateSchoolYearWeeks();
-            weeks.forEach(weekInfo => {
-                const weekKey = `${weekInfo.week}-${weekInfo.year}`;
-                if (!appData.schedule[weekKey]) {
-                    issues.push(`Kalenderwoche ${weekInfo.week}/${weekInfo.year}: Nicht geplant`);
-                }
-            });
-
-            return issues;
-        }
-
-        // Debug-Funktionen (nur in Entwicklung)
-        function debugInfo() {
-            console.log('App Data:', appData);
-            console.log('Detailed Stats:', getDetailedStats());
-            console.log('Validation Issues:', validateSchedule());
-        }
-
-        // Erweitere das globale Objekt für Debug-Zugriff
-        window.pausenaufsichtApp = {
-            data: appData,
-            stats: getDetailedStats,
-            validate: validateSchedule,
-            debug: debugInfo,
-            exportData: exportScheduleToJSON
-        };
     </script>
 </body>
 </html>
