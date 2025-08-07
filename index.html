@@ -697,8 +697,13 @@
             <div id="admin" class="tab-content hidden">
                 <h3>⚙️ Administration</h3>
 
-                <div class="token-setup">
+                <!-- GitHub Token Setup -->
+                <div id="tokenSetup" class="token-setup">
                     <h4>🔑 GitHub Token Setup</h4>
+                    <p style="margin-bottom: 10px;">
+                        <span id="status-icon">⚠️</span> 
+                        <span id="status-text">GitHub Token nicht konfiguriert - Auto-Save deaktiviert</span>
+                    </p>
                     <p style="margin-bottom: 10px;">Für automatisches Speichern benötigen Sie einen GitHub Personal Access Token:</p>
                     <div class="token-input">
                         <input type="password" id="githubToken" placeholder="GitHub Personal Access Token hier eingeben" />
@@ -713,6 +718,11 @@
                             <li>Geben Sie eine Beschreibung ein (z.B. "Pausenaufsicht App")</li>
                             <li>Wählen Sie Scope "repo" (Full control of private repositories)</li>
                             <li>Klicken Sie "Generate token" und kopieren Sie den Token hierher</li>
+                        </ol>
+                        <p><strong>Repository Setup:</strong></p>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>Erstellen Sie ein privates Repository namens "pausenaufsicht-data"</li>
+                            <li>Oder passen Sie die Konfiguration im Code an (GITHUB_CONFIG)</li>
                         </ol>
                     </div>
                 </div>
@@ -1564,13 +1574,72 @@
             URL.revokeObjectURL(url);
         }
 
-        // GitHub-Konfiguration
+        // GitHub-Konfiguration - WICHTIG: Passen Sie diese Werte an!
         const GITHUB_CONFIG = {
-            owner: 'your-username',
-            repo: 'pausenaufsicht-data',
+            owner: 'promeesfw',  // <- HIER IHREN GITHUB-BENUTZERNAMEN EINTRAGEN
+            repo: 'pausenaufsicht-data',   // <- Repository-Name (wird automatisch erstellt)
             dataFile: 'data.json',
             apiUrl: 'https://api.github.com'
         };
+
+        // Überprüft GitHub-Konfiguration
+        function validateGitHubConfig() {
+            if (GITHUB_CONFIG.owner === 'IHR-GITHUB-USERNAME') {
+                alert('⚠️ KONFIGURATION ERFORDERLICH!\n\nBitte tragen Sie Ihren GitHub-Benutzernamen in der GITHUB_CONFIG ein:\n\n1. Öffnen Sie den HTML-Code\n2. Suchen Sie "GITHUB_CONFIG"\n3. Ersetzen Sie "IHR-GITHUB-USERNAME" mit Ihrem echten GitHub-Benutzernamen');
+                return false;
+            }
+            return true;
+        }
+
+        // Erstellt automatisch ein Repository falls es nicht existiert
+        async function createRepositoryIfNeeded(token) {
+            try {
+                // Prüfe erst ob Repository existiert
+                const checkResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (checkResponse.ok) {
+                    return true; // Repository existiert bereits
+                }
+
+                // Repository erstellen
+                const createResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/user/repos`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: GITHUB_CONFIG.repo,
+                            description: 'Pausenaufsicht App - Datenspeicherung',
+                            private: true,
+                            auto_init: true
+                        })
+                    }
+                );
+
+                if (createResponse.ok) {
+                    console.log('Repository erfolgreich erstellt');
+                    return true;
+                } else {
+                    const errorData = await createResponse.json();
+                    throw new Error(`Repository-Erstellung fehlgeschlagen: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Error creating repository:', error);
+                return false;
+            }
+        }
 
         // Speicher-Funktionen mit GitHub-Integration
         function saveData() {
@@ -1619,9 +1688,20 @@
                 return false;
             }
 
+            if (!validateGitHubConfig()) {
+                return false;
+            }
+
             showSaveStatus('saving', 'Speichere auf GitHub...');
 
             try {
+                // Stelle sicher, dass Repository existiert
+                const repoExists = await createRepositoryIfNeeded(token);
+                if (!repoExists) {
+                    throw new Error('Repository konnte nicht erstellt oder gefunden werden');
+                }
+
+                // Versuche existierende Datei zu laden
                 const getResponse = await fetch(
                     `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
                     {
@@ -1636,6 +1716,13 @@
                 if (getResponse.ok) {
                     const fileData = await getResponse.json();
                     sha = fileData.sha;
+                } else if (getResponse.status === 404) {
+                    // Datei existiert noch nicht - das ist OK für erste Speicherung
+                    console.log('Datei existiert noch nicht, wird neu erstellt');
+                } else {
+                    // Anderer Fehler
+                    const errorData = await getResponse.json().catch(() => ({}));
+                    throw new Error(`Fehler beim Laden der bestehenden Datei: ${errorData.message || getResponse.statusText}`);
                 }
 
                 const dataToSave = {
@@ -1647,7 +1734,7 @@
                     startYear: appData.startYear,
                     endYear: appData.endYear,
                     year: appData.year || appData.startYear,
-                    freeDays: appData.freeDays,
+                    freeDays: appData.freeDays || [],
                     lastUpdated: new Date().toISOString()
                 };
 
@@ -1681,13 +1768,25 @@
                     console.log('Data successfully saved to GitHub');
                     return true;
                 } else {
-                    const errorData = await updateResponse.json();
-                    throw new Error(`GitHub API error: ${errorData.message}`);
+                    const errorData = await updateResponse.json().catch(() => ({}));
+                    throw new Error(`GitHub API error: ${errorData.message || updateResponse.statusText}`);
                 }
 
             } catch (error) {
                 console.error('Error saving to GitHub:', error);
                 showSaveStatus('error', `Fehler beim Speichern: ${error.message}`);
+                
+                // Zusätzliche Hilfe für häufige Probleme
+                if (error.message.includes('Not Found')) {
+                    setTimeout(() => {
+                        alert('❌ REPOSITORY NICHT GEFUNDEN\n\nMögliche Lösungen:\n\n1. Überprüfen Sie Ihren GitHub-Benutzernamen in der Konfiguration\n2. Stellen Sie sicher, dass das Token korrekt ist\n3. Das Repository wird beim ersten Speichern automatisch erstellt');
+                    }, 1000);
+                } else if (error.message.includes('Bad credentials')) {
+                    setTimeout(() => {
+                        alert('❌ TOKEN UNGÜLTIG\n\nBitte überprüfen Sie:\n\n1. Token korrekt kopiert?\n2. Token nicht abgelaufen?\n3. "repo" Berechtigung gewählt?');
+                    }, 1000);
+                }
+                
                 return false;
             }
         }
