@@ -1,4 +1,21 @@
-<!DOCTYPE html>
+        async function generateTeamSchedule() {
+            const selectedDay = document.getElementById('teamDaySelector').value;
+            
+            if (!selectedDay) {
+                alert('Bitte wählen Sie zuerst ein Team (Wochentag) aus!');
+                return;
+            }
+
+            const dayMembers = appData.members.filter(m => m.day === selectedDay);
+            const memberNames = dayMembers.map(m => m.name).join(', ');
+
+            const confirmed = confirm(
+                `🔄 TEAM NEU PLANEN\n\n` +
+                `Team: ${selectedDay}-Team\n` +
+                `Mitglieder: ${memberNames}\n\n` +
+                `⚠️ WARNUNG: Alle ${selectedDay}-Einsätze werden neu generiert!\n` +
+                `Die anderen Teams (Montag, Dienstag, etc.) bleiben unverändert.\n` +
+                `<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +26,229 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        function getDateFromWeekAndDay(week, year, dayIndex) {
+            // dayIndex: 0 = Montag, 1 = Dienstag, etc.
+            const firstDayOfYear = new Date(year, 0, 1);
+            const daysFromFirstWeek = (week - 1) * 7;
+            const dayOfWeek = firstDayOfYear.getDay(); // 0 = Sonntag, 1 = Montag, etc.
+            
+            // Berechne den ersten Montag des Jahres
+            const firstMonday = new Date(firstDayOfYear);
+            const daysToFirstMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
+            firstMonday.setDate(firstDayOfYear.getDate() + daysToFirstMonday);
+            
+            // Berechne das Zieldatum
+            const targetDate = new Date(firstMonday);
+            targetDate.setDate(firstMonday.getDate() + daysFromFirstWeek + dayIndex);
+            
+            return targetDate;
+        }
+
+        function formatDateForICS(date) {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        }
+
+        function generateICSFile(personName, duties) {
+            const schoolName = "Primarschule Wohlen";
+            let icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Pausenaufsicht App//DE',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH'
+            ];
+
+            duties.forEach((duty, index) => {
+                const eventDate = getDateFromWeekAndDay(duty.week, duty.year, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(duty.dayName));
+                
+                // Start: 09:55, Ende: 10:15
+                const startDate = new Date(eventDate);
+                startDate.setHours(9, 55, 0, 0);
+                
+                const endDate = new Date(eventDate);
+                endDate.setHours(10, 15, 0, 0);
+
+                const eventId = `pausenaufsicht-${duty.week}-${duty.year}-${duty.dayName.toLowerCase()}@${schoolName.replace(/\s+/g, '-').toLowerCase()}.com`;
+
+                icsContent.push(
+                    'BEGIN:VEVENT',
+                    `UID:${eventId}`,
+                    `DTSTART:${formatDateForICS(startDate)}`,
+                    `DTEND:${formatDateForICS(endDate)}`,
+                    `SUMMARY:Pausenaufsicht - ${schoolName}`,
+                    `DESCRIPTION:Pausenaufsicht ${duty.dayName}\\nKalenderwoche ${duty.week}/${duty.year}\\nZeit: 09:55 - 10:15`,
+                    `LOCATION:${schoolName}`,
+                    'STATUS:CONFIRMED',
+                    'TRANSP:OPAQUE',
+                    'END:VEVENT'
+                );
+            });
+
+            icsContent.push('END:VCALENDAR');
+            return icsContent.join('\r\n');
+        }
+
+        function downloadICSFile(personName, duties) {
+            const icsContent = generateICSFile(personName, duties);
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Pausenaufsicht-${personName.replace(/\s+/g, '-')}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-Save Status Management
+        function showSaveStatus(status, message) {
+            const statusElement = document.getElementById('saveStatus');
+            const textElement = document.getElementById('saveStatusText');
+            
+            statusElement.className = `save-status ${status}`;
+            textElement.textContent = message;
+            statusElement.style.display = 'block';
+
+            if (status === 'saved' || status === 'error') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Token Management
+        function getGitHubToken() {
+            return localStorage.getItem('github_token');
+        }
+
+        function saveToken() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('Bitte geben Sie einen Token ein!');
+                return;
+            }
+
+            localStorage.setItem('github_token', token);
+            document.getElementById('githubToken').value = '';
+            updateGitHubStatus();
+            alert('Token wurde gespeichert!');
+        }
+
+        function showTokenHelp() {
+            const helpDiv = document.getElementById('tokenHelp');
+            helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateGitHubStatus() {
+            const token = getGitHubToken();
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (!token) {
+                statusIcon.textContent = '⚠️';
+                statusText.textContent = 'GitHub Token nicht konfiguriert - Auto-Save deaktiviert';
+            } else {
+                statusIcon.textContent = '✅';
+                statusText.textContent = 'GitHub Token konfiguriert - Auto-Save aktiviert';
+            }
+        }
+
+        // UTF-8 sichere Base64 Funktionen
+        function utf8ToBase64(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
+        }
+
+        function base64ToUtf8(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        // GitHub API Functions
+        async function saveDataToGitHub() {
+            const token = getGitHubToken();
+            if (!token) {
+                console.log('No GitHub token available, skipping save');
+                return false;
+            }
+
+            showSaveStatus('saving', 'Speichere auf GitHub...');
+
+            try {
+                const getResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                let sha = null;
+                if (getResponse.ok) {
+                    const fileData = await getResponse.json();
+                    sha = fileData.sha;
+                }
+
+                const dataToSave = {
+                    members: appData.members,
+                    schedule: appData.schedule,
+                    teamSize: appData.teamSize,
+                    startWeek: appData.startWeek,
+                    endWeek: appData.endWeek,
+                    startYear: appData.startYear,
+                    endYear: appData.endYear,
+                    year: appData.year || appData.startYear,
+                    freeDays: appData.freeDays,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const jsonString = JSON.stringify(dataToSave, null, 2);
+                const content = utf8ToBase64(jsonString);
+
+                const updateData = {
+                    message: `Auto-Save: Update Pausenaufsicht data at ${new Date().toLocaleString('de-DE')}`,
+                    content: content
+                };
+
+                if (sha) {
+                    updateData.sha = sha;
+                }
+
+                const updateResponse = await fetch(
+                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateData)
+                    }
+                );
+
+                if (updateResponse.ok) {
+                    showSaveStatus('saved', 'Erfolgreich gespeichert!');
+                    console.log('Data successfully saved to GitHub');
+                    return true;
+                } else {
+                    const errorData = await updateResponse.json();
+                    throw new Error(`GitHub API error: ${errorData.message}`);
+                }
+
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                showSaveStatus('error', `Fehler beim Speichern: ${error.message}`);
+                return false;
+            }
         }
 
         body {
@@ -205,6 +445,121 @@
             font-weight: 500;
         }
 
+        /* Calendar Export Styles */
+        .calendar-export {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+
+        .calendar-export h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .calendar-export p {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .calendar-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Auto-Save Status */
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .save-status.saving {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .save-status.saved {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .save-status.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Token Setup */
+        .token-setup {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .token-setup h4 {
+            margin-bottom: 10px;
+        }
+
+        .token-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .token-input input {
+            flex: 1;
+            min-width: 300px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
+        /* Kompakteres Dashboard-Layout */
+        #dashboard .week-section {
+            margin-bottom: 15px;
+        }
+
+        #dashboard .schedule-grid {
+            gap: 6px;
+        }
+
+        #dashboard .day-card {
+            padding: 8px;
+            min-height: 80px;
+        }
+
+        #dashboard .day-card h4 {
+            font-size: 0.8em;
+            margin-bottom: 6px;
+        }
+
+        #dashboard .team-member {
+            font-size: 0.7em;
+            padding: 2px 6px;
+            margin: 1px 0;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -225,6 +580,7 @@
             transition: border-color 0.3s ease;
         }
 
+        /* Verbesserte Lesbarkeit für Dropdown-Menüs */
         select {
             font-size: 16px;
         }
@@ -266,24 +622,10 @@
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
         }
 
-        .member-assignment {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .member-assignment label {
-            min-width: 150px;
-            font-weight: 500;
-        }
-
-        .hidden {
-            display: none;
+        .btn-small {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            margin: 0;
         }
 
         .table {
@@ -310,6 +652,60 @@
 
         .table tr:hover {
             background: rgba(102, 126, 234, 0.05);
+        }
+
+        .member-assignment {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .member-assignment label {
+            min-width: 150px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .stats-card p {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .week-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .edit-cell {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 5px;
         }
 
         .swap-controls {
@@ -352,126 +748,7 @@
             margin-top: 15px;
         }
 
-        .week-selector {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .calendar-export {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #e8f5e8;
-            border-radius: 10px;
-            border-left: 4px solid #28a745;
-        }
-
-        .calendar-export h4 {
-            color: #28a745;
-            margin-bottom: 15px;
-        }
-
-        .calendar-export p {
-            margin-bottom: 15px;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .calendar-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .save-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 0.9em;
-            font-weight: 500;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        .save-status.saving {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-            animation: pulse 1.5s infinite;
-        }
-
-        .save-status.saved {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-        }
-
-        .save-status.error {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        .token-setup {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .token-setup h4 {
-            margin-bottom: 10px;
-        }
-
-        .token-input {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .token-input input {
-            flex: 1;
-            min-width: 300px;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            font-family: monospace;
-        }
-
-        .stats-info {
-            background: rgba(102, 126, 234, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stats-info h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .stat-item {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
+        /* Teams-spezifische Optimierungen */
         @media (max-width: 768px) {
             .nav-row {
                 flex-direction: column;
@@ -508,6 +785,20 @@
                 gap: 4px;
             }
             
+            #dashboard .day-card {
+                padding: 6px;
+                min-height: 70px;
+            }
+            
+            #dashboard .day-card h4 {
+                font-size: 0.75em;
+            }
+            
+            #dashboard .team-member {
+                font-size: 0.65em;
+                padding: 1px 4px;
+            }
+            
             .member-assignment {
                 flex-direction: column;
                 align-items: stretch;
@@ -533,6 +824,7 @@
                 padding: 12px;
             }
 
+            /* Bessere Lesbarkeit für alle Dropdown-Menüs auf mobilen Geräten */
             select {
                 font-size: 18px !important;
                 padding: 12px !important;
@@ -543,9 +835,96 @@
                 margin: 5px 0;
             }
         }
+
+        @media (max-width: 768px) and (min-height: 600px) {
+            /* Teams Mobile - kompakte Darstellung beibehalten */
+            .container {
+                padding: 5px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-row:first-child {
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 1px;
+            }
+            
+            .nav-tab {
+                min-width: 70px;
+                font-size: 1.1rem;
+                padding: 8px 8px;
+                white-space: nowrap;
+                flex: 1;
+            }
+
+            .setup-toggle {
+                width: 32px;
+                height: 32px;
+                font-size: 11px;
+                margin-left: 4px;
+                flex-shrink: 0;
+            }
+
+            /* Noch bessere Lesbarkeit für sehr kleine Geräte */
+            select {
+                font-size: 19px !important;
+                padding: 14px !important;
+                min-height: 50px;
+            }
+        }
+
+        /* Für sehr schmale Bildschirme */
+        @media (max-width: 400px) {
+            .nav-tab {
+                font-size: 1rem !important;
+                padding: 8px 6px !important;
+                min-width: 65px !important;
+            }
+            
+            .setup-toggle {
+                width: 30px !important;
+                height: 30px !important;
+                margin-left: 2px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        /* Teams Desktop Integration */
+        body.teams-embedded {
+            background: #f3f2f1;
+        }
+
+        body.teams-embedded .container {
+            max-width: 100%;
+            padding: 10px;
+        }
+
+        body.teams-embedded .header {
+            background: linear-gradient(135deg, #6264a7 0%, #8b5a9c 100%);
+            margin-bottom: 15px;
+        }
+
+        /* Kompakte Darstellung für Teams */
+        .teams-compact .week-section {
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .teams-compact .schedule-grid {
+            gap: 4px;
+        }
+
+        .teams-compact .day-card {
+            padding: 6px;
+            min-height: 60px;
+        }
     </style>
 </head>
 <body>
+    <!-- Auto-Save Status Indicator -->
     <div id="saveStatus" class="save-status" style="display: none;">
         <span id="saveStatusText">Speichern...</span>
     </div>
@@ -600,15 +979,6 @@
             <!-- Schedule Tab -->
             <div id="schedule" class="tab-content hidden">
                 <h3>📋 Einsatzplan verwalten</h3>
-                
-                <!-- Statistiken über die Verteilung -->
-                <div class="stats-info">
-                    <h4>📊 Verteilungsstatistik</h4>
-                    <div id="distributionStats">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                </div>
-                
                 <div class="swap-controls">
                     <h4>Einsätze tauschen:</h4>
                     <div class="swap-row">
@@ -684,7 +1054,7 @@
                             <option value="3">Alle 3 Wochen</option>
                             <option value="4">Alle 4 Wochen</option>
                         </select>
-                        <button class="btn" onclick="addMember()">Hinzufügen</button>
+                        <button class="btn" id="addMemberBtn" type="button">Hinzufügen</button>
                     </div>
                 </div>
 
@@ -700,10 +1070,6 @@
                 <!-- GitHub Token Setup -->
                 <div id="tokenSetup" class="token-setup">
                     <h4>🔑 GitHub Token Setup</h4>
-                    <p style="margin-bottom: 10px;">
-                        <span id="status-icon">⚠️</span> 
-                        <span id="status-text">GitHub Token nicht konfiguriert - Auto-Save deaktiviert</span>
-                    </p>
                     <p style="margin-bottom: 10px;">Für automatisches Speichern benötigen Sie einen GitHub Personal Access Token:</p>
                     <div class="token-input">
                         <input type="password" id="githubToken" placeholder="GitHub Personal Access Token hier eingeben" />
@@ -719,18 +1085,12 @@
                             <li>Wählen Sie Scope "repo" (Full control of private repositories)</li>
                             <li>Klicken Sie "Generate token" und kopieren Sie den Token hierher</li>
                         </ol>
-                        <p><strong>Repository Setup:</strong></p>
-                        <ol style="margin: 10px 0; padding-left: 20px;">
-                            <li>Erstellen Sie ein privates Repository namens "pausenaufsicht-data"</li>
-                            <li>Oder passen Sie die Konfiguration im Code an (GITHUB_CONFIG)</li>
-                        </ol>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label>Teamgröße festlegen:</label>
-                    <select id="teamSize" onchange="updateSettings()">
-                        <option value="2">2 Mitglieder pro Team</option>
+                    <select id="teamSize">
                         <option value="3">3 Mitglieder pro Team</option>
                         <option value="4">4 Mitglieder pro Team</option>
                     </select>
@@ -746,1167 +1106,11 @@
                             <div style="display: flex; gap: 10px; align-items: center;">
                                 <div style="flex: 1;">
                                     <label style="font-size: 0.8em; margin-bottom: 3px;">Jahr:</label>
-                                    <input type="number" id="startYear" min="2024" max="2030" value="2025" onchange="updateSettings()">
+                                    <input type="number" id="startYear" min="2024" max="2030" value="2025" style="width: 100%;">
                                 </div>
                                 <div style="flex: 1;">
                                     <label style="font-size: 0.8em; margin-bottom: 3px;">Kalenderwoche:</label>
-                                    <input type="number" id="startWeek" min="1" max="53" value="33" onchange="updateSettings()">
+                                    <input type="number" id="startWeek" min="1" max="53" value="33" style="width: 100%;">
                                 </div>
                             </div>
-                        </div>
-                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #e74c3c;">
-                            <label style="font-size: 0.9em; color: #e74c3c; margin-bottom: 8px; display: block;">
-                                🏁 Schuljahr-Ende:
-                            </label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <div style="flex: 1;">
-                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Jahr:</label>
-                                    <input type="number" id="endYear" min="2024" max="2030" value="2026" onchange="updateSettings()">
-                                </div>
-                                <div style="flex: 1;">
-                                    <label style="font-size: 0.8em; margin-bottom: 3px;">Kalenderwoche:</label>
-                                    <input type="number" id="endWeek" min="1" max="53" value="25" onchange="updateSettings()">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <button class="btn btn-danger" onclick="generateCompleteSchedule()">
-                        🔄 Gesamten Einsatzplan neu generieren
-                    </button>
-                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        ⚠️ Dies überschreibt alle bestehenden Einsatzpläne mit einer optimierten Verteilung.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Globale App-Daten
-        let appData = {
-            members: [
-                {id: 1, name: 'Anna Müller', day: 'Montag', interval: 2},
-                {id: 2, name: 'Beat Schmidt', day: 'Montag', interval: 2},
-                {id: 3, name: 'Clara Weber', day: 'Montag', interval: 2},
-                {id: 4, name: 'David Huber', day: 'Dienstag', interval: 2},
-                {id: 5, name: 'Eva Fischer', day: 'Dienstag', interval: 2},
-                {id: 6, name: 'Fritz Meier', day: 'Mittwoch', interval: 2}
-            ],
-            schedule: {},
-            teamSize: 3,
-            startWeek: 33,
-            endWeek: 25,
-            startYear: 2025,
-            endYear: 2026,
-            freeDays: []
-        };
-
-        // Tab-Navigation
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.add('hidden');
-            });
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById(tabName).classList.remove('hidden');
-            event.target.classList.add('active');
-            
-            if (tabName === 'dashboard') {
-                updateDashboard();
-            } else if (tabName === 'schedule') {
-                updateScheduleTab();
-            } else if (tabName === 'myduties') {
-                updateMyDutiesTab();
-            } else if (tabName === 'members') {
-                updateMembersTab();
-            }
-        }
-
-        function toggleSetupTabs() {
-            const setupTabs = document.getElementById('setupTabs');
-            const setupToggle = document.querySelector('.setup-toggle');
-            const setupIcon = document.getElementById('setupToggleIcon');
-            
-            if (setupTabs.classList.contains('show')) {
-                setupTabs.classList.remove('show');
-                setupToggle.classList.remove('active');
-                setupIcon.textContent = '▼';
-            } else {
-                setupTabs.classList.add('show');
-                setupToggle.classList.add('active');
-                setupIcon.textContent = '▲';
-            }
-        }
-
-        // Hilfsfunktionen für Datumsberechnung
-        function getWeekNumber(date) {
-            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-            const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-        }
-
-        function getCurrentWeek() {
-            const today = new Date();
-            return {
-                week: getWeekNumber(today),
-                year: today.getFullYear()
-            };
-        }
-
-        function getDateFromWeek(week, year, dayOfWeek = 1) {
-            const jan4 = new Date(year, 0, 4);
-            const jan4DayOfWeek = jan4.getDay() || 7;
-            const firstThursday = new Date(jan4.getTime() - (jan4DayOfWeek - 4) * 86400000);
-            const targetWeekStart = new Date(firstThursday.getTime() + (week - 1) * 7 * 86400000);
-            const targetDate = new Date(targetWeekStart.getTime() + (dayOfWeek - 1) * 86400000);
-            return targetDate;
-        }
-
-        function formatWeekInfo(week, year) {
-            const monday = getDateFromWeek(week, year, 1);
-            const friday = getDateFromWeek(week, year, 5);
-            
-            const formatDate = (date) => {
-                return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-            };
-            
-            return `Kalenderwoche ${week} (${formatDate(monday)} - ${formatDate(friday)}.${year})`;
-        }
-
-        // Verbesserte faire Verteilungslogik
-        function generateFairSchedule(dayMembers, weeks, teamSize) {
-            const schedule = {};
-            const memberStats = {};
-            
-            // Initialisiere Statistiken für jedes Mitglied
-            dayMembers.forEach(member => {
-                memberStats[member.id] = {
-                    name: member.name,
-                    totalAssignments: 0,
-                    lastAssignedWeek: -999,
-                    interval: member.interval
-                };
-            });
-
-            // Sortiere Wochen chronologisch
-            const sortedWeeks = weeks.sort((a, b) => {
-                if (a.year !== b.year) return a.year - b.year;
-                return a.week - b.week;
-            });
-
-            for (const weekInfo of sortedWeeks) {
-                const weekKey = `${weekInfo.week}-${weekInfo.year}`;
-                
-                // Verfügbare Mitglieder für diese Woche ermitteln
-                const availableMembers = dayMembers.filter(member => {
-                    const stats = memberStats[member.id];
-                    const weeksSinceLastAssignment = getWeekDistance(stats.lastAssignedWeek, weekInfo.week, weekInfo.year);
-                    
-                    // Prüfe Intervall-Regel
-                    if (weeksSinceLastAssignment < stats.interval && stats.lastAssignedWeek !== -999) {
-                        return false;
-                    }
-                    
-                    return true;
-                });
-
-                if (availableMembers.length === 0) {
-                    // Notfall: Nehme alle Mitglieder
-                    availableMembers = [...dayMembers];
-                }
-
-                // Sortiere verfügbare Mitglieder nach Priorität (weniger Einsätze = höhere Priorität)
-                const prioritizedMembers = availableMembers.sort((a, b) => {
-                    const aStats = memberStats[a.id];
-                    const bStats = memberStats[b.id];
-                    
-                    // 1. Priorität: Weniger Gesamteinsätze
-                    if (aStats.totalAssignments !== bStats.totalAssignments) {
-                        return aStats.totalAssignments - bStats.totalAssignments;
-                    }
-                    
-                    // 2. Priorität: Länger nicht eingeteilt
-                    const aWeeksSince = getWeekDistance(aStats.lastAssignedWeek, weekInfo.week, weekInfo.year);
-                    const bWeeksSince = getWeekDistance(bStats.lastAssignedWeek, weekInfo.week, weekInfo.year);
-                    
-                    return bWeeksSince - aWeeksSince;
-                });
-
-                // Wähle die benötigte Anzahl Mitglieder
-                const selectedMembers = prioritizedMembers.slice(0, Math.min(teamSize, prioritizedMembers.length));
-                
-                // Aktualisiere Statistiken
-                selectedMembers.forEach(member => {
-                    memberStats[member.id].totalAssignments++;
-                    memberStats[member.id].lastAssignedWeek = weekInfo.week;
-                });
-
-                schedule[weekKey] = selectedMembers.map(m => m.name);
-            }
-
-            return { schedule, stats: memberStats };
-        }
-
-        function getWeekDistance(lastWeek, currentWeek, currentYear) {
-            if (lastWeek === -999) return 999; // Noch nie eingeteilt
-            
-            // Vereinfachte Berechnung - könnte für Jahreswechsel verbessert werden
-            return Math.abs(currentWeek - lastWeek);
-        }
-
-        // Aktualisierte Funktionen für die Einsatzplanung
-        function generateCompleteSchedule() {
-            const confirmed = confirm(
-                '🔄 KOMPLETTEN EINSATZPLAN NEU GENERIEREN\n\n' +
-                '⚠️ WARNUNG: Alle bestehenden Einsätze werden gelöscht!\n' +
-                'Ein neuer, optimierter Plan wird erstellt.\n\n' +
-                'Möchten Sie fortfahren?'
-            );
-
-            if (!confirmed) return;
-
-            // Generiere alle Wochen im Schuljahr
-            const weeks = generateSchoolYearWeeks();
-            
-            // Leere bestehenden Einsatzplan
-            appData.schedule = {};
-
-            // Generiere für jeden Wochentag
-            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            weekdays.forEach(day => {
-                const dayMembers = appData.members.filter(m => m.day === day);
-                if (dayMembers.length > 0) {
-                    const result = generateFairSchedule(dayMembers, weeks, appData.teamSize);
-                    
-                    // Füge Einsätze zum Gesamtplan hinzu
-                    Object.keys(result.schedule).forEach(weekKey => {
-                        if (!appData.schedule[weekKey]) {
-                            appData.schedule[weekKey] = {};
-                        }
-                        appData.schedule[weekKey][day] = result.schedule[weekKey];
-                    });
-                }
-            });
-
-            // Speichere und aktualisiere Anzeige
-            saveData();
-            updateDashboard();
-            updateScheduleTab();
-            
-            alert('✅ Einsatzplan wurde erfolgreich neu generiert!\nDie Verteilung wurde für maximale Fairness optimiert.');
-        }
-
-        function generateSchoolYearWeeks() {
-            const weeks = [];
-            let currentWeek = appData.startWeek;
-            let currentYear = appData.startYear;
-
-            while (true) {
-                // Prüfe ob wir das Ende erreicht haben
-                if (currentYear > appData.endYear || 
-                    (currentYear === appData.endYear && currentWeek > appData.endWeek)) {
-                    break;
-                }
-
-                // Überspringe Ferienwochen (hier könnten spezielle Regeln eingefügt werden)
-                if (!isHolidayWeek(currentWeek, currentYear)) {
-                    weeks.push({ week: currentWeek, year: currentYear });
-                }
-
-                // Nächste Woche
-                currentWeek++;
-                if (currentWeek > 52) { // Vereinfachung: 52 Wochen pro Jahr
-                    currentWeek = 1;
-                    currentYear++;
-                }
-            }
-
-            return weeks;
-        }
-
-        function isHolidayWeek(week, year) {
-            // Hier können Ferienwochen definiert werden
-            // Beispiel: Weihnachtsferien, Sommerferien, etc.
-            return appData.freeDays.includes(`${week}-${year}`);
-        }
-
-        // Dashboard-Aktualisierung
-        function updateDashboard() {
-            const currentWeek = getCurrentWeek();
-            const nextWeek = { 
-                week: currentWeek.week + 1, 
-                year: currentWeek.year 
-            };
-            
-            // Aktueller Woche
-            document.getElementById('currentWeekInfo').textContent = 
-                formatWeekInfo(currentWeek.week, currentWeek.year);
-            updateWeekDisplay('currentWeekSchedule', currentWeek.week, currentWeek.year);
-            
-            // Nächste Woche
-            document.getElementById('nextWeekInfo').textContent = 
-                formatWeekInfo(nextWeek.week, nextWeek.year);
-            updateWeekDisplay('nextWeekSchedule', nextWeek.week, nextWeek.year);
-        }
-
-        function updateWeekDisplay(containerId, week, year) {
-            const container = document.getElementById(containerId);
-            const weekKey = `${week}-${year}`;
-            const weekSchedule = appData.schedule[weekKey] || {};
-            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            container.innerHTML = '';
-            
-            weekdays.forEach(day => {
-                const dayCard = document.createElement('div');
-                dayCard.className = 'day-card';
-                
-                const dayHeader = document.createElement('h4');
-                dayHeader.textContent = day;
-                dayCard.appendChild(dayHeader);
-                
-                const teamMembers = weekSchedule[day] || [];
-                if (teamMembers.length === 0) {
-                    const noTeam = document.createElement('div');
-                    noTeam.textContent = 'Nicht besetzt';
-                    noTeam.style.color = '#999';
-                    noTeam.style.fontStyle = 'italic';
-                    dayCard.appendChild(noTeam);
-                } else {
-                    teamMembers.forEach(memberName => {
-                        const memberDiv = document.createElement('div');
-                        memberDiv.className = 'team-member';
-                        memberDiv.textContent = memberName;
-                        dayCard.appendChild(memberDiv);
-                    });
-                }
-                
-                container.appendChild(dayCard);
-            });
-        }
-
-        // Schedule Tab Aktualisierung
-        function updateScheduleTab() {
-            updateWeekSelector();
-            updateSwapSelectors();
-            updateDistributionStats();
-            showWeekSchedule();
-        }
-
-        function updateDistributionStats() {
-            const stats = calculateDistributionStats();
-            const container = document.getElementById('distributionStats');
-            
-            if (Object.keys(stats).length === 0) {
-                container.innerHTML = '<p>Noch keine Einsätze geplant.</p>';
-                return;
-            }
-
-            let html = '<div class="stats-grid">';
-            
-            Object.values(stats).forEach(memberStats => {
-                html += `
-                    <div class="stat-item">
-                        <strong>${memberStats.name}</strong><br>
-                        <span style="color: #667eea;">${memberStats.assignments} Einsätze</span>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        function calculateDistributionStats() {
-            const stats = {};
-            
-            // Initialisiere Statistiken
-            appData.members.forEach(member => {
-                stats[member.id] = {
-                    name: member.name,
-                    day: member.day,
-                    assignments: 0
-                };
-            });
-
-            // Zähle Einsätze
-            Object.values(appData.schedule).forEach(weekSchedule => {
-                Object.values(weekSchedule).forEach(dayTeam => {
-                    dayTeam.forEach(memberName => {
-                        const member = appData.members.find(m => m.name === memberName);
-                        if (member && stats[member.id]) {
-                            stats[member.id].assignments++;
-                        }
-                    });
-                });
-            });
-
-            return stats;
-        }
-
-        function updateWeekSelector() {
-            const selector = document.getElementById('weekSelector');
-            const weeks = generateSchoolYearWeeks();
-            
-            selector.innerHTML = '<option value="">Woche wählen</option>';
-            
-            weeks.forEach(weekInfo => {
-                const option = document.createElement('option');
-                option.value = `${weekInfo.week}-${weekInfo.year}`;
-                option.textContent = formatWeekInfo(weekInfo.week, weekInfo.year);
-                selector.appendChild(option);
-            });
-        }
-
-        function showWeekSchedule() {
-            const weekSelector = document.getElementById('weekSelector');
-            const container = document.getElementById('weekScheduleView');
-            
-            if (!weekSelector.value) {
-                container.innerHTML = '';
-                return;
-            }
-
-            const weekSchedule = appData.schedule[weekSelector.value] || {};
-            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            let html = '<div class="week-section"><h4>Einsatzplan für diese Woche</h4><div class="schedule-grid">';
-            
-            weekdays.forEach(day => {
-                html += '<div class="day-card">';
-                html += `<h4>${day}</h4>`;
-                
-                const teamMembers = weekSchedule[day] || [];
-                if (teamMembers.length === 0) {
-                    html += '<div style="color: #999; font-style: italic;">Nicht besetzt</div>';
-                } else {
-                    teamMembers.forEach(memberName => {
-                        html += `<div class="team-member">${memberName}</div>`;
-                    });
-                }
-                
-                html += '</div>';
-            });
-            
-            html += '</div></div>';
-            container.innerHTML = html;
-        }
-
-        // Swap-Funktionalität
-        function updateSwapSelectors() {
-            const person1Select = document.getElementById('swapPerson1');
-            const person2Select = document.getElementById('swapPerson2');
-            const week1Select = document.getElementById('swapWeek1');
-            const week2Select = document.getElementById('swapWeek2');
-
-            // Personen-Dropdowns aktualisieren
-            [person1Select, person2Select].forEach(select => {
-                const currentValue = select.value;
-                select.innerHTML = '<option value="">Person wählen</option>';
-                
-                appData.members.forEach(member => {
-                    const option = document.createElement('option');
-                    option.value = member.name;
-                    option.textContent = `${member.name} (${member.day})`;
-                    select.appendChild(option);
-                });
-                
-                select.value = currentValue;
-            });
-
-            // Wochen-Dropdowns aktualisieren (nur Wochen mit Einsätzen)
-            [week1Select, week2Select].forEach(select => {
-                const currentValue = select.value;
-                select.innerHTML = '<option value="">Woche wählen</option>';
-                
-                Object.keys(appData.schedule).forEach(weekKey => {
-                    const [week, year] = weekKey.split('-');
-                    const option = document.createElement('option');
-                    option.value = weekKey;
-                    option.textContent = formatWeekInfo(parseInt(week), parseInt(year));
-                    select.appendChild(option);
-                });
-                
-                select.value = currentValue;
-            });
-        }
-
-        function swapDuties() {
-            const person1 = document.getElementById('swapPerson1').value;
-            const person2 = document.getElementById('swapPerson2').value;
-            const week1 = document.getElementById('swapWeek1').value;
-            const week2 = document.getElementById('swapWeek2').value;
-
-            if (!person1 || !person2 || !week1 || !week2) {
-                alert('Bitte alle Felder ausfüllen!');
-                return;
-            }
-
-            if (person1 === person2) {
-                alert('Bitte zwei verschiedene Personen auswählen!');
-                return;
-            }
-
-            // Finde die Wochentage der beiden Personen
-            const member1 = appData.members.find(m => m.name === person1);
-            const member2 = appData.members.find(m => m.name === person2);
-
-            if (!member1 || !member2) {
-                alert('Fehler: Mitglieder nicht gefunden!');
-                return;
-            }
-
-            if (member1.day !== member2.day) {
-                alert('Tausch nur zwischen Mitgliedern desselben Wochentags möglich!');
-                return;
-            }
-
-            const day = member1.day;
-
-            // Prüfe ob beide Personen in den entsprechenden Wochen eingeteilt sind
-            const week1Schedule = appData.schedule[week1] && appData.schedule[week1][day];
-            const week2Schedule = appData.schedule[week2] && appData.schedule[week2][day];
-
-            if (!week1Schedule || !week1Schedule.includes(person1)) {
-                alert(`${person1} ist in der gewählten Woche 1 nicht eingeteilt!`);
-                return;
-            }
-
-            if (!week2Schedule || !week2Schedule.includes(person2)) {
-                alert(`${person2} ist in der gewählten Woche 2 nicht eingeteilt!`);
-                return;
-            }
-
-            // Führe den Tausch durch
-            const week1Index = week1Schedule.indexOf(person1);
-            const week2Index = week2Schedule.indexOf(person2);
-
-            week1Schedule[week1Index] = person2;
-            week2Schedule[week2Index] = person1;
-
-            // Speichere und aktualisiere
-            saveData();
-            updateScheduleTab();
-            updateDashboard();
-
-            // Leere die Dropdown-Felder
-            document.getElementById('swapPerson1').value = '';
-            document.getElementById('swapPerson2').value = '';
-            document.getElementById('swapWeek1').value = '';
-            document.getElementById('swapWeek2').value = '';
-
-            alert(`✅ Einsätze erfolgreich getauscht!\n${person1} und ${person2} haben ihre Termine getauscht.`);
-        }
-
-        // My Duties Tab
-        function updateMyDutiesTab() {
-            const selector = document.getElementById('personSelector');
-            selector.innerHTML = '<option value="">Bitte wählen</option>';
-            
-            appData.members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.name;
-                option.textContent = `${member.name} (${member.day})`;
-                selector.appendChild(option);
-            });
-        }
-
-        function showPersonDuties() {
-            const personName = document.getElementById('personSelector').value;
-            const container = document.getElementById('personDutiesView');
-
-            if (!personName) {
-                container.innerHTML = '';
-                return;
-            }
-
-            const member = appData.members.find(m => m.name === personName);
-            if (!member) {
-                container.innerHTML = '<p>Person nicht gefunden.</p>';
-                return;
-            }
-
-            // Sammle alle Einsätze dieser Person
-            const duties = [];
-            Object.keys(appData.schedule).forEach(weekKey => {
-                const weekSchedule = appData.schedule[weekKey];
-                if (weekSchedule[member.day] && weekSchedule[member.day].includes(personName)) {
-                    const [week, year] = weekKey.split('-');
-                    duties.push({
-                        week: parseInt(week),
-                        year: parseInt(year),
-                        dayName: member.day,
-                        weekKey: weekKey
-                    });
-                }
-            });
-
-            // Sortiere chronologisch
-            duties.sort((a, b) => {
-                if (a.year !== b.year) return a.year - b.year;
-                return a.week - b.week;
-            });
-
-            let html = `
-                <div class="calendar-export">
-                    <h4>📅 Kalender-Export</h4>
-                    <p>Laden Sie Ihre Einsätze als Kalenderdatei herunter:</p>
-                    <div class="calendar-buttons">
-                        <button class="btn btn-success" onclick="downloadICSFile('${personName}', ${JSON.stringify(duties).replace(/"/g, '&quot;')})">
-                            📥 Kalender herunterladen (.ics)
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            if (duties.length === 0) {
-                html += '<p>Keine Einsätze geplant.</p>';
-            } else {
-                html += '<table class="table"><thead><tr><th>Kalenderwoche</th><th>Datum</th><th>Wochentag</th></tr></thead><tbody>';
-                
-                duties.forEach(duty => {
-                    const monday = getDateFromWeek(duty.week, duty.year, 1);
-                    html += `
-                        <tr>
-                            <td>KW ${duty.week}/${duty.year}</td>
-                            <td>${monday.toLocaleDateString('de-DE')}</td>
-                            <td>${duty.dayName}</td>
-                        </tr>
-                    `;
-                });
-                
-                html += '</tbody></table>';
-            }
-
-            container.innerHTML = html;
-        }
-
-        // Members Tab
-        function updateMembersTab() {
-            const container = document.getElementById('membersList');
-            
-            if (appData.members.length === 0) {
-                container.innerHTML = '<p>Noch keine Teammitglieder hinzugefügt.</p>';
-                return;
-            }
-
-            // Gruppiere nach Wochentagen
-            const membersByDay = {};
-            appData.members.forEach(member => {
-                if (!membersByDay[member.day]) {
-                    membersByDay[member.day] = [];
-                }
-                membersByDay[member.day].push(member);
-            });
-
-            let html = '';
-            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            
-            weekdays.forEach(day => {
-                if (membersByDay[day] && membersByDay[day].length > 0) {
-                    html += `<div class="week-section">
-                        <h4>${day}-Team (${membersByDay[day].length} Mitglieder)</h4>`;
-                    
-                    membersByDay[day].forEach(member => {
-                        const intervalText = member.interval === 1 ? 'jede Woche' : `alle ${member.interval} Wochen`;
-                        html += `
-                            <div class="member-assignment">
-                                <label>${member.name}</label>
-                                <span>Einsatz: ${intervalText}</span>
-                                <button class="btn btn-danger btn-small" onclick="removeMember(${member.id})">
-                                    Entfernen
-                                </button>
-                            </div>
-                        `;
-                    });
-                    
-                    html += '</div>';
-                }
-            });
-
-            container.innerHTML = html;
-        }
-
-        function addMember() {
-            const name = document.getElementById('newMemberName').value.trim();
-            const day = document.getElementById('newMemberDay').value;
-            const interval = parseInt(document.getElementById('newMemberInterval').value);
-
-            if (!name || !day || !interval) {
-                alert('Bitte alle Felder ausfüllen!');
-                return;
-            }
-
-            // Prüfe ob Name bereits existiert
-            if (appData.members.find(m => m.name.toLowerCase() === name.toLowerCase())) {
-                alert('Dieser Name ist bereits vorhanden!');
-                return;
-            }
-
-            // Finde nächste freie ID
-            const maxId = appData.members.reduce((max, m) => Math.max(max, m.id), 0);
-            
-            const newMember = {
-                id: maxId + 1,
-                name: name,
-                day: day,
-                interval: interval
-            };
-
-            appData.members.push(newMember);
-
-            // Leere Eingabefelder
-            document.getElementById('newMemberName').value = '';
-            document.getElementById('newMemberDay').value = '';
-            document.getElementById('newMemberInterval').value = '1';
-
-            // Speichere und aktualisiere
-            saveData();
-            updateMembersTab();
-            updateScheduleTab();
-            updateMyDutiesTab();
-
-            alert(`✅ ${name} wurde erfolgreich hinzugefügt!`);
-        }
-
-        function removeMember(memberId) {
-            const member = appData.members.find(m => m.id === memberId);
-            if (!member) return;
-
-            const confirmed = confirm(`${member.name} wirklich entfernen?\n\nAlle Einsätze dieser Person werden ebenfalls entfernt.`);
-            if (!confirmed) return;
-
-            // Entferne Mitglied aus der Liste
-            appData.members = appData.members.filter(m => m.id !== memberId);
-
-            // Entferne alle Einsätze dieser Person
-            Object.keys(appData.schedule).forEach(weekKey => {
-                Object.keys(appData.schedule[weekKey]).forEach(day => {
-                    appData.schedule[weekKey][day] = appData.schedule[weekKey][day].filter(name => name !== member.name);
-                });
-            });
-
-            // Speichere und aktualisiere
-            saveData();
-            updateMembersTab();
-            updateScheduleTab();
-            updateDashboard();
-            updateMyDutiesTab();
-
-            alert(`✅ ${member.name} wurde entfernt.`);
-        }
-
-        // Admin-Funktionen
-        function updateSettings() {
-            appData.teamSize = parseInt(document.getElementById('teamSize').value);
-            appData.startWeek = parseInt(document.getElementById('startWeek').value);
-            appData.endWeek = parseInt(document.getElementById('endWeek').value);
-            appData.startYear = parseInt(document.getElementById('startYear').value);
-            appData.endYear = parseInt(document.getElementById('endYear').value);
-            
-            saveData();
-        }
-
-        // Kalender-Export-Funktionen
-        function formatDateForICS(date) {
-            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-        }
-
-        function generateICSFile(personName, duties) {
-            const schoolName = "Primarschule Wohlen";
-            let icsContent = [
-                'BEGIN:VCALENDAR',
-                'VERSION:2.0',
-                'PRODID:-//Pausenaufsicht App//DE',
-                'CALSCALE:GREGORIAN',
-                'METHOD:PUBLISH'
-            ];
-
-            duties.forEach((duty, index) => {
-                const eventDate = getDateFromWeek(duty.week, duty.year, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'].indexOf(duty.dayName) + 1);
-                
-                // Start: 09:55, Ende: 10:15
-                const startDate = new Date(eventDate);
-                startDate.setHours(9, 55, 0, 0);
-                
-                const endDate = new Date(eventDate);
-                endDate.setHours(10, 15, 0, 0);
-
-                const eventId = `pausenaufsicht-${duty.week}-${duty.year}-${duty.dayName.toLowerCase()}@${schoolName.replace(/\s+/g, '-').toLowerCase()}.com`;
-
-                icsContent.push(
-                    'BEGIN:VEVENT',
-                    `UID:${eventId}`,
-                    `DTSTART:${formatDateForICS(startDate)}`,
-                    `DTEND:${formatDateForICS(endDate)}`,
-                    `SUMMARY:Pausenaufsicht - ${schoolName}`,
-                    `DESCRIPTION:Pausenaufsicht ${duty.dayName}\\nKalenderwoche ${duty.week}/${duty.year}\\nZeit: 09:55 - 10:15`,
-                    `LOCATION:${schoolName}`,
-                    'STATUS:CONFIRMED',
-                    'TRANSP:OPAQUE',
-                    'END:VEVENT'
-                );
-            });
-
-            icsContent.push('END:VCALENDAR');
-            return icsContent.join('\r\n');
-        }
-
-        function downloadICSFile(personName, duties) {
-            const icsContent = generateICSFile(personName, duties);
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `Pausenaufsicht-${personName.replace(/\s+/g, '-')}.ics`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-
-        // GitHub-Konfiguration - WICHTIG: Passen Sie diese Werte an!
-        const GITHUB_CONFIG = {
-            owner: 'promeesfw',  // <- HIER IHREN GITHUB-BENUTZERNAMEN EINTRAGEN
-            repo: 'pausenaufsicht-data',   // <- Repository-Name (wird automatisch erstellt)
-            dataFile: 'data.json',
-            apiUrl: 'https://api.github.com'
-        };
-
-        // Überprüft GitHub-Konfiguration
-        function validateGitHubConfig() {
-            if (GITHUB_CONFIG.owner === 'IHR-GITHUB-USERNAME') {
-                alert('⚠️ KONFIGURATION ERFORDERLICH!\n\nBitte tragen Sie Ihren GitHub-Benutzernamen in der GITHUB_CONFIG ein:\n\n1. Öffnen Sie den HTML-Code\n2. Suchen Sie "GITHUB_CONFIG"\n3. Ersetzen Sie "IHR-GITHUB-USERNAME" mit Ihrem echten GitHub-Benutzernamen');
-                return false;
-            }
-            return true;
-        }
-
-        // Erstellt automatisch ein Repository falls es nicht existiert
-        async function createRepositoryIfNeeded(token) {
-            try {
-                // Prüfe erst ob Repository existiert
-                const checkResponse = await fetch(
-                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}`,
-                    {
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-
-                if (checkResponse.ok) {
-                    return true; // Repository existiert bereits
-                }
-
-                // Repository erstellen
-                const createResponse = await fetch(
-                    `${GITHUB_CONFIG.apiUrl}/user/repos`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: GITHUB_CONFIG.repo,
-                            description: 'Pausenaufsicht App - Datenspeicherung',
-                            private: true,
-                            auto_init: true
-                        })
-                    }
-                );
-
-                if (createResponse.ok) {
-                    console.log('Repository erfolgreich erstellt');
-                    return true;
-                } else {
-                    const errorData = await createResponse.json();
-                    throw new Error(`Repository-Erstellung fehlgeschlagen: ${errorData.message}`);
-                }
-            } catch (error) {
-                console.error('Error creating repository:', error);
-                return false;
-            }
-        }
-
-        // Speicher-Funktionen mit GitHub-Integration
-        function saveData() {
-            saveDataToGitHub();
-        }
-
-        // Token Management
-        function getGitHubToken() {
-            return localStorage.getItem('github_token');
-        }
-
-        function updateGitHubStatus() {
-            const token = getGitHubToken();
-            const statusIcon = document.getElementById('status-icon');
-            const statusText = document.getElementById('status-text');
-
-            if (statusIcon && statusText) {
-                if (!token) {
-                    statusIcon.textContent = '⚠️';
-                    statusText.textContent = 'GitHub Token nicht konfiguriert - Auto-Save deaktiviert';
-                } else {
-                    statusIcon.textContent = '✅';
-                    statusText.textContent = 'GitHub Token konfiguriert - Auto-Save aktiviert';
-                }
-            }
-        }
-
-        // UTF-8 sichere Base64 Funktionen
-        function utf8ToBase64(str) {
-            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-                return String.fromCharCode('0x' + p1);
-            }));
-        }
-
-        function base64ToUtf8(str) {
-            return decodeURIComponent(atob(str).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-        }
-
-        // GitHub API Functions
-        async function saveDataToGitHub() {
-            const token = getGitHubToken();
-            if (!token) {
-                console.log('No GitHub token available, skipping save');
-                return false;
-            }
-
-            if (!validateGitHubConfig()) {
-                return false;
-            }
-
-            showSaveStatus('saving', 'Speichere auf GitHub...');
-
-            try {
-                // Stelle sicher, dass Repository existiert
-                const repoExists = await createRepositoryIfNeeded(token);
-                if (!repoExists) {
-                    throw new Error('Repository konnte nicht erstellt oder gefunden werden');
-                }
-
-                // Versuche existierende Datei zu laden
-                const getResponse = await fetch(
-                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
-                    {
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-
-                let sha = null;
-                if (getResponse.ok) {
-                    const fileData = await getResponse.json();
-                    sha = fileData.sha;
-                } else if (getResponse.status === 404) {
-                    // Datei existiert noch nicht - das ist OK für erste Speicherung
-                    console.log('Datei existiert noch nicht, wird neu erstellt');
-                } else {
-                    // Anderer Fehler
-                    const errorData = await getResponse.json().catch(() => ({}));
-                    throw new Error(`Fehler beim Laden der bestehenden Datei: ${errorData.message || getResponse.statusText}`);
-                }
-
-                const dataToSave = {
-                    members: appData.members,
-                    schedule: appData.schedule,
-                    teamSize: appData.teamSize,
-                    startWeek: appData.startWeek,
-                    endWeek: appData.endWeek,
-                    startYear: appData.startYear,
-                    endYear: appData.endYear,
-                    year: appData.year || appData.startYear,
-                    freeDays: appData.freeDays || [],
-                    lastUpdated: new Date().toISOString()
-                };
-
-                const jsonString = JSON.stringify(dataToSave, null, 2);
-                const content = utf8ToBase64(jsonString);
-
-                const updateData = {
-                    message: `Auto-Save: Update Pausenaufsicht data at ${new Date().toLocaleString('de-DE')}`,
-                    content: content
-                };
-
-                if (sha) {
-                    updateData.sha = sha;
-                }
-
-                const updateResponse = await fetch(
-                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(updateData)
-                    }
-                );
-
-                if (updateResponse.ok) {
-                    showSaveStatus('saved', 'Erfolgreich gespeichert!');
-                    console.log('Data successfully saved to GitHub');
-                    return true;
-                } else {
-                    const errorData = await updateResponse.json().catch(() => ({}));
-                    throw new Error(`GitHub API error: ${errorData.message || updateResponse.statusText}`);
-                }
-
-            } catch (error) {
-                console.error('Error saving to GitHub:', error);
-                showSaveStatus('error', `Fehler beim Speichern: ${error.message}`);
-                
-                // Zusätzliche Hilfe für häufige Probleme
-                if (error.message.includes('Not Found')) {
-                    setTimeout(() => {
-                        alert('❌ REPOSITORY NICHT GEFUNDEN\n\nMögliche Lösungen:\n\n1. Überprüfen Sie Ihren GitHub-Benutzernamen in der Konfiguration\n2. Stellen Sie sicher, dass das Token korrekt ist\n3. Das Repository wird beim ersten Speichern automatisch erstellt');
-                    }, 1000);
-                } else if (error.message.includes('Bad credentials')) {
-                    setTimeout(() => {
-                        alert('❌ TOKEN UNGÜLTIG\n\nBitte überprüfen Sie:\n\n1. Token korrekt kopiert?\n2. Token nicht abgelaufen?\n3. "repo" Berechtigung gewählt?');
-                    }, 1000);
-                }
-                
-                return false;
-            }
-        }
-
-        async function loadDataFromGitHub() {
-            const token = getGitHubToken();
-            if (!token) {
-                console.log('No GitHub token available, using default data');
-                return false;
-            }
-
-            try {
-                const response = await fetch(
-                    `${GITHUB_CONFIG.apiUrl}/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`,
-                    {
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-
-                if (response.ok) {
-                    const fileData = await response.json();
-                    const jsonString = base64ToUtf8(fileData.content);
-                    const loadedData = JSON.parse(jsonString);
-                    
-                    // Merge loaded data with app data
-                    Object.assign(appData, loadedData);
-                    
-                    console.log('Data successfully loaded from GitHub');
-                    return true;
-                } else {
-                    console.log('No existing data file found on GitHub');
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error loading from GitHub:', error);
-                return false;
-            }
-        }
-
-        function showSaveStatus(status, message) {
-            const statusElement = document.getElementById('saveStatus');
-            const textElement = document.getElementById('saveStatusText');
-            
-            statusElement.className = `save-status ${status}`;
-            textElement.textContent = message;
-            statusElement.style.display = 'block';
-
-            if (status === 'saved' || status === 'error') {
-                setTimeout(() => {
-                    statusElement.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        // Token-Management (vereinfacht)
-        function saveToken() {
-            const token = document.getElementById('githubToken').value.trim();
-            if (!token) {
-                alert('Bitte geben Sie einen Token ein!');
-                return;
-            }
-
-            localStorage.setItem('github_token', token);
-            document.getElementById('githubToken').value = '';
-            updateGitHubStatus();
-            alert('Token wurde gespeichert!');
-        }
-
-        function showTokenHelp() {
-            const helpDiv = document.getElementById('tokenHelp');
-            helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Initialisierung der App
-        async function initializeApp() {
-            // Lade Einstellungen in Admin-Tab
-            document.getElementById('teamSize').value = appData.teamSize;
-            document.getElementById('startWeek').value = appData.startWeek;
-            document.getElementById('endWeek').value = appData.endWeek;
-            document.getElementById('startYear').value = appData.startYear;
-            document.getElementById('endYear').value = appData.endYear;
-
-            // Aktualisiere GitHub Status
-            updateGitHubStatus();
-
-            // Versuche Daten von GitHub zu laden
-            const dataLoaded = await loadDataFromGitHub();
-            
-            if (dataLoaded) {
-                // Aktualisiere UI nach dem Laden der Daten
-                document.getElementById('teamSize').value = appData.teamSize;
-                document.getElementById('startWeek').value = appData.startWeek;
-                document.getElementById('endWeek').value = appData.endWeek;
-                document.getElementById('startYear').value = appData.startYear;
-                document.getElementById('endYear').value = appData.endYear;
-            }
-
-            // Erstelle initialen Einsatzplan wenn noch keiner existiert
-            if (Object.keys(appData.schedule).length === 0) {
-                generateCompleteSchedule();
-            } else {
-                updateDashboard();
-            }
-        }
-
-        // Event Listener für Enter-Taste bei Mitglied hinzufügen
-        document.addEventListener('DOMContentLoaded', function() {
-            // Enter-Taste Unterstützung
-            document.getElementById('newMemberName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addMember();
-                }
-            });
-
-            // Initialisiere die App
-            initializeApp();
-        });
-    </script>
-</body>
-</html>
+                            
