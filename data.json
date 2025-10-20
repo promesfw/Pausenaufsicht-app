@@ -112,10 +112,50 @@
     }
   ],
   "schedule": {
-    "43-1": [
+    "33-1": [
       "Kilian",
       "Mila",
       "Marina"
+    ],
+    "34-1": [
+      "Esther",
+      "Evelyne",
+      "Kilian"
+    ],
+    "35-1": [
+      "Mila",
+      "Marina",
+      "Kilian"
+    ],
+    "36-1": [
+      "Esther",
+      "Evelyne",
+      "Kilian"
+    ],
+    "37-1": [
+      "Mila",
+      "Marina",
+      "Kilian"
+    ],
+    "40-1": [
+      "Esther",
+      "Evelyne",
+      "Kilian"
+    ],
+    "41-1": [
+      "Mila",
+      "Marina",
+      "Kilian"
+    ],
+    "42-1": [
+      "Esther",
+      "Evelyne",
+      "Kilian"
+    ],
+    "43-1": [
+      "Mila",
+      "Marina",
+      "Kilian"
     ],
     "44-1": [
       "Esther",
@@ -287,10 +327,50 @@
       "Marina",
       "Kilian"
     ],
-    "43-2": [
+    "33-2": [
       "Erestina",
       "Simonne",
       "Peter"
+    ],
+    "34-2": [
+      "Salome",
+      "Erestina",
+      "Simonne"
+    ],
+    "35-2": [
+      "Peter",
+      "Erestina",
+      "Simonne"
+    ],
+    "36-2": [
+      "Salome",
+      "Erestina",
+      "Simonne"
+    ],
+    "37-2": [
+      "Peter",
+      "Erestina",
+      "Simonne"
+    ],
+    "40-2": [
+      "Salome",
+      "Erestina",
+      "Simonne"
+    ],
+    "41-2": [
+      "Peter",
+      "Erestina",
+      "Simonne"
+    ],
+    "42-2": [
+      "Salome",
+      "Erestina",
+      "Simonne"
+    ],
+    "43-2": [
+      "Peter",
+      "Erestina",
+      "Simonne"
     ],
     "44-2": [
       "Salome",
@@ -467,10 +547,50 @@
       "Erestina",
       "Simonne"
     ],
-    "43-3": [
+    "33-3": [
       "Andrea K.",
       "Sandra/Eliane",
       "Elena"
+    ],
+    "34-3": [
+      "Ana",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "35-3": [
+      "Elena",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "36-3": [
+      "Ana",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "37-3": [
+      "Elena",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "40-3": [
+      "Ana",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "41-3": [
+      "Elena",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "42-3": [
+      "Ana",
+      "Andrea K.",
+      "Sandra/Eliane"
+    ],
+    "43-3": [
+      "Elena",
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "44-3": [
       "Ana",
@@ -647,10 +767,50 @@
       "Andrea K.",
       "Sandra/Eliane"
     ],
-    "43-4": [
+    "33-4": [
       "Martina",
       "Rachel",
       "Felix"
+    ],
+    "34-4": [
+      "Andrea M.",
+      "Seila",
+      "Martina"
+    ],
+    "35-4": [
+      "Rachel",
+      "Felix",
+      "Martina"
+    ],
+    "36-4": [
+      "Andrea M.",
+      "Seila",
+      "Martina"
+    ],
+    "37-4": [
+      "Rachel",
+      "Felix",
+      "Martina"
+    ],
+    "40-4": [
+      "Andrea M.",
+      "Seila",
+      "Martina"
+    ],
+    "41-4": [
+      "Rachel",
+      "Felix",
+      "Martina"
+    ],
+    "42-4": [
+      "Andrea M.",
+      "Seila",
+      "Martina"
+    ],
+    "43-4": [
+      "Rachel",
+      "Felix",
+      "Martina"
     ],
     "44-4": [
       "Andrea M.",
@@ -827,10 +987,50 @@
       "Seila",
       "Martina"
     ],
-    "43-5": [
+    "33-5": [
       "Nathanja",
       "Therese",
       "Aline/Nuria"
+    ],
+    "34-5": [
+      "Christine",
+      "Nathanja",
+      "Therese"
+    ],
+    "35-5": [
+      "Aline/Nuria",
+      "Nathanja",
+      "Therese"
+    ],
+    "36-5": [
+      "Christine",
+      "Nathanja",
+      "Therese"
+    ],
+    "37-5": [
+      "Aline/Nuria",
+      "Nathanja",
+      "Therese"
+    ],
+    "40-5": [
+      "Christine",
+      "Nathanja",
+      "Therese"
+    ],
+    "41-5": [
+      "Aline/Nuria",
+      "Nathanja",
+      "Therese"
+    ],
+    "42-5": [
+      "Christine",
+      "Nathanja",
+      "Therese"
+    ],
+    "43-5": [
+      "Aline/Nuria",
+      "Nathanja",
+      "Therese"
     ],
     "44-5": [
       "Christine",
@@ -1004,7 +1204,7 @@
     ]
   },
   "teamSize": 3,
-  "startWeek": 43,
+  "startWeek": 29,
   "endWeek": 27,
   "startYear": 2025,
   "endYear": 2026,
@@ -1053,5 +1253,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-10-20T06:49:26.615Z"
+  "lastUpdated": "2025-10-20T06:49:55.454Z"
 }
