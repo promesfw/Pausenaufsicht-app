@@ -2334,45 +2334,40 @@
         }
 
         // Team-spezifische Einsatzplan-Generierung
-        async function generateTeamSchedule(dayName = null) {
-    const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-    const allWeeks = getAllSchoolWeeks();
-    const teamSize = appData.teamSize;
+// Nur ein Team (z. B. Montag) neu verteilen
+async function generateTeamSchedule() {
+    const selectedDay = document.getElementById("teamDaySelector").value;
+    if (!selectedDay) {
+        alert("Bitte zuerst ein Team (Wochentag) auswählen!");
+        return;
+    }
 
-    const dayOptions = dayName ? [dayName] : days;
+    const weeks = getAllSchoolWeeks();
+    const membersForDay = appData.members.filter(m => m.day === selectedDay);
+    const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
+    const dayIndex = days.indexOf(selectedDay);
 
-    dayOptions.forEach(day => {
-        const members = appData.members.filter(m => m.day === day);
+    if (!membersForDay.length) {
+        alert(`Keine Mitglieder für ${selectedDay} gefunden.`);
+        return;
+    }
 
-        if (members.length === 0) return;
+    const rotation = { [selectedDay]: 0 };
 
-        const usage = {};
-        members.forEach(m => usage[m.name] = 0);
+    weeks.forEach(({ week, year }) => {
+        const key = `${week}-${dayIndex + 1}`;
+        appData.schedule[key] = [];
 
-        allWeeks.forEach(({ week, year }) => {
-            const weekIndex = allWeeks.findIndex(w => w.week === week && w.year === year);
-            const intervalMembers = members.filter(m => weekIndex % m.interval === 0);
+        for (let i = 0; i < appData.teamSize; i++) {
+            const member = membersForDay[(rotation[selectedDay] + i) % membersForDay.length];
+            appData.schedule[key].push(member.name);
+        }
 
-            const dayIndex = days.indexOf(day) + 1;
-            const dayKey = `${week}-${dayIndex}`;
-
-            const isFree = appData.freeDays.includes(week.toString()) ||
-                           appData.freeDays.includes(dayKey);
-
-            if (isFree) {
-                appData.schedule[dayKey] = [];
-                return;
-            }
-
-            const sorted = intervalMembers.sort((a, b) => usage[a.name] - usage[b.name]);
-            const selected = sorted.slice(0, teamSize);
-
-            selected.forEach(m => usage[m.name]++);
-            appData.schedule[dayKey] = selected.map(m => m.name);
-        });
+        rotation[selectedDay] = (rotation[selectedDay] + appData.teamSize) % membersForDay.length;
     });
 
     await saveData();
+    alert(`${selectedDay}-Team wurde gleichmässig neu geplant!`);
     updateDashboard();
     updateScheduleTab();
 }
@@ -2396,19 +2391,51 @@
                 teamInfo.style.display = 'none';
             }
         }
+function distributeEvenly(members, weeks, teamSize) {
+    const schedule = {};
+
+    // Teammitglieder pro Tag
+    const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
+    const teams = {};
+    days.forEach(day => {
+        teams[day] = members.filter(m => m.day === day);
+    });
+
+    // Gleichmässige Rotation pro Tag
+    const rotationIndex = { Montag: 0, Dienstag: 0, Mittwoch: 0, Donnerstag: 0, Freitag: 0 };
+
+    weeks.forEach(({ week, year }) => {
+        days.forEach(day => {
+            const team = teams[day];
+            if (!team.length) return;
+
+            const dayIndex = days.indexOf(day);
+            const key = `${week}-${dayIndex + 1}`;
+            schedule[key] = [];
+
+            // Mitglieder rotierend einteilen
+            for (let i = 0; i < teamSize; i++) {
+                const member = team[(rotationIndex[day] + i) % team.length];
+                schedule[key].push(member.name);
+            }
+
+            // Rotation für nächste Woche weiterschieben
+            rotationIndex[day] = (rotationIndex[day] + teamSize) % team.length;
+        });
+    });
+
+    return schedule;
+}
 
         // Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
-        async function generateSchedule() {
-            // BESTÄTIGUNGSDIALOG
-            const confirmed = confirm(
-                '⚠️ WARNUNG: Dies wird den kompletten Einsatzplan neu generieren!\n\n' +
-                'Alle aktuellen Einsatz-Zuordnungen gehen verloren.\n' +
-                'Möchten Sie wirklich fortfahren?'
-            );
-            
-            if (!confirmed) {
-                return;
-            }
+async function generateSchedule() {
+    const weeks = getAllSchoolWeeks();
+    appData.schedule = distributeEvenly(appData.members, weeks, appData.teamSize);
+    await saveData();
+    alert("Einsatzplan wurde gleichmässig generiert!");
+    updateDashboard();
+    updateScheduleTab();
+}
 
             // Werte direkt aus HTML-Inputs lesen
             const startWeek = parseInt(document.getElementById('startWeek').value);
