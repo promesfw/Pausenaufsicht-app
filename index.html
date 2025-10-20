@@ -2332,9 +2332,48 @@
                 workWeek++; // Nur bei echten Arbeitswochen erhöhen
             });
         }
+// NEUE GERECHTE VERTEILUNG
+function distributeEvenly(members, weeks, teamSize) {
+    const schedule = {};
 
-        // Team-spezifische Einsatzplan-Generierung
-// Nur ein Team (z. B. Montag) neu verteilen
+    const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
+    const teams = {};
+    days.forEach(day => {
+        teams[day] = members.filter(m => m.day === day);
+    });
+
+    const rotationIndex = { Montag: 0, Dienstag: 0, Mittwoch: 0, Donnerstag: 0, Freitag: 0 };
+
+    weeks.forEach(({ week, year }) => {
+        days.forEach(day => {
+            const team = teams[day];
+            if (!team.length) return;
+
+            const dayIndex = days.indexOf(day);
+            const key = `${week}-${dayIndex + 1}`;
+            schedule[key] = [];
+
+            for (let i = 0; i < teamSize; i++) {
+                const member = team[(rotationIndex[day] + i) % team.length];
+                schedule[key].push(member.name);
+            }
+
+            rotationIndex[day] = (rotationIndex[day] + teamSize) % team.length;
+        });
+    });
+
+    return schedule;
+}
+
+async function generateSchedule() {
+    const weeks = getAllSchoolWeeks();
+    appData.schedule = distributeEvenly(appData.members, weeks, appData.teamSize);
+    await saveData();
+    alert("Einsatzplan wurde gleichmässig generiert!");
+    updateDashboard();
+    updateScheduleTab();
+}
+
 async function generateTeamSchedule() {
     const selectedDay = document.getElementById("teamDaySelector").value;
     if (!selectedDay) {
@@ -2372,112 +2411,6 @@ async function generateTeamSchedule() {
     updateScheduleTab();
 }
 
-        // Team-Info anzeigen wenn Dropdown geändert wird
-        function updateTeamInfo() {
-            const selectedDay = document.getElementById('teamDaySelector').value;
-            const teamInfo = document.getElementById('teamInfo');
-            const teamMembersSpan = document.getElementById('teamMembers');
-
-            if (selectedDay) {
-                const dayMembers = appData.members.filter(m => m.day === selectedDay);
-                if (dayMembers.length > 0) {
-                    teamMembersSpan.textContent = dayMembers.map(m => m.name).join(', ');
-                    teamInfo.style.display = 'block';
-                } else {
-                    teamMembersSpan.textContent = 'Keine Mitglieder in diesem Team';
-                    teamInfo.style.display = 'block';
-                }
-            } else {
-                teamInfo.style.display = 'none';
-            }
-        }
-function distributeEvenly(members, weeks, teamSize) {
-    const schedule = {};
-
-    // Teammitglieder pro Tag
-    const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
-    const teams = {};
-    days.forEach(day => {
-        teams[day] = members.filter(m => m.day === day);
-    });
-
-    // Gleichmässige Rotation pro Tag
-    const rotationIndex = { Montag: 0, Dienstag: 0, Mittwoch: 0, Donnerstag: 0, Freitag: 0 };
-
-    weeks.forEach(({ week, year }) => {
-        days.forEach(day => {
-            const team = teams[day];
-            if (!team.length) return;
-
-            const dayIndex = days.indexOf(day);
-            const key = `${week}-${dayIndex + 1}`;
-            schedule[key] = [];
-
-            // Mitglieder rotierend einteilen
-            for (let i = 0; i < teamSize; i++) {
-                const member = team[(rotationIndex[day] + i) % team.length];
-                schedule[key].push(member.name);
-            }
-
-            // Rotation für nächste Woche weiterschieben
-            rotationIndex[day] = (rotationIndex[day] + teamSize) % team.length;
-        });
-    });
-
-    return schedule;
-}
-
-        // Einsatzplan-Generierung mit Bestätigungsdialog und Schuljahr-Unterstützung
-async function generateSchedule() {
-    const weeks = getAllSchoolWeeks();
-    appData.schedule = distributeEvenly(appData.members, weeks, appData.teamSize);
-    await saveData();
-    alert("Einsatzplan wurde gleichmässig generiert!");
-    updateDashboard();
-    updateScheduleTab();
-}
-
-            // Werte direkt aus HTML-Inputs lesen
-            const startWeek = parseInt(document.getElementById('startWeek').value);
-            const endWeek = parseInt(document.getElementById('endWeek').value);
-            const startYear = parseInt(document.getElementById('startYear').value);
-            const endYear = parseInt(document.getElementById('endYear').value);
-
-            if (startYear > endYear || (startYear === endYear && startWeek >= endWeek)) {
-                alert('Ungültiger Zeitraum! Das Schuljahr-Ende muss nach dem Beginn liegen.');
-                return;
-            }
-
-            // Werte in appData übernehmen
-            appData.startWeek = startWeek;
-            appData.endWeek = endWeek;
-            appData.startYear = startYear;
-            appData.endYear = endYear;
-            appData.year = startYear; // Rückwärtskompatibilität
-
-            // Freie Tage aus beiden Jahren kombinieren
-            appData.freeDays = combineFreeDaysFromBothYears();
-
-            // Schedule zurücksetzen
-            appData.schedule = {};
-
-            const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
-            const allWeeks = getAllSchoolWeeks();
-
-            // Für jeden Tag separate Generierung mit Intervall-Berücksichtigung
-            days.forEach((day, dayIndex) => {
-                const dayMembers = appData.members.filter(m => m.day === day);
-                if (dayMembers.length === 0) return;
-
-                generateDayScheduleWithIntervals(day, dayIndex, dayMembers, allWeeks);
-            });
-
-            await saveData();
-            updateAdminStats();
-            updateDashboard();
-            updateScheduleTab();
-            alert('✅ Einsatzplan erfolgreich generiert!\n\nDer Plan wurde für das komplette Schuljahr erstellt und berücksichtigt alle Einsatz-Intervalle.');
-        }
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', async function() {
