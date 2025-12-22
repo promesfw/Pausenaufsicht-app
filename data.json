@@ -1003,8 +1003,8 @@
       "Nathanja"
     ]
   },
-  "teamSize": 3,
-  "startWeek": 43,
+  "teamSize": 4,
+  "startWeek": 52,
   "endWeek": 27,
   "startYear": 2025,
   "endYear": 2026,
@@ -1053,5 +1053,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-10-20T14:24:11.673Z"
+  "lastUpdated": "2025-12-22T07:30:11.276Z"
 }
