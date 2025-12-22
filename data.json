@@ -112,680 +112,655 @@
     }
   ],
   "schedule": {
-    "1-1": [
+    "2-1": [
       "Kilian",
       "Mila",
       "Marina"
-    ],
-    "2-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian"
     ],
     "3-1": [
-      "Mila",
-      "Marina",
-      "Esther"
+      "Esther",
+      "Evelyne",
+      "Kilian"
     ],
     "4-1": [
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Mila",
+      "Marina",
+      "Esther"
     ],
     "5-1": [
-      "Marina",
-      "Esther",
-      "Evelyne"
+      "Evelyne",
+      "Kilian",
+      "Mila"
     ],
     "6-1": [
-      "Kilian",
-      "Mila",
-      "Marina"
+      "Marina",
+      "Esther",
+      "Evelyne"
     ],
     "7-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Kilian",
+      "Mila",
+      "Marina"
     ],
     "8-1": [
-      "Mila",
-      "Marina",
-      "Esther"
+      "Esther",
+      "Evelyne",
+      "Kilian"
     ],
     "9-1": [
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Mila",
+      "Marina",
+      "Esther"
     ],
     "10-1": [
-      "Marina",
-      "Esther",
-      "Evelyne"
+      "Evelyne",
+      "Kilian",
+      "Mila"
     ],
     "11-1": [
-      "Kilian",
-      "Mila",
-      "Marina"
+      "Marina",
+      "Esther",
+      "Evelyne"
     ],
     "12-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Kilian",
+      "Mila",
+      "Marina"
     ],
     "13-1": [
-      "Mila",
-      "Marina",
-      "Esther"
+      "Esther",
+      "Evelyne",
+      "Kilian"
     ],
     "14-1": [
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Mila",
+      "Marina",
+      "Esther"
     ],
     "15-1": [
-      "Marina",
-      "Esther",
-      "Evelyne"
+      "Evelyne",
+      "Kilian",
+      "Mila"
     ],
     "16-1": [
-      "Kilian",
-      "Mila",
-      "Marina"
+      "Marina",
+      "Esther",
+      "Evelyne"
     ],
     "17-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Kilian",
+      "Mila",
+      "Marina"
     ],
     "18-1": [
-      "Mila",
-      "Marina",
-      "Esther"
+      "Esther",
+      "Evelyne",
+      "Kilian"
     ],
     "19-1": [
-      "Evelyne",
-      "Kilian",
-      "Mila"
-    ],
-    "20-1": [
-      "Marina",
-      "Esther",
-      "Evelyne"
-    ],
-    "21-1": [
-      "Kilian",
-      "Mila",
-      "Marina"
-    ],
-    "22-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian"
-    ],
-    "23-1": [
       "Mila",
       "Marina",
       "Esther"
     ],
-    "24-1": [
+    "20-1": [
       "Evelyne",
       "Kilian",
       "Mila"
     ],
-    "25-1": [
+    "21-1": [
       "Marina",
       "Esther",
       "Evelyne"
     ],
-    "26-1": [
+    "22-1": [
       "Kilian",
       "Mila",
       "Marina"
     ],
-    "27-1": [
+    "23-1": [
       "Esther",
       "Evelyne",
       "Kilian"
     ],
-    "1-2": [
-      "Erestina",
-      "Simonne",
-      "Peter"
+    "24-1": [
+      "Mila",
+      "Marina",
+      "Esther"
+    ],
+    "25-1": [
+      "Evelyne",
+      "Kilian",
+      "Mila"
+    ],
+    "26-1": [
+      "Marina",
+      "Esther",
+      "Evelyne"
+    ],
+    "27-1": [
+      "Kilian",
+      "Mila",
+      "Marina"
     ],
     "2-2": [
-      "Salome",
       "Erestina",
-      "Simonne"
+      "Simonne",
+      "Peter"
     ],
     "3-2": [
-      "Peter",
       "Salome",
-      "Erestina"
+      "Erestina",
+      "Simonne"
     ],
     "4-2": [
-      "Simonne",
       "Peter",
-      "Salome"
+      "Salome",
+      "Erestina"
     ],
     "5-2": [
-      "Erestina",
       "Simonne",
-      "Peter"
+      "Peter",
+      "Salome"
     ],
     "6-2": [
-      "Salome",
       "Erestina",
-      "Simonne"
+      "Simonne",
+      "Peter"
     ],
     "7-2": [
-      "Peter",
       "Salome",
-      "Erestina"
+      "Erestina",
+      "Simonne"
     ],
     "8-2": [
-      "Simonne",
       "Peter",
-      "Salome"
+      "Salome",
+      "Erestina"
     ],
     "9-2": [
-      "Erestina",
       "Simonne",
-      "Peter"
+      "Peter",
+      "Salome"
     ],
     "10-2": [
-      "Salome",
       "Erestina",
-      "Simonne"
+      "Simonne",
+      "Peter"
     ],
     "11-2": [
-      "Peter",
       "Salome",
-      "Erestina"
+      "Erestina",
+      "Simonne"
     ],
     "12-2": [
-      "Simonne",
       "Peter",
-      "Salome"
+      "Salome",
+      "Erestina"
     ],
     "13-2": [
-      "Erestina",
       "Simonne",
-      "Peter"
+      "Peter",
+      "Salome"
     ],
     "14-2": [
-      "Salome",
       "Erestina",
-      "Simonne"
+      "Simonne",
+      "Peter"
     ],
     "15-2": [
-      "Peter",
       "Salome",
-      "Erestina"
+      "Erestina",
+      "Simonne"
     ],
     "16-2": [
-      "Simonne",
       "Peter",
-      "Salome"
+      "Salome",
+      "Erestina"
     ],
     "17-2": [
-      "Erestina",
       "Simonne",
-      "Peter"
+      "Peter",
+      "Salome"
     ],
     "18-2": [
-      "Salome",
       "Erestina",
-      "Simonne"
+      "Simonne",
+      "Peter"
     ],
     "19-2": [
-      "Peter",
       "Salome",
-      "Erestina"
+      "Erestina",
+      "Simonne"
     ],
     "20-2": [
-      "Simonne",
       "Peter",
-      "Salome"
+      "Salome",
+      "Erestina"
     ],
     "21-2": [
-      "Erestina",
-      "Simonne",
-      "Peter"
-    ],
-    "22-2": [
-      "Salome",
-      "Erestina",
-      "Simonne"
-    ],
-    "23-2": [
-      "Peter",
-      "Salome",
-      "Erestina"
-    ],
-    "24-2": [
       "Simonne",
       "Peter",
       "Salome"
     ],
-    "25-2": [
+    "22-2": [
       "Erestina",
       "Simonne",
       "Peter"
     ],
-    "26-2": [
+    "23-2": [
       "Salome",
       "Erestina",
       "Simonne"
     ],
-    "27-2": [
+    "24-2": [
       "Peter",
       "Salome",
       "Erestina"
     ],
-    "1-3": [
-      "Andrea K.",
-      "Sandra/Eliane",
-      "Elena"
+    "25-2": [
+      "Simonne",
+      "Peter",
+      "Salome"
+    ],
+    "26-2": [
+      "Erestina",
+      "Simonne",
+      "Peter"
+    ],
+    "27-2": [
+      "Salome",
+      "Erestina",
+      "Simonne"
     ],
     "2-3": [
-      "Ana",
       "Andrea K.",
-      "Sandra/Eliane"
+      "Sandra/Eliane",
+      "Elena"
     ],
     "3-3": [
-      "Elena",
       "Ana",
-      "Andrea K."
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "4-3": [
-      "Sandra/Eliane",
       "Elena",
-      "Ana"
+      "Ana",
+      "Andrea K."
     ],
     "5-3": [
-      "Andrea K.",
       "Sandra/Eliane",
-      "Elena"
+      "Elena",
+      "Ana"
     ],
     "6-3": [
-      "Ana",
       "Andrea K.",
-      "Sandra/Eliane"
+      "Sandra/Eliane",
+      "Elena"
     ],
     "7-3": [
-      "Elena",
       "Ana",
-      "Andrea K."
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "8-3": [
-      "Sandra/Eliane",
       "Elena",
-      "Ana"
+      "Ana",
+      "Andrea K."
     ],
     "9-3": [
-      "Andrea K.",
       "Sandra/Eliane",
-      "Elena"
+      "Elena",
+      "Ana"
     ],
     "10-3": [
-      "Ana",
       "Andrea K.",
-      "Sandra/Eliane"
+      "Sandra/Eliane",
+      "Elena"
     ],
     "11-3": [
-      "Elena",
       "Ana",
-      "Andrea K."
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "12-3": [
-      "Sandra/Eliane",
       "Elena",
-      "Ana"
+      "Ana",
+      "Andrea K."
     ],
     "13-3": [
-      "Andrea K.",
       "Sandra/Eliane",
-      "Elena"
+      "Elena",
+      "Ana"
     ],
     "14-3": [
-      "Ana",
       "Andrea K.",
-      "Sandra/Eliane"
+      "Sandra/Eliane",
+      "Elena"
     ],
     "15-3": [
-      "Elena",
       "Ana",
-      "Andrea K."
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "16-3": [
-      "Sandra/Eliane",
       "Elena",
-      "Ana"
+      "Ana",
+      "Andrea K."
     ],
     "17-3": [
-      "Andrea K.",
       "Sandra/Eliane",
-      "Elena"
+      "Elena",
+      "Ana"
     ],
     "18-3": [
-      "Ana",
       "Andrea K.",
-      "Sandra/Eliane"
+      "Sandra/Eliane",
+      "Elena"
     ],
     "19-3": [
-      "Elena",
       "Ana",
-      "Andrea K."
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "20-3": [
-      "Sandra/Eliane",
       "Elena",
-      "Ana"
+      "Ana",
+      "Andrea K."
     ],
     "21-3": [
-      "Andrea K.",
-      "Sandra/Eliane",
-      "Elena"
-    ],
-    "22-3": [
-      "Ana",
-      "Andrea K.",
-      "Sandra/Eliane"
-    ],
-    "23-3": [
-      "Elena",
-      "Ana",
-      "Andrea K."
-    ],
-    "24-3": [
       "Sandra/Eliane",
       "Elena",
       "Ana"
     ],
-    "25-3": [
+    "22-3": [
       "Andrea K.",
       "Sandra/Eliane",
       "Elena"
     ],
-    "26-3": [
+    "23-3": [
       "Ana",
       "Andrea K.",
       "Sandra/Eliane"
     ],
-    "27-3": [
+    "24-3": [
       "Elena",
       "Ana",
       "Andrea K."
     ],
-    "1-4": [
-      "Martina",
-      "Rachel",
-      "Felix"
+    "25-3": [
+      "Sandra/Eliane",
+      "Elena",
+      "Ana"
+    ],
+    "26-3": [
+      "Andrea K.",
+      "Sandra/Eliane",
+      "Elena"
+    ],
+    "27-3": [
+      "Ana",
+      "Andrea K.",
+      "Sandra/Eliane"
     ],
     "2-4": [
-      "Andrea M.",
-      "Seila",
-      "Martina"
+      "Martina",
+      "Rachel",
+      "Felix"
     ],
     "3-4": [
-      "Rachel",
-      "Felix",
-      "Andrea M."
+      "Andrea M.",
+      "Seila",
+      "Martina"
     ],
     "4-4": [
-      "Seila",
-      "Martina",
-      "Rachel"
+      "Rachel",
+      "Felix",
+      "Andrea M."
     ],
     "5-4": [
-      "Felix",
-      "Andrea M.",
-      "Seila"
+      "Seila",
+      "Martina",
+      "Rachel"
     ],
     "6-4": [
-      "Martina",
-      "Rachel",
-      "Felix"
+      "Felix",
+      "Andrea M.",
+      "Seila"
     ],
     "7-4": [
-      "Andrea M.",
-      "Seila",
-      "Martina"
+      "Martina",
+      "Rachel",
+      "Felix"
     ],
     "8-4": [
-      "Rachel",
-      "Felix",
-      "Andrea M."
+      "Andrea M.",
+      "Seila",
+      "Martina"
     ],
     "9-4": [
-      "Seila",
-      "Martina",
-      "Rachel"
+      "Rachel",
+      "Felix",
+      "Andrea M."
     ],
     "10-4": [
-      "Felix",
-      "Andrea M.",
-      "Seila"
+      "Seila",
+      "Martina",
+      "Rachel"
     ],
     "11-4": [
-      "Martina",
-      "Rachel",
-      "Felix"
+      "Felix",
+      "Andrea M.",
+      "Seila"
     ],
     "12-4": [
-      "Andrea M.",
-      "Seila",
-      "Martina"
+      "Martina",
+      "Rachel",
+      "Felix"
     ],
     "13-4": [
-      "Rachel",
-      "Felix",
-      "Andrea M."
+      "Andrea M.",
+      "Seila",
+      "Martina"
     ],
     "14-4": [
-      "Seila",
-      "Martina",
-      "Rachel"
+      "Rachel",
+      "Felix",
+      "Andrea M."
     ],
     "15-4": [
-      "Felix",
-      "Andrea M.",
-      "Seila"
+      "Seila",
+      "Martina",
+      "Rachel"
     ],
     "16-4": [
-      "Martina",
-      "Rachel",
-      "Felix"
+      "Felix",
+      "Andrea M.",
+      "Seila"
     ],
     "17-4": [
-      "Andrea M.",
-      "Seila",
-      "Martina"
+      "Martina",
+      "Rachel",
+      "Felix"
     ],
     "18-4": [
-      "Rachel",
-      "Felix",
-      "Andrea M."
+      "Andrea M.",
+      "Seila",
+      "Martina"
     ],
     "19-4": [
-      "Seila",
-      "Martina",
-      "Rachel"
-    ],
-    "20-4": [
-      "Felix",
-      "Andrea M.",
-      "Seila"
-    ],
-    "21-4": [
-      "Martina",
-      "Rachel",
-      "Felix"
-    ],
-    "22-4": [
-      "Andrea M.",
-      "Seila",
-      "Martina"
-    ],
-    "23-4": [
       "Rachel",
       "Felix",
       "Andrea M."
     ],
-    "24-4": [
+    "20-4": [
       "Seila",
       "Martina",
       "Rachel"
     ],
-    "25-4": [
+    "21-4": [
       "Felix",
       "Andrea M.",
       "Seila"
     ],
-    "26-4": [
+    "22-4": [
       "Martina",
       "Rachel",
       "Felix"
     ],
-    "27-4": [
+    "23-4": [
       "Andrea M.",
       "Seila",
       "Martina"
     ],
-    "1-5": [
-      "Nathanja",
-      "Therese",
-      "Aline/Nuria"
+    "24-4": [
+      "Rachel",
+      "Felix",
+      "Andrea M."
+    ],
+    "25-4": [
+      "Seila",
+      "Martina",
+      "Rachel"
+    ],
+    "26-4": [
+      "Felix",
+      "Andrea M.",
+      "Seila"
+    ],
+    "27-4": [
+      "Martina",
+      "Rachel",
+      "Felix"
     ],
     "2-5": [
-      "Christine",
       "Nathanja",
-      "Therese"
+      "Therese",
+      "Aline/Nuria"
     ],
     "3-5": [
-      "Aline/Nuria",
       "Christine",
-      "Nathanja"
+      "Nathanja",
+      "Therese"
     ],
     "4-5": [
-      "Therese",
       "Aline/Nuria",
-      "Christine"
+      "Christine",
+      "Nathanja"
     ],
     "5-5": [
-      "Nathanja",
       "Therese",
-      "Aline/Nuria"
+      "Aline/Nuria",
+      "Christine"
     ],
     "6-5": [
-      "Christine",
       "Nathanja",
-      "Therese"
+      "Therese",
+      "Aline/Nuria"
     ],
     "7-5": [
-      "Aline/Nuria",
       "Christine",
-      "Nathanja"
+      "Nathanja",
+      "Therese"
     ],
     "8-5": [
-      "Therese",
       "Aline/Nuria",
-      "Christine"
+      "Christine",
+      "Nathanja"
     ],
     "9-5": [
-      "Nathanja",
       "Therese",
-      "Aline/Nuria"
+      "Aline/Nuria",
+      "Christine"
     ],
     "10-5": [
-      "Christine",
       "Nathanja",
-      "Therese"
+      "Therese",
+      "Aline/Nuria"
     ],
     "11-5": [
-      "Aline/Nuria",
       "Christine",
-      "Nathanja"
+      "Nathanja",
+      "Therese"
     ],
     "12-5": [
-      "Therese",
       "Aline/Nuria",
-      "Christine"
+      "Christine",
+      "Nathanja"
     ],
     "13-5": [
-      "Nathanja",
       "Therese",
-      "Aline/Nuria"
+      "Aline/Nuria",
+      "Christine"
     ],
     "14-5": [
-      "Christine",
       "Nathanja",
-      "Therese"
+      "Therese",
+      "Aline/Nuria"
     ],
     "15-5": [
-      "Aline/Nuria",
       "Christine",
-      "Nathanja"
+      "Nathanja",
+      "Therese"
     ],
     "16-5": [
-      "Therese",
       "Aline/Nuria",
-      "Christine"
+      "Christine",
+      "Nathanja"
     ],
     "17-5": [
-      "Nathanja",
       "Therese",
-      "Aline/Nuria"
+      "Aline/Nuria",
+      "Christine"
     ],
     "18-5": [
-      "Christine",
       "Nathanja",
-      "Therese"
+      "Therese",
+      "Aline/Nuria"
     ],
     "19-5": [
-      "Aline/Nuria",
       "Christine",
-      "Nathanja"
+      "Nathanja",
+      "Therese"
     ],
     "20-5": [
-      "Therese",
       "Aline/Nuria",
-      "Christine"
+      "Christine",
+      "Nathanja"
     ],
     "21-5": [
-      "Nathanja",
-      "Therese",
-      "Aline/Nuria"
-    ],
-    "22-5": [
-      "Christine",
-      "Nathanja",
-      "Therese"
-    ],
-    "23-5": [
-      "Aline/Nuria",
-      "Christine",
-      "Nathanja"
-    ],
-    "24-5": [
       "Therese",
       "Aline/Nuria",
       "Christine"
     ],
-    "25-5": [
+    "22-5": [
       "Nathanja",
       "Therese",
       "Aline/Nuria"
     ],
-    "26-5": [
+    "23-5": [
       "Christine",
       "Nathanja",
       "Therese"
     ],
-    "27-5": [
+    "24-5": [
       "Aline/Nuria",
       "Christine",
       "Nathanja"
+    ],
+    "25-5": [
+      "Therese",
+      "Aline/Nuria",
+      "Christine"
+    ],
+    "26-5": [
+      "Nathanja",
+      "Therese",
+      "Aline/Nuria"
+    ],
+    "27-5": [
+      "Christine",
+      "Nathanja",
+      "Therese"
     ]
   },
   "teamSize": 3,
@@ -827,6 +802,11 @@
     "53-3",
     "53-4",
     "53-5",
+    "1-1",
+    "1-2",
+    "1-3",
+    "1-4",
+    "1-5",
     "29-1",
     "29-2",
     "29-3",
@@ -838,5 +818,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2025-12-22T07:30:24.324Z"
+  "lastUpdated": "2025-12-22T07:31:56.524Z"
 }
