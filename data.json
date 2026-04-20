@@ -1,11 +1,6 @@
 {
   "members": [
     {
-      "name": "Erestina",
-      "day": "Dienstag",
-      "interval": 1
-    },
-    {
       "name": "Kilian",
       "day": "Montag",
       "interval": 1
@@ -250,139 +245,116 @@
       "Marina"
     ],
     "2-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "3-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "4-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "5-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "6-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "7-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "9-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "10-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "11-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "12-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "13-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "14-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "17-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "18-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "19-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "20-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "21-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "22-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "23-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "24-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "25-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "26-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
     ],
     "27-2": [
-      "Erestina",
       "Simonne",
       "Peter",
       "Salome"
@@ -870,5 +842,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-04-20T12:57:32.471Z"
+  "lastUpdated": "2026-04-20T12:57:43.744Z"
 }
