@@ -109,6 +109,11 @@
       "name": "Melanie",
       "day": "Donnerstag",
       "interval": 1
+    },
+    {
+      "name": "Sarah",
+      "day": "Dienstag",
+      "interval": 1
     }
   ],
   "schedule": {
@@ -865,5 +870,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-04-20T12:43:16.846Z"
+  "lastUpdated": "2026-04-20T12:57:32.471Z"
 }
