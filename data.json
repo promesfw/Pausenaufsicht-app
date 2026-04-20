@@ -51,11 +51,6 @@
       "interval": 1
     },
     {
-      "name": "Aline/Nuria",
-      "day": "Freitag",
-      "interval": 1
-    },
-    {
       "name": "Andrea M.",
       "day": "Donnerstag",
       "interval": 1
@@ -666,127 +661,106 @@
     "2-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "3-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "4-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "6-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "7-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "9-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "10-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "11-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "12-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "13-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "17-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "18-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "19-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "20-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "21-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "22-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "23-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "24-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "25-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "26-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ],
     "27-5": [
       "Nathanja",
       "Therese",
-      "Aline/Nuria",
       "Christine"
     ]
   },
@@ -870,5 +844,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-04-20T13:14:43.752Z"
+  "lastUpdated": "2026-04-20T13:14:54.463Z"
 }
