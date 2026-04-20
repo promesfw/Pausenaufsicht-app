@@ -11,11 +11,6 @@
       "interval": 1
     },
     {
-      "name": "Martina",
-      "day": "Donnerstag",
-      "interval": 1
-    },
-    {
       "name": "Andrea K.",
       "day": "Mittwoch",
       "interval": 1
@@ -108,6 +103,11 @@
     {
       "name": "Ana",
       "day": "Mittwoch",
+      "interval": 1
+    },
+    {
+      "name": "Melanie",
+      "day": "Donnerstag",
       "interval": 1
     }
   ],
@@ -453,14 +453,12 @@
       "Andrea K."
     ],
     "2-4": [
-      "Martina",
       "Rachel",
       "Felix"
     ],
     "3-4": [
       "Andrea M.",
-      "Seila",
-      "Martina"
+      "Seila"
     ],
     "4-4": [
       "Rachel",
@@ -469,7 +467,6 @@
     ],
     "5-4": [
       "Seila",
-      "Martina",
       "Rachel"
     ],
     "6-4": [
@@ -478,14 +475,12 @@
       "Seila"
     ],
     "7-4": [
-      "Martina",
       "Rachel",
       "Felix"
     ],
     "9-4": [
       "Andrea M.",
-      "Seila",
-      "Martina"
+      "Seila"
     ],
     "10-4": [
       "Rachel",
@@ -494,7 +489,6 @@
     ],
     "11-4": [
       "Seila",
-      "Martina",
       "Rachel"
     ],
     "12-4": [
@@ -503,14 +497,12 @@
       "Seila"
     ],
     "13-4": [
-      "Martina",
       "Rachel",
       "Felix"
     ],
     "14-4": [
       "Andrea M.",
-      "Seila",
-      "Martina"
+      "Seila"
     ],
     "17-4": [
       "Rachel",
@@ -519,7 +511,6 @@
     ],
     "18-4": [
       "Seila",
-      "Martina",
       "Rachel"
     ],
     "19-4": [
@@ -528,14 +519,12 @@
       "Seila"
     ],
     "20-4": [
-      "Martina",
       "Rachel",
       "Felix"
     ],
     "21-4": [
       "Andrea M.",
-      "Seila",
-      "Martina"
+      "Seila"
     ],
     "22-4": [
       "Rachel",
@@ -544,7 +533,6 @@
     ],
     "23-4": [
       "Seila",
-      "Martina",
       "Rachel"
     ],
     "24-4": [
@@ -553,14 +541,12 @@
       "Seila"
     ],
     "25-4": [
-      "Martina",
       "Rachel",
       "Felix"
     ],
     "26-4": [
       "Andrea M.",
-      "Seila",
-      "Martina"
+      "Seila"
     ],
     "27-4": [
       "Rachel",
@@ -753,5 +739,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-01-12T15:09:44.349Z"
+  "lastUpdated": "2026-04-20T12:42:41.042Z"
 }
