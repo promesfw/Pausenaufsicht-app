@@ -66,11 +66,6 @@
       "interval": 1
     },
     {
-      "name": "Evelyne",
-      "day": "Montag",
-      "interval": 1
-    },
-    {
       "name": "Ana",
       "day": "Mittwoch",
       "interval": 1
@@ -106,79 +101,58 @@
       "Marina"
     ],
     "3-1": [
-      "Evelyne",
       "Marina"
     ],
-    "4-1": [
-      "Evelyne"
-    ],
+    "4-1": [],
     "5-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "6-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "7-1": [
       "Marina"
     ],
     "9-1": [
-      "Evelyne",
       "Marina"
     ],
-    "10-1": [
-      "Evelyne"
-    ],
+    "10-1": [],
     "11-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "12-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "13-1": [
       "Marina"
     ],
     "14-1": [
-      "Evelyne",
       "Marina"
     ],
-    "17-1": [
-      "Evelyne"
-    ],
+    "17-1": [],
     "18-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "19-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "20-1": [
       "Marina"
     ],
     "21-1": [
-      "Evelyne",
       "Marina"
     ],
-    "23-1": [
-      "Evelyne"
-    ],
+    "23-1": [],
     "24-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "25-1": [
-      "Marina",
-      "Evelyne"
+      "Marina"
     ],
     "26-1": [
       "Marina"
     ],
     "27-1": [
-      "Evelyne",
       "Marina"
     ],
     "2-2": [
@@ -802,5 +776,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-08-03T09:34:32.965Z"
+  "lastUpdated": "2026-08-03T09:34:40.196Z"
 }
