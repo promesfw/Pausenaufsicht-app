@@ -76,7 +76,7 @@
       "interval": 1
     },
     {
-      "name": "Evelyne",
+      "name": "Ana",
       "day": "Montag",
       "interval": 1
     },
@@ -113,25 +113,25 @@
       "Angela"
     ],
     "3-1": [
-      "Evelyne",
+      "Ana",
       "Meret",
       "Marina"
     ],
     "4-1": [
       "Angela",
-      "Evelyne",
+      "Ana",
       "Meret"
     ],
     "5-1": [
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "6-1": [
       "Meret",
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "7-1": [
       "Meret",
@@ -139,25 +139,25 @@
       "Angela"
     ],
     "9-1": [
-      "Evelyne",
+      "Ana",
       "Meret",
       "Marina"
     ],
     "10-1": [
       "Angela",
-      "Evelyne",
+      "Ana",
       "Meret"
     ],
     "11-1": [
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "12-1": [
       "Meret",
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "13-1": [
       "Meret",
@@ -165,25 +165,25 @@
       "Angela"
     ],
     "14-1": [
-      "Evelyne",
+      "Ana",
       "Meret",
       "Marina"
     ],
     "17-1": [
       "Angela",
-      "Evelyne",
+      "Ana",
       "Meret"
     ],
     "18-1": [
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "19-1": [
       "Meret",
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "20-1": [
       "Meret",
@@ -191,25 +191,25 @@
       "Angela"
     ],
     "21-1": [
-      "Evelyne",
+      "Ana",
       "Meret",
       "Marina"
     ],
     "23-1": [
       "Angela",
-      "Evelyne",
+      "Ana",
       "Meret"
     ],
     "24-1": [
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "25-1": [
       "Meret",
       "Marina",
       "Angela",
-      "Evelyne"
+      "Ana"
     ],
     "26-1": [
       "Meret",
@@ -217,7 +217,7 @@
       "Angela"
     ],
     "27-1": [
-      "Evelyne",
+      "Ana",
       "Meret",
       "Marina"
     ],
@@ -842,5 +842,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-08-03T09:41:21.263Z"
+  "lastUpdated": "2026-08-03T09:41:31.533Z"
 }
