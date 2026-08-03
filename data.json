@@ -1,11 +1,6 @@
 {
   "members": [
     {
-      "name": "Kilian",
-      "day": "Montag",
-      "interval": 1
-    },
-    {
       "name": "Andrea K.",
       "day": "Mittwoch",
       "interval": 1
@@ -13,11 +8,6 @@
     {
       "name": "Simonne",
       "day": "Dienstag",
-      "interval": 1
-    },
-    {
-      "name": "Mila",
-      "day": "Montag",
       "interval": 1
     },
     {
@@ -76,11 +66,6 @@
       "interval": 1
     },
     {
-      "name": "Esther",
-      "day": "Montag",
-      "interval": 1
-    },
-    {
       "name": "Evelyne",
       "day": "Montag",
       "interval": 1
@@ -113,135 +98,82 @@
   ],
   "schedule": {
     "2-1": [
-      "Kilian",
-      "Mila",
-      "Marina",
-      "Esther"
+      "Marina"
     ],
     "3-1": [
       "Evelyne",
-      "Kilian",
-      "Mila",
       "Marina"
     ],
     "4-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Evelyne"
     ],
     "5-1": [
       "Marina",
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Evelyne"
     ],
     "6-1": [
-      "Mila",
       "Marina",
-      "Esther",
       "Evelyne"
     ],
     "7-1": [
-      "Kilian",
-      "Mila",
-      "Marina",
-      "Esther"
+      "Marina"
     ],
     "9-1": [
       "Evelyne",
-      "Kilian",
-      "Mila",
       "Marina"
     ],
     "10-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Evelyne"
     ],
     "11-1": [
       "Marina",
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Evelyne"
     ],
     "12-1": [
-      "Mila",
       "Marina",
-      "Esther",
       "Evelyne"
     ],
     "13-1": [
-      "Kilian",
-      "Mila",
-      "Marina",
-      "Esther"
+      "Marina"
     ],
     "14-1": [
       "Evelyne",
-      "Kilian",
-      "Mila",
       "Marina"
     ],
     "17-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Evelyne"
     ],
     "18-1": [
       "Marina",
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Evelyne"
     ],
     "19-1": [
-      "Mila",
       "Marina",
-      "Esther",
       "Evelyne"
     ],
     "20-1": [
-      "Kilian",
-      "Mila",
-      "Marina",
-      "Esther"
+      "Marina"
     ],
     "21-1": [
       "Evelyne",
-      "Kilian",
-      "Mila",
       "Marina"
     ],
     "23-1": [
-      "Esther",
-      "Evelyne",
-      "Kilian",
-      "Mila"
+      "Evelyne"
     ],
     "24-1": [
       "Marina",
-      "Esther",
-      "Evelyne",
-      "Kilian"
+      "Evelyne"
     ],
     "25-1": [
-      "Mila",
       "Marina",
-      "Esther",
       "Evelyne"
     ],
     "26-1": [
-      "Kilian",
-      "Mila",
-      "Marina",
-      "Esther"
+      "Marina"
     ],
     "27-1": [
       "Evelyne",
-      "Kilian",
-      "Mila",
       "Marina"
     ],
     "2-2": [
@@ -865,5 +797,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-04-20T13:15:43.791Z"
+  "lastUpdated": "2026-08-03T09:34:20.253Z"
 }
