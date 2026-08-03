@@ -71,7 +71,7 @@
       "interval": 1
     },
     {
-      "name": "Esther",
+      "name": "Angela",
       "day": "Montag",
       "interval": 1
     },
@@ -110,7 +110,7 @@
     "2-1": [
       "Meret",
       "Marina",
-      "Esther"
+      "Angela"
     ],
     "3-1": [
       "Evelyne",
@@ -118,25 +118,25 @@
       "Marina"
     ],
     "4-1": [
-      "Esther",
+      "Angela",
       "Evelyne",
       "Meret"
     ],
     "5-1": [
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "6-1": [
       "Meret",
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "7-1": [
       "Meret",
       "Marina",
-      "Esther"
+      "Angela"
     ],
     "9-1": [
       "Evelyne",
@@ -144,25 +144,25 @@
       "Marina"
     ],
     "10-1": [
-      "Esther",
+      "Angela",
       "Evelyne",
       "Meret"
     ],
     "11-1": [
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "12-1": [
       "Meret",
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "13-1": [
       "Meret",
       "Marina",
-      "Esther"
+      "Angela"
     ],
     "14-1": [
       "Evelyne",
@@ -170,25 +170,25 @@
       "Marina"
     ],
     "17-1": [
-      "Esther",
+      "Angela",
       "Evelyne",
       "Meret"
     ],
     "18-1": [
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "19-1": [
       "Meret",
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "20-1": [
       "Meret",
       "Marina",
-      "Esther"
+      "Angela"
     ],
     "21-1": [
       "Evelyne",
@@ -196,25 +196,25 @@
       "Marina"
     ],
     "23-1": [
-      "Esther",
+      "Angela",
       "Evelyne",
       "Meret"
     ],
     "24-1": [
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "25-1": [
       "Meret",
       "Marina",
-      "Esther",
+      "Angela",
       "Evelyne"
     ],
     "26-1": [
       "Meret",
       "Marina",
-      "Esther"
+      "Angela"
     ],
     "27-1": [
       "Evelyne",
@@ -842,5 +842,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-08-03T09:36:08.965Z"
+  "lastUpdated": "2026-08-03T09:36:19.191Z"
 }
