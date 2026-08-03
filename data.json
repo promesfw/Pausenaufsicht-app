@@ -11,7 +11,7 @@
       "interval": 1
     },
     {
-      "name": "Mila",
+      "name": "Meret",
       "day": "Montag",
       "interval": 1
     },
@@ -108,19 +108,19 @@
   ],
   "schedule": {
     "2-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther"
     ],
     "3-1": [
       "Evelyne",
-      "Mila",
+      "Meret",
       "Marina"
     ],
     "4-1": [
       "Esther",
       "Evelyne",
-      "Mila"
+      "Meret"
     ],
     "5-1": [
       "Marina",
@@ -128,25 +128,25 @@
       "Evelyne"
     ],
     "6-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther",
       "Evelyne"
     ],
     "7-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther"
     ],
     "9-1": [
       "Evelyne",
-      "Mila",
+      "Meret",
       "Marina"
     ],
     "10-1": [
       "Esther",
       "Evelyne",
-      "Mila"
+      "Meret"
     ],
     "11-1": [
       "Marina",
@@ -154,25 +154,25 @@
       "Evelyne"
     ],
     "12-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther",
       "Evelyne"
     ],
     "13-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther"
     ],
     "14-1": [
       "Evelyne",
-      "Mila",
+      "Meret",
       "Marina"
     ],
     "17-1": [
       "Esther",
       "Evelyne",
-      "Mila"
+      "Meret"
     ],
     "18-1": [
       "Marina",
@@ -180,25 +180,25 @@
       "Evelyne"
     ],
     "19-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther",
       "Evelyne"
     ],
     "20-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther"
     ],
     "21-1": [
       "Evelyne",
-      "Mila",
+      "Meret",
       "Marina"
     ],
     "23-1": [
       "Esther",
       "Evelyne",
-      "Mila"
+      "Meret"
     ],
     "24-1": [
       "Marina",
@@ -206,19 +206,19 @@
       "Evelyne"
     ],
     "25-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther",
       "Evelyne"
     ],
     "26-1": [
-      "Mila",
+      "Meret",
       "Marina",
       "Esther"
     ],
     "27-1": [
       "Evelyne",
-      "Mila",
+      "Meret",
       "Marina"
     ],
     "2-2": [
@@ -842,5 +842,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-08-03T09:35:30.928Z"
+  "lastUpdated": "2026-08-03T09:36:08.965Z"
 }
