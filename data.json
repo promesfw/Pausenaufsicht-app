@@ -26,7 +26,7 @@
       "interval": 1
     },
     {
-      "name": "Felix",
+      "name": "Maria",
       "day": "Donnerstag",
       "interval": 1
     },
@@ -499,21 +499,21 @@
     ],
     "2-4": [
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila"
     ],
     "3-4": [
       "Melanie",
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M."
     ],
     "4-4": [
       "Seila",
       "Melanie",
       "Rachel",
-      "Felix"
+      "Maria"
     ],
     "5-4": [
       "Andrea M.",
@@ -522,28 +522,28 @@
       "Rachel"
     ],
     "6-4": [
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila",
       "Melanie"
     ],
     "7-4": [
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila"
     ],
     "9-4": [
       "Melanie",
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M."
     ],
     "10-4": [
       "Seila",
       "Melanie",
       "Rachel",
-      "Felix"
+      "Maria"
     ],
     "11-4": [
       "Andrea M.",
@@ -552,28 +552,28 @@
       "Rachel"
     ],
     "12-4": [
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila",
       "Melanie"
     ],
     "13-4": [
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila"
     ],
     "14-4": [
       "Melanie",
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M."
     ],
     "17-4": [
       "Seila",
       "Melanie",
       "Rachel",
-      "Felix"
+      "Maria"
     ],
     "18-4": [
       "Andrea M.",
@@ -582,28 +582,28 @@
       "Rachel"
     ],
     "19-4": [
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila",
       "Melanie"
     ],
     "20-4": [
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila"
     ],
     "21-4": [
       "Melanie",
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M."
     ],
     "22-4": [
       "Seila",
       "Melanie",
       "Rachel",
-      "Felix"
+      "Maria"
     ],
     "23-4": [
       "Andrea M.",
@@ -612,28 +612,28 @@
       "Rachel"
     ],
     "24-4": [
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila",
       "Melanie"
     ],
     "25-4": [
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M.",
       "Seila"
     ],
     "26-4": [
       "Melanie",
       "Rachel",
-      "Felix",
+      "Maria",
       "Andrea M."
     ],
     "27-4": [
       "Seila",
       "Melanie",
       "Rachel",
-      "Felix"
+      "Maria"
     ],
     "2-5": [
       "Nathanja",
@@ -842,5 +842,5 @@
     "30-4",
     "30-5"
   ],
-  "lastUpdated": "2026-08-03T09:38:37.595Z"
+  "lastUpdated": "2026-08-03T09:39:00.832Z"
 }
