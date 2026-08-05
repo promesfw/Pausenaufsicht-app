@@ -103,7 +103,7 @@
     {
       "name": "Sandra",
       "day": "Mittwoch",
-      "interval": 1
+      "interval": 2
     },
     {
       "name": "Corinne",
@@ -1273,5 +1273,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-08-05T19:04:30.990Z"
+  "lastUpdated": "2026-08-05T19:04:40.667Z"
 }
