@@ -123,126 +123,179 @@
   ],
   "schedule": {
     "33-1": [
-      "Angela"
+      "Angela",
+      "Ana",
+      "Erestina"
     ],
     "34-1": [
-      "Ana"
+      "Judith",
+      "Rahel",
+      "Angela"
     ],
     "35-1": [
-      "Angela",
-      "Ana"
+      "Ana",
+      "Erestina",
+      "Judith"
     ],
     "36-1": [
+      "Rahel",
       "Angela",
       "Ana"
     ],
     "37-1": [
-      "Angela"
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "38-1": [
-      "Ana"
+      "Angela",
+      "Ana",
+      "Erestina"
     ],
     "42-1": [
-      "Angela",
-      "Ana"
-    ],
-    "43-1": [
-      "Angela",
-      "Ana"
-    ],
-    "44-1": [
+      "Judith",
+      "Rahel",
       "Angela"
     ],
-    "45-1": [
+    "43-1": [
+      "Ana",
+      "Erestina",
+      "Judith"
+    ],
+    "44-1": [
+      "Rahel",
+      "Angela",
       "Ana"
+    ],
+    "45-1": [
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "46-1": [
       "Angela",
-      "Ana"
+      "Ana",
+      "Erestina"
     ],
     "47-1": [
-      "Angela",
-      "Ana"
-    ],
-    "49-1": [
+      "Judith",
+      "Rahel",
       "Angela"
     ],
+    "49-1": [
+      "Ana",
+      "Erestina",
+      "Judith"
+    ],
     "50-1": [
+      "Rahel",
+      "Angela",
       "Ana"
     ],
     "51-1": [
-      "Angela",
-      "Ana"
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "2-1": [
       "Angela",
-      "Ana"
+      "Ana",
+      "Erestina"
     ],
     "3-1": [
+      "Judith",
+      "Rahel",
       "Angela"
     ],
     "4-1": [
-      "Ana"
+      "Ana",
+      "Erestina",
+      "Judith"
     ],
     "5-1": [
+      "Rahel",
       "Angela",
       "Ana"
     ],
     "6-1": [
-      "Angela",
-      "Ana"
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "7-1": [
-      "Angela"
+      "Angela",
+      "Ana",
+      "Erestina"
     ],
     "9-1": [
-      "Ana"
+      "Judith",
+      "Rahel",
+      "Angela"
     ],
     "10-1": [
-      "Angela",
-      "Ana"
+      "Ana",
+      "Erestina",
+      "Judith"
     ],
     "11-1": [
+      "Rahel",
       "Angela",
       "Ana"
     ],
     "12-1": [
-      "Angela"
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "14-1": [
-      "Ana"
+      "Angela",
+      "Ana",
+      "Erestina"
     ],
     "17-1": [
-      "Angela",
-      "Ana"
-    ],
-    "18-1": [
-      "Angela",
-      "Ana"
-    ],
-    "19-1": [
+      "Judith",
+      "Rahel",
       "Angela"
     ],
-    "21-1": [
+    "18-1": [
+      "Ana",
+      "Erestina",
+      "Judith"
+    ],
+    "19-1": [
+      "Rahel",
+      "Angela",
       "Ana"
+    ],
+    "21-1": [
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "22-1": [
       "Angela",
-      "Ana"
+      "Ana",
+      "Erestina"
     ],
     "23-1": [
-      "Angela",
-      "Ana"
-    ],
-    "24-1": [
+      "Judith",
+      "Rahel",
       "Angela"
     ],
+    "24-1": [
+      "Ana",
+      "Erestina",
+      "Judith"
+    ],
     "25-1": [
+      "Rahel",
+      "Angela",
       "Ana"
     ],
     "26-1": [
-      "Angela",
-      "Ana"
+      "Erestina",
+      "Judith",
+      "Rahel"
     ],
     "33-2": [
       "Simonne",
@@ -625,23 +678,29 @@
       "Elena"
     ],
     "34-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "35-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Aline"
     ],
     "36-4": [
+      "Marina",
+      "Maria",
       "Aline"
     ],
     "37-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Marina"
     ],
     "38-4": [
-      "Aline"
+      "Maria",
+      "Aline",
+      "Marina"
     ],
     "42-4": [
       "Rachel",
@@ -649,23 +708,29 @@
       "Maria"
     ],
     "43-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "44-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Aline"
     ],
     "45-4": [
+      "Marina",
+      "Maria",
       "Aline"
     ],
     "46-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Marina"
     ],
     "47-4": [
-      "Aline"
+      "Maria",
+      "Aline",
+      "Marina"
     ],
     "48-4": [
       "Rachel",
@@ -673,23 +738,29 @@
       "Maria"
     ],
     "49-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "50-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Aline"
     ],
     "51-4": [
+      "Marina",
+      "Maria",
       "Aline"
     ],
     "52-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Marina"
     ],
     "2-4": [
-      "Aline"
+      "Maria",
+      "Aline",
+      "Marina"
     ],
     "3-4": [
       "Rachel",
@@ -697,23 +768,29 @@
       "Maria"
     ],
     "4-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "5-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Aline"
     ],
     "6-4": [
+      "Marina",
+      "Maria",
       "Aline"
     ],
     "7-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Marina"
     ],
     "9-4": [
-      "Aline"
+      "Maria",
+      "Aline",
+      "Marina"
     ],
     "10-4": [
       "Rachel",
@@ -721,23 +798,29 @@
       "Maria"
     ],
     "11-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "12-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Aline"
     ],
     "13-4": [
+      "Marina",
+      "Maria",
       "Aline"
     ],
     "14-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Marina"
     ],
     "17-4": [
-      "Aline"
+      "Maria",
+      "Aline",
+      "Marina"
     ],
     "19-4": [
       "Rachel",
@@ -745,23 +828,29 @@
       "Maria"
     ],
     "20-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "21-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Aline"
     ],
     "22-4": [
+      "Marina",
+      "Maria",
       "Aline"
     ],
     "23-4": [
       "Rachel",
       "Elena",
-      "Maria"
+      "Marina"
     ],
     "24-4": [
-      "Aline"
+      "Maria",
+      "Aline",
+      "Marina"
     ],
     "25-4": [
       "Rachel",
@@ -769,7 +858,9 @@
       "Maria"
     ],
     "26-4": [
-      "Aline"
+      "Aline",
+      "Marina",
+      "Maria"
     ],
     "33-5": [
       "Nathanja",
@@ -1026,5 +1117,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-11-02T08:30:58.775Z"
+  "lastUpdated": "2026-11-02T08:31:04.249Z"
 }
