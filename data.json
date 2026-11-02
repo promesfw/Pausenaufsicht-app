@@ -11,11 +11,6 @@
       "interval": 1
     },
     {
-      "name": "Meret",
-      "day": "Montag",
-      "interval": 1
-    },
-    {
       "name": "Nathanja",
       "day": "Freitag",
       "interval": 1
@@ -123,19 +118,16 @@
   ],
   "schedule": {
     "33-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "34-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "35-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "36-1": [
       "Marina/Eline",
@@ -143,19 +135,16 @@
       "Ana"
     ],
     "37-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "38-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "42-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "43-1": [
       "Marina/Eline",
@@ -163,19 +152,16 @@
       "Ana"
     ],
     "44-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "45-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "46-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "47-1": [
       "Marina/Eline",
@@ -183,19 +169,16 @@
       "Ana"
     ],
     "49-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "50-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "51-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "2-1": [
       "Marina/Eline",
@@ -203,19 +186,16 @@
       "Ana"
     ],
     "3-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "4-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "5-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "6-1": [
       "Marina/Eline",
@@ -223,19 +203,16 @@
       "Ana"
     ],
     "7-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "9-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "10-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "11-1": [
       "Marina/Eline",
@@ -243,19 +220,16 @@
       "Ana"
     ],
     "12-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "14-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "17-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "18-1": [
       "Marina/Eline",
@@ -263,19 +237,16 @@
       "Ana"
     ],
     "19-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "21-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "22-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "23-1": [
       "Marina/Eline",
@@ -283,19 +254,16 @@
       "Ana"
     ],
     "24-1": [
-      "Meret",
       "Marina/Eline",
       "Angela"
     ],
     "25-1": [
       "Ana",
-      "Meret",
       "Marina/Eline"
     ],
     "26-1": [
       "Angela",
-      "Ana",
-      "Meret"
+      "Ana"
     ],
     "33-2": [
       "Simonne",
@@ -1117,5 +1085,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-11-02T08:26:06.955Z"
+  "lastUpdated": "2026-11-02T08:26:31.167Z"
 }
