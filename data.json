@@ -76,11 +76,6 @@
       "interval": 1
     },
     {
-      "name": "Rebekka",
-      "day": "Donnerstag",
-      "interval": 1
-    },
-    {
       "name": "Kilian",
       "day": "Dienstag",
       "interval": 1
@@ -620,8 +615,7 @@
       "Elena"
     ],
     "34-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "35-4": [
       "Rachel",
@@ -629,8 +623,7 @@
       "Maria"
     ],
     "36-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "37-4": [
       "Rachel",
@@ -638,8 +631,7 @@
       "Maria"
     ],
     "38-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "42-4": [
       "Rachel",
@@ -647,8 +639,7 @@
       "Maria"
     ],
     "43-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "44-4": [
       "Rachel",
@@ -656,8 +647,7 @@
       "Maria"
     ],
     "45-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "46-4": [
       "Rachel",
@@ -665,8 +655,7 @@
       "Maria"
     ],
     "47-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "48-4": [
       "Rachel",
@@ -674,8 +663,7 @@
       "Maria"
     ],
     "49-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "50-4": [
       "Rachel",
@@ -683,8 +671,7 @@
       "Maria"
     ],
     "51-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "52-4": [
       "Rachel",
@@ -692,8 +679,7 @@
       "Maria"
     ],
     "2-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "3-4": [
       "Rachel",
@@ -701,8 +687,7 @@
       "Maria"
     ],
     "4-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "5-4": [
       "Rachel",
@@ -710,8 +695,7 @@
       "Maria"
     ],
     "6-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "7-4": [
       "Rachel",
@@ -719,8 +703,7 @@
       "Maria"
     ],
     "9-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "10-4": [
       "Rachel",
@@ -728,8 +711,7 @@
       "Maria"
     ],
     "11-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "12-4": [
       "Rachel",
@@ -737,8 +719,7 @@
       "Maria"
     ],
     "13-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "14-4": [
       "Rachel",
@@ -746,8 +727,7 @@
       "Maria"
     ],
     "17-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "19-4": [
       "Rachel",
@@ -755,8 +735,7 @@
       "Maria"
     ],
     "20-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "21-4": [
       "Rachel",
@@ -764,8 +743,7 @@
       "Maria"
     ],
     "22-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "23-4": [
       "Rachel",
@@ -773,8 +751,7 @@
       "Maria"
     ],
     "24-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "25-4": [
       "Rachel",
@@ -782,8 +759,7 @@
       "Maria"
     ],
     "26-4": [
-      "Aline",
-      "Rebekka"
+      "Aline"
     ],
     "33-5": [
       "Nathanja",
@@ -1040,5 +1016,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-11-02T08:28:16.163Z"
+  "lastUpdated": "2026-11-02T08:28:24.068Z"
 }
