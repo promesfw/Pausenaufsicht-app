@@ -109,6 +109,11 @@
       "name": "Judith",
       "day": "Montag",
       "interval": 1
+    },
+    {
+      "name": "Rahel",
+      "day": "Montag",
+      "interval": 1
     }
   ],
   "schedule": {
@@ -1016,5 +1021,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-11-02T08:28:24.068Z"
+  "lastUpdated": "2026-11-02T08:28:33.024Z"
 }
