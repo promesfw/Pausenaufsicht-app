@@ -26,11 +26,6 @@
       "interval": 1
     },
     {
-      "name": "Marina/Eline",
-      "day": "Montag",
-      "interval": 1
-    },
-    {
       "name": "Eliane",
       "day": "Freitag",
       "interval": 2
@@ -128,148 +123,122 @@
   ],
   "schedule": {
     "33-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "34-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "35-1": [
       "Angela",
       "Ana"
     ],
     "36-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "37-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "38-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "42-1": [
       "Angela",
       "Ana"
     ],
     "43-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "44-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "45-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "46-1": [
       "Angela",
       "Ana"
     ],
     "47-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "49-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "50-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "51-1": [
       "Angela",
       "Ana"
     ],
     "2-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "3-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "4-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "5-1": [
       "Angela",
       "Ana"
     ],
     "6-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "7-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "9-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "10-1": [
       "Angela",
       "Ana"
     ],
     "11-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "12-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "14-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "17-1": [
       "Angela",
       "Ana"
     ],
     "18-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "19-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "21-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "22-1": [
       "Angela",
       "Ana"
     ],
     "23-1": [
-      "Marina/Eline",
       "Angela",
       "Ana"
     ],
     "24-1": [
-      "Marina/Eline",
       "Angela"
     ],
     "25-1": [
-      "Ana",
-      "Marina/Eline"
+      "Ana"
     ],
     "26-1": [
       "Angela",
@@ -1095,5 +1064,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-11-02T08:27:10.381Z"
+  "lastUpdated": "2026-11-02T08:27:19.579Z"
 }
