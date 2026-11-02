@@ -119,6 +119,11 @@
       "name": "Erestina",
       "day": "Montag",
       "interval": 1
+    },
+    {
+      "name": "Judith",
+      "day": "Montag",
+      "interval": 1
     }
   ],
   "schedule": {
@@ -1090,5 +1095,5 @@
     "27-4",
     "27-5"
   ],
-  "lastUpdated": "2026-11-02T08:26:47.433Z"
+  "lastUpdated": "2026-11-02T08:27:10.381Z"
 }
